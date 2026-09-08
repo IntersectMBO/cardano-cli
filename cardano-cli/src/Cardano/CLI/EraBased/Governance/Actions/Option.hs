@@ -21,11 +21,12 @@ import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.Option.Flag (setDefault)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
-import Cardano.Ledger.BaseTypes (NonZero, PositiveInterval, nonZero)
+import Cardano.Ledger.BaseTypes (Milliseconds32 (..), NonZero, PositiveInterval, nonZero)
+import Cardano.Ledger.Plutus.ExUnits (OrdExUnits (..))
 
 import Data.Foldable
 import Data.Function ((&))
-import Data.Word (Word32)
+import Data.Word (Word16, Word32)
 import GHC.Natural (Natural)
 import Options.Applicative
 import Options.Applicative qualified as Opt
@@ -312,6 +313,112 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
     <*> convertToLedger id (optional pRefScriptCostStride)
     <*> convertToLedger id (optional pRefScriptCostMultiplier)
+    <*> convertToLedger id (optional pLeiosAnnouncementPeriodLength)
+    <*> convertToLedger id (optional pLeiosVotePeriodLength)
+    <*> convertToLedger id (optional pLeiosDiffusionPeriodLength)
+    <*> convertToLedger id (optional pLeiosCommitteeSize)
+    <*> convertToLedger toUnitIntervalOrErr (optional pLeiosQuorumStakeThreshold)
+    <*> convertToLedger id (optional pMaxEndorserBlockReferencesSize)
+    <*> convertToLedger id (optional pMaxEndorserBlockTxsSize)
+    <*> convertToLedger (OrdExUnits . toAlonzoExUnits) (optional pMaxEndorserBlockExecutionUnits)
+    <*> convertToLedger id (optional pMaxRefScriptSizePerEndorserBlock)
+
+pLeiosAnnouncementPeriodLength :: Parser Milliseconds32
+pLeiosAnnouncementPeriodLength =
+  Milliseconds32
+    <$> Opt.option
+      integralReader
+      ( mconcat
+          [ Opt.long "leios-announcement-period-length"
+          , Opt.metavar "MILLISECONDS"
+          , Opt.help "Length of the Leios announcement period, in milliseconds."
+          ]
+      )
+
+pLeiosVotePeriodLength :: Parser Milliseconds32
+pLeiosVotePeriodLength =
+  Milliseconds32
+    <$> Opt.option
+      integralReader
+      ( mconcat
+          [ Opt.long "leios-vote-period-length"
+          , Opt.metavar "MILLISECONDS"
+          , Opt.help "Length of the Leios voting period, in milliseconds."
+          ]
+      )
+
+pLeiosDiffusionPeriodLength :: Parser Milliseconds32
+pLeiosDiffusionPeriodLength =
+  Milliseconds32
+    <$> Opt.option
+      integralReader
+      ( mconcat
+          [ Opt.long "leios-diffusion-period-length"
+          , Opt.metavar "MILLISECONDS"
+          , Opt.help "Length of the Leios diffusion period, in milliseconds."
+          ]
+      )
+
+pLeiosCommitteeSize :: Parser Word16
+pLeiosCommitteeSize =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "leios-committee-size"
+      , Opt.metavar "WORD16"
+      , Opt.help "Number of seats on the Leios voting committee."
+      ]
+
+pLeiosQuorumStakeThreshold :: Parser Rational
+pLeiosQuorumStakeThreshold =
+  Opt.option readRational $
+    mconcat
+      [ Opt.long "leios-quorum-stake-threshold"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Fraction of committee stake required to certify an endorser block."
+      ]
+
+pMaxEndorserBlockReferencesSize :: Parser Word32
+pMaxEndorserBlockReferencesSize =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "max-endorser-block-references-size"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximum total size of the transaction references in an endorser block."
+      ]
+
+pMaxEndorserBlockTxsSize :: Parser Word32
+pMaxEndorserBlockTxsSize =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "max-endorser-block-txs-size"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximum total size of the transactions referenced by an endorser block."
+      ]
+
+pMaxEndorserBlockExecutionUnits :: Parser ExecutionUnits
+pMaxEndorserBlockExecutionUnits =
+  uncurry ExecutionUnits
+    <$> Opt.option
+      pairIntegralReader
+      ( mconcat
+          [ Opt.long "max-endorser-block-execution-units"
+          , Opt.metavar "(INT, INT)"
+          , Opt.help $
+              mconcat
+                [ "Max total script execution resource units allowed per endorser "
+                , "block. They are denominated as follows (steps, memory)."
+                ]
+          ]
+      )
+
+pMaxRefScriptSizePerEndorserBlock :: Parser Word32
+pMaxRefScriptSizePerEndorserBlock =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "max-ref-script-size-per-endorser-block"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximum total size of reference scripts per endorser block."
+      ]
 
 pMaxRefScriptSizePerBlock :: Parser Word32
 pMaxRefScriptSizePerBlock =
