@@ -22,6 +22,7 @@ import Cardano.Prelude qualified as Text
 import Prelude
 
 import Data.Validation
+import Data.Either qualified as Either
 
 data AnyCommitteeHotVerificationKey where
   AnyCommitteeHotVerificationKey :: VerificationKey CommitteeHotKey -> AnyCommitteeHotVerificationKey
@@ -34,11 +35,11 @@ readCommitteeHotBech32VerificationKeyText
   :: Text -> Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
 readCommitteeHotBech32VerificationKeyText committeeHot =
   let vkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyCommitteeHotVerificationKey
             <$> deserialiseFromBech32 committeeHot
       extendedVkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyCommitteeHotExtendedVerificationKey
             <$> deserialiseFromBech32 committeeHot
    in vkey <> extendedVkey
@@ -48,11 +49,11 @@ readCommitteeHotHexVerificationKeyText
 readCommitteeHotHexVerificationKeyText committeeHotText =
   let committeeHotBs = Text.encodeUtf8 committeeHotText
       vkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyCommitteeHotVerificationKey
             <$> deserialiseFromRawBytesHex committeeHotBs
       extendedVkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyCommitteeHotExtendedVerificationKey
             <$> deserialiseFromRawBytesHex committeeHotBs
    in vkey <> extendedVkey
