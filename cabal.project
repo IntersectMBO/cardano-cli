@@ -157,6 +157,8 @@ source-repository-package
     libs/cardano-ledger-core
     libs/cardano-protocol
     libs/cardano-protocol-tpraos
+    eras/byron/chain/executable-spec
+    eras/byron/ledger/executable-spec
     eras/shelley/impl
     eras/shelley/test-suite
     eras/shelley-ma/test-suite
