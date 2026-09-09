@@ -133,12 +133,12 @@ source-repository-package
   subdir:
     typed-protocols
 
--- Points to cardano-api/leios-prototype
+-- Points to origin/ch1bo/leios-pparam-updates
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: e32d8c07035283233fbdca4beeafbd78abc66512
-  --sha256: sha256-yYKuOUoIOvJy6872Sj3CruRT+UXfoQsqqaHXcYu8N1A=
+  tag: ed01aa0a8e3e069d2d4d4f47bd89a6ac68bd4e03
+  --sha256: sha256-ZUhGbDtte7/g92Z48kvCUdIOdSeaNjqhlMt21r8YlKY=
   subdir:
     cardano-api
     cardano-api-gen
