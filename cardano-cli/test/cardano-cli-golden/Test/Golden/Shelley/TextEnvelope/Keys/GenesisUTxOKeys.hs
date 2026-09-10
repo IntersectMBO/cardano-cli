@@ -2,7 +2,7 @@
 
 module Test.Golden.Shelley.TextEnvelope.Keys.GenesisUTxOKeys where
 
-import Cardano.Api (AsType (..), HasTextEnvelope (..))
+import Cardano.Api (AsType (..), textEnvelopeType)
 
 import Control.Monad (void)
 

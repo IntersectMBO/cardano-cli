@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1444
+kind:
+  - maintenance
+description: |
+  Pinned the cardano-keys extraction (IntersectMBO/cardano-keys#4) and its cardano-api adoption (IntersectMBO/cardano-api#1332) as temporary source-repository-packages, and adapted to the two API changes: `getKesPeriod` returns `KESPeriod` instead of `Word`, and `textEnvelopeType` is a free function rather than a class method.
