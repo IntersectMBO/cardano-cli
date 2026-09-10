@@ -79,6 +79,7 @@ import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
+import Cardano.Protocol.TPraos.OCert (unKESPeriod)
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -427,7 +428,7 @@ runQueryKesPeriodInfoCmd
        in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
 
     opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
-    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
+    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . unKESPeriod . getKesPeriod
 
     opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
     opCertEndKesPeriod gParams oCert =
