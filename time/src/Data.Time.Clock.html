@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE Safe #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="annot"><span class="hs-comment">-- | Types and functions for UTC and UT1</span></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.Time.Clock.html"><span class="hs-identifier">Data.Time.Clock</span></a></span><span> </span><span class="hs-special">(</span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Universal Time</span></span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><span class="hs-comment">-- | Time as measured by the Earth.</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.UniversalTime.html#UniversalTime"><span class="hs-identifier">UniversalTime</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Absolute intervals</span></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#DiffTime"><span class="hs-identifier">DiffTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#Picoseconds"><span class="hs-identifier">Picoseconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#Seconds"><span class="hs-identifier">Seconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#Minutes"><span class="hs-identifier">Minutes</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#Hours"><span class="hs-identifier">Hours</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#secondsToDiffTime"><span class="hs-identifier">secondsToDiffTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#picosecondsToDiffTime"><span class="hs-identifier">picosecondsToDiffTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html#diffTimeToPicoseconds"><span class="hs-identifier">diffTimeToPicoseconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="hs-comment">-- * UTC</span></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span>    </span><span class="hs-comment">-- | UTC is time as measured by a clock, corrected to keep pace with the earth by adding or removing</span><span>
+</span><span id="line-23"></span><span>    </span><span class="hs-comment">-- occasional seconds, known as \&quot;leap seconds\&quot;.</span><span>
+</span><span id="line-24"></span><span>    </span><span class="hs-comment">-- These corrections are not predictable and are announced with six month's notice.</span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-comment">-- No table of these corrections is provided, as any program compiled with it would become</span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-comment">-- out of date in six months.</span><span>
+</span><span id="line-27"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-28"></span><span>    </span><span class="hs-comment">-- If you don't care about leap seconds, use 'UTCTime' and 'NominalDiffTime' for your clock calculations,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="hs-comment">-- and you'll be fine.</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.UTCTime.html#UTCTime"><span class="hs-identifier">UTCTime</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html#NominalDiffTime"><span class="hs-identifier">NominalDiffTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-keyword">pattern</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html#Nominal"><span class="hs-identifier">Nominal</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html#secondsToNominalDiffTime"><span class="hs-identifier">secondsToNominalDiffTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html#nominalDiffTimeToSeconds"><span class="hs-identifier">nominalDiffTimeToSeconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html#nominalDay"><span class="hs-identifier">nominalDay</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.UTCDiff.html"><span class="hs-identifier">Data.Time.Clock.Internal.UTCDiff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.POSIX.html#getCurrentTime"><span class="hs-identifier">getCurrentTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="Data.Time.Clock.Internal.SystemTime.html#getTime_resolution"><span class="hs-identifier">getTime_resolution</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.DiffTime.html"><span class="hs-identifier">Data.Time.Clock.Internal.DiffTime</span></a></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.NominalDiffTime.html"><span class="hs-identifier">Data.Time.Clock.Internal.NominalDiffTime</span></a></span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.SystemTime.html"><span class="hs-identifier">Data.Time.Clock.Internal.SystemTime</span></a></span><span>
+</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.UTCDiff.html"><span class="hs-identifier">Data.Time.Clock.Internal.UTCDiff</span></a></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.UTCTime.html"><span class="hs-identifier">Data.Time.Clock.Internal.UTCTime</span></a></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.Internal.UniversalTime.html"><span class="hs-identifier">Data.Time.Clock.Internal.UniversalTime</span></a></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Clock.POSIX.html"><span class="hs-identifier">Data.Time.Clock.POSIX</span></a></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Parse.html"><span class="hs-identifier">Data.Time.Format.Parse</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.LocalTime.html"><span class="hs-identifier">Data.Time.LocalTime</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span></pre></body></html>
