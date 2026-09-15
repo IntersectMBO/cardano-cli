@@ -66,6 +66,28 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+-- Temporary, until the cardano-keys extraction lands in CHaP: the key layer
+-- extracted from cardano-api (IntersectMBO/cardano-keys#4) and the cardano-api
+-- change that adopts it (IntersectMBO/cardano-api#1332).
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-keys
+  tag: df20ae67e89920fdc65cd3c30a720dbcbf9e5344
+  subdir: cardano-keys
+  --sha256: sha256-TILlrhcfUOgVkrG5vi6QL8sjTaFvBKJIrnPvURG94A4=
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: a6fec2be2c931a8ebaeeb4ee934cc67c144eb29c
+  subdir: cardano-api
+  --sha256: sha256-Ox31/CCDgmHjLQDhJR9wG3DpRncZ331yp5v2pb7p/9k=
+
+constraints:
+  -- cardano-crypto-class caps crypton below 1.1; without this the GHC 9.14
+  -- solver greedily picks crypton 1.1.4 and cannot resolve the plan.
+  , crypton < 1.1
+
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
