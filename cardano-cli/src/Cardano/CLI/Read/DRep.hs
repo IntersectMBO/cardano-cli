@@ -22,6 +22,7 @@ import Cardano.Prelude qualified as Text
 import Prelude
 
 import Data.Validation
+import Data.Either qualified as Either
 
 data AnyDrepVerificationKey where
   AnyDrepVerificationKey :: VerificationKey DRepKey -> AnyDrepVerificationKey
@@ -32,10 +33,10 @@ deriving instance Show AnyDrepVerificationKey
 readDRepBech32VerificationKeyText :: Text -> Validation [Bech32DecodeError] AnyDrepVerificationKey
 readDRepBech32VerificationKeyText drep =
   let vkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyDrepVerificationKey <$> deserialiseFromBech32 drep
       extendedVkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyDrepExtendedVerificationKey <$> deserialiseFromBech32 drep
    in vkey <> extendedVkey
 
@@ -43,10 +44,10 @@ readDRepHexVerificationKeyText :: Text -> Validation [RawBytesHexError] AnyDrepV
 readDRepHexVerificationKeyText drepText =
   let drepBs = Text.encodeUtf8 drepText
       vkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyDrepVerificationKey <$> deserialiseFromRawBytesHex drepBs
       extendedVkey =
-        liftError return $
+        Either.either (Failure . return) Success $
           AnyDrepExtendedVerificationKey
             <$> deserialiseFromRawBytesHex drepBs
    in vkey <> extendedVkey
