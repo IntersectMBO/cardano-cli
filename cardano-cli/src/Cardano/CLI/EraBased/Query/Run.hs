@@ -43,7 +43,8 @@ import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Certificate
-  ( OperationalCertificate (..)
+  ( KESPeriod (..)
+  , OperationalCertificate (..)
   , PoolId
   , getKesPeriod
   , getOpCertCount
@@ -427,7 +428,7 @@ runQueryKesPeriodInfoCmd
        in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
 
     opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
-    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
+    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . unKESPeriod . getKesPeriod
 
     opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
     opCertEndKesPeriod gParams oCert =
