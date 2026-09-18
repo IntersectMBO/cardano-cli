@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.LocalStateQuery.html"><span class="hs-identifier">Cardano.CLI.LocalStateQuery</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.LocalStateQuery.html#checkNodeNetworkId"><span class="hs-identifier">checkNodeNetworkId</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.html"><span class="hs-identifier">Cardano.Api.Network</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Consensus</span></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier">throwCliError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.NodeNetworkIdMismatchError</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/Control.Exception.html"><span class="hs-identifier">Control.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.Exception.html#IOException"><span class="hs-identifier">IOException</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Exception.Base.html#try"><span class="hs-identifier">try</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.html#%3E%3D%3E"><span class="hs-operator">(&gt;=&gt;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html"><span class="hs-identifier">Control.Monad.Trans.Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html#MaybeT"><span class="hs-identifier">MaybeT</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Either.Extra</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">eitherToMaybe</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- | Check that the network id the CLI was given matches the network id in the</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- node's genesis, and throw a 'NodeNetworkIdMismatchError' otherwise. This is</span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- meant to be run once, before a command that talks to the node.</span><span>
+</span><span id="line-22"></span><span class="hs-comment">--</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- The node-to-client handshake only compares network magics, so a 'NetworkId'</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- with the right magic but the wrong tag (for example</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- @CARDANO_NODE_NETWORK_ID=764824073@ instead of @CARDANO_NODE_NETWORK_ID=mainnet@)</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- connects successfully and would otherwise make the CLI render addresses for</span><span>
+</span><span id="line-27"></span><span class="hs-comment">-- the wrong network.</span><span>
+</span><span id="line-28"></span><span class="hs-comment">--</span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- When there is no evidence of a mismatch (the node cannot be reached, it is</span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- still in the Byron era, or it does not support the necessary queries) the</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- check passes, and connection problems are left to be reported by the command</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- itself.</span><span>
+</span><span id="line-33"></span><span id="local-6989586621682069721"><span class="annot"><a href="Cardano.CLI.LocalStateQuery.html#checkNodeNetworkId"><span class="hs-identifier hs-type">checkNodeNetworkId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier hs-type">MonadIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682069721"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.IPC.Internal.html#LocalNodeConnectInfo"><span class="hs-identifier hs-type">LocalNodeConnectInfo</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621682069721"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-34"></span><span id="checkNodeNetworkId"><span class="annot"><span class="annottext">checkNodeNetworkId :: forall (m :: * -&gt; *). MonadIO m =&gt; LocalNodeConnectInfo -&gt; m ()
+</span><a href="Cardano.CLI.LocalStateQuery.html#checkNodeNetworkId"><span class="hs-identifier hs-var hs-var">checkNodeNetworkId</span></a></span></span><span> </span><span id="local-6989586621682069826"><span class="annot"><span class="annottext">LocalNodeConnectInfo
+</span><a href="#local-6989586621682069826"><span class="hs-identifier hs-var">connectInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621682069827"><span class="annot"><a href="#local-6989586621682069827"><span class="hs-identifier hs-var">result</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">IO (Either IOException (Either AcquiringFailure (Maybe NetworkId)))
+-&gt; m (Either
+        IOException (Either AcquiringFailure (Maybe NetworkId)))
+forall a. IO a -&gt; m a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO
+   (Either IOException (Either AcquiringFailure (Maybe NetworkId)))
+ -&gt; m (Either
+         IOException (Either AcquiringFailure (Maybe NetworkId))))
+-&gt; (IO (Either AcquiringFailure (Maybe NetworkId))
+    -&gt; IO
+         (Either IOException (Either AcquiringFailure (Maybe NetworkId))))
+-&gt; IO (Either AcquiringFailure (Maybe NetworkId))
+-&gt; m (Either
+        IOException (Either AcquiringFailure (Maybe NetworkId)))
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall e a. Exception e =&gt; IO a -&gt; IO (Either e a)
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Exception.Base.html#try"><span class="hs-identifier hs-var">try</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.Exception.html#IOException"><span class="hs-identifier hs-type">IOException</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either AcquiringFailure (Maybe NetworkId))
+ -&gt; m (Either
+         IOException (Either AcquiringFailure (Maybe NetworkId))))
+-&gt; IO (Either AcquiringFailure (Maybe NetworkId))
+-&gt; m (Either
+        IOException (Either AcquiringFailure (Maybe NetworkId)))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">LocalNodeConnectInfo
+-&gt; Target ChainPoint
+-&gt; LocalStateQueryExpr
+     BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
+-&gt; IO (Either AcquiringFailure (Maybe NetworkId))
+forall a.
+LocalNodeConnectInfo
+-&gt; Target ChainPoint
+-&gt; LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO a
+-&gt; IO (Either AcquiringFailure a)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.IPC.Internal.Monad.html#executeLocalStateQueryExpr"><span class="hs-identifier hs-var">executeLocalStateQueryExpr</span></a></span><span> </span><span class="annot"><span class="annottext">LocalNodeConnectInfo
+</span><a href="#local-6989586621682069826"><span class="hs-identifier hs-var">connectInfo</span></a></span><span> </span><span class="annot"><span class="annottext">Target ChainPoint
+forall point. Target point
+</span><span class="hs-identifier hs-var">Consensus.VolatileTip</span></span><span> </span><span class="annot"><span class="annottext">LocalStateQueryExpr
+  BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
+</span><a href="Cardano.CLI.LocalStateQuery.html#queryNodeNetworkId"><span class="hs-identifier hs-var">queryNodeNetworkId</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><a href="#local-6989586621682069827"><span class="hs-identifier hs-type">result</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621682069833"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069833"><span class="hs-identifier hs-var">nodeNetId</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069833"><span class="hs-identifier hs-var">nodeNetId</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; NetworkId -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Classes.html#%2F%3D"><span class="hs-operator hs-var">/=</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069835"><span class="hs-identifier hs-var">cliNetId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-41"></span><span>          </span><span class="annot"><span class="annottext">NodeNetworkIdMismatchError -&gt; m ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(NodeNetworkIdMismatchError -&gt; m ())
+-&gt; NodeNetworkIdMismatchError -&gt; m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; NetworkId -&gt; NodeNetworkIdMismatchError
+</span><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier hs-var">NodeNetworkIdMismatchError</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069835"><span class="hs-identifier hs-var">cliNetId</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069833"><span class="hs-identifier hs-var">nodeNetId</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><span class="annottext">Either IOException (Either AcquiringFailure (Maybe NetworkId))
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; m ()
+forall a. a -&gt; m a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-44"></span><span>  </span><span id="local-6989586621682069835"><span class="annot"><span class="annottext">cliNetId :: NetworkId
+</span><a href="#local-6989586621682069835"><span class="hs-identifier hs-var hs-var">cliNetId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LocalNodeConnectInfo -&gt; NetworkId
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.IPC.Internal.html#localNodeNetworkId"><span class="hs-identifier hs-var">localNodeNetworkId</span></a></span><span> </span><span class="annot"><span class="annottext">LocalNodeConnectInfo
+</span><a href="#local-6989586621682069826"><span class="hs-identifier hs-var">connectInfo</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- | The network id from the node's genesis, or 'Nothing' when it cannot be</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- obtained (the node is still in the Byron era, or it does not support the</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- necessary queries): the absence of an answer is not treated as a mismatch.</span><span>
+</span><span id="line-49"></span><span class="annot"><a href="Cardano.CLI.LocalStateQuery.html#queryNodeNetworkId"><span class="hs-identifier hs-type">queryNodeNetworkId</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.IPC.Internal.Monad.html#LocalStateQueryExpr"><span class="hs-identifier hs-type">LocalStateQueryExpr</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Block.html#BlockInMode"><span class="hs-identifier hs-type">BlockInMode</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Block.html#ChainPoint"><span class="hs-identifier hs-type">ChainPoint</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Query.Internal.Type.QueryInMode.html#QueryInMode"><span class="hs-identifier hs-type">QueryInMode</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span id="queryNodeNetworkId"><span class="annot"><span class="annottext">queryNodeNetworkId :: LocalStateQueryExpr
+  BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
+</span><a href="Cardano.CLI.LocalStateQuery.html#queryNodeNetworkId"><span class="hs-identifier hs-var hs-var">queryNodeNetworkId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MaybeT
+  (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+  NetworkId
+-&gt; LocalStateQueryExpr
+     BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
+forall (m :: * -&gt; *) a. MaybeT m a -&gt; m (Maybe a)
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html#runMaybeT"><span class="hs-identifier hs-var">runMaybeT</span></a></span><span> </span><span class="annot"><span class="annottext">(MaybeT
+   (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+   NetworkId
+ -&gt; LocalStateQueryExpr
+      BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId))
+-&gt; MaybeT
+     (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+     NetworkId
+-&gt; LocalStateQueryExpr
+     BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#AnyCardanoEra"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span> </span><span id="local-6989586621682069851"><span class="annot"><a href="#local-6989586621682069851"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">LocalStateQueryExpr
+  BlockInMode ChainPoint QueryInMode () IO (Maybe AnyCardanoEra)
+-&gt; MaybeT
+     (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+     AnyCardanoEra
+forall (m :: * -&gt; *) a. m (Maybe a) -&gt; MaybeT m a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html#MaybeT"><span class="hs-identifier hs-var">MaybeT</span></a></span><span> </span><span class="annot"><span class="annottext">(LocalStateQueryExpr
+   BlockInMode ChainPoint QueryInMode () IO (Maybe AnyCardanoEra)
+ -&gt; MaybeT
+      (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+      AnyCardanoEra)
+-&gt; LocalStateQueryExpr
+     BlockInMode ChainPoint QueryInMode () IO (Maybe AnyCardanoEra)
+-&gt; MaybeT
+     (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO)
+     AnyCardanoEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Either UnsupportedNtcVersionError AnyCardanoEra
+-&gt; Maybe AnyCardanoEra
+forall a b. Either a b -&gt; Maybe b
+</span><span class="hs-identifier hs-var">eitherToMaybe</span></span><span> </span><span class="annot"><span class="annottext">(Either UnsupportedNtcVersionError AnyCardanoEra
+ -&gt; Maybe AnyCardanoEra)
+-&gt; LocalStateQueryExpr
+     BlockInMode
+     ChainPoint
+     QueryInMode
+     ()
+     IO
+     (Either UnsupportedNtcVersionError AnyCardanoEra)
+-&gt; LocalStateQueryExpr
+     BlockInMode ChainPoint QueryInMode () IO (Maybe AnyCardanoEra)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">LocalStateQueryExpr
+  BlockInMode
+  ChainPoint
+  QueryInMode
+  ()
+  IO
+  (Either UnsupportedNtcVersionError AnyCardanoEra)
+forall block point r.
+LocalStateQueryExpr
+  block
+  point
+  QueryInMode
+  r
+  IO
+  (Either UnsupportedNtcVersionError AnyCardanoEra)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Query.Internal.Expr.html#queryCurrentEra"><span class="hs-identifier hs-var">queryCurrentEra</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621682069855"><span class="annot"><a href="#local-6989586621682069855"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html#MaybeT"><span class="hs-identifier hs-type">MaybeT</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#forEraMaybeEon"><span class="hs-identifier hs-type">forEraMaybeEon</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682069851"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span id="local-6989586621682069857"><span class="annot"><a href="#local-6989586621682069857"><span class="hs-identifier hs-var">genesisParameters</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Maybe.html#MaybeT"><span class="hs-identifier hs-type">MaybeT</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">eitherToMaybe</span></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.html#%3E%3D%3E"><span class="hs-operator hs-type">&gt;=&gt;</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">eitherToMaybe</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-type">&lt;$&gt;</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Query.Internal.Expr.html#queryGenesisParameters"><span class="hs-identifier hs-type">queryGenesisParameters</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682069855"><span class="hs-identifier hs-type">sbe</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Genesis.Internal.Parameters.html#protocolParamNetworkId"><span class="hs-identifier hs-var">protocolParamNetworkId</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682069857"><span class="hs-identifier hs-type">genesisParameters</span></a></span><span>
+</span><span id="line-56"></span></pre></body></html>
