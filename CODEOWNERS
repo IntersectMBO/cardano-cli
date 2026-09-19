@@ -1,12 +1,12 @@
 # Technical writers
-README.*                                                      @Jimbo4350 @newhoggy @carbolymer @palas @CarlosLopezDeLara
-cardano-cli/README.md                                         @Jimbo4350 @newhoggy @carbolymer @palas @CarlosLopezDeLara
+README.*                                                      @Jimbo4350 @carbolymer @palas @CarlosLopezDeLara
+cardano-cli/README.md                                         @Jimbo4350 @carbolymer @palas @CarlosLopezDeLara
 
-cabal.project                                                 @Jimbo4350 @newhoggy @carbolymer @palas
+cabal.project                                                 @Jimbo4350 @carbolymer @palas
 
 # General reviewers per PR
-#                        Jordan     John      Mateusz     Pablo  Kevin         Sam
-*                        @Jimbo4350 @newhoggy @carbolymer @palas @kevinhammond @disassembler
+#                        Jordan     Mateusz     Pablo  Kevin         Sam
+*                        @Jimbo4350 @carbolymer @palas @kevinhammond @disassembler
 
 # Specific reviewers for code pieces
 # NB - The last matching pattern takes precedence
