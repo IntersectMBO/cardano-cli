@@ -453,7 +453,7 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams)
+      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams (ShelleyLedgerEra ShelleyEra))
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
@@ -765,7 +765,7 @@ createPoolCredentials fmt dir = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !L.StakePoolParams
+  , dPoolParams :: !(L.StakePoolParams (ShelleyLedgerEra ShelleyEra))
   }
   deriving (Generic, NFData)
 
@@ -777,7 +777,7 @@ buildPoolParams
   -- ^ The index of the pool being built. Starts at 0.
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map. Starts at 0
-  -> ExceptT GenesisCmdError IO L.StakePoolParams
+  -> ExceptT GenesisCmdError IO (L.StakePoolParams (ShelleyLedgerEra ShelleyEra))
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -797,6 +797,7 @@ buildPoolParams nw dir index specifiedRelays = do
     L.StakePoolParams
       { L.sppId = L.hashKey poolColdVK
       , L.sppVrf = C.hashVerKeyVRF @StandardCrypto poolVrfVK
+      , L.sppBlsKey = L.SNothing
       , L.sppPledge = L.Coin 0
       , L.sppCost = L.Coin 0
       , L.sppMargin = minBound
@@ -826,7 +827,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.StakePoolParams
+  -> L.StakePoolParams (ShelleyLedgerEra ShelleyEra)
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -849,7 +850,7 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash L.StakePool, L.StakePoolParams)]
+  -> [(L.KeyHash L.StakePool, L.StakePoolParams (ShelleyLedgerEra ShelleyEra))]
   -- ^ Pool map
   -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
