@@ -665,12 +665,14 @@ runQueryPoolStateCmd
           era <- supportedEra cEra
 
           let beo = convert era
+              sbe = convert era
               poolFilter = case allOrOnlyPoolIds of
                 All -> Nothing
                 Only poolIds -> Just $ fromList poolIds
 
+          currentEpoch <- easyRunQuery (queryEpoch sbe)
           result <- easyRunQuery (queryPoolState beo poolFilter)
-          hoist liftIO $ writePoolState era outputFormat mOutFile result
+          hoist liftIO $ writePoolState era currentEpoch outputFormat mOutFile result
       )
       & fromEitherCIOCli
 
@@ -1172,16 +1174,18 @@ writeStakeSnapshots era outputFormat mOutFile qState = do
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
 writePoolState
   :: Exp.Era era
+  -> EpochNo
   -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
-writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
+writePoolState era currentEpoch outputFormat mOutFile serialisedCurrentEpochState = do
   poolState <-
     liftEither . first QueryCmdPoolStateDecodeError $
       decodePoolState (convert era) serialisedCurrentEpochState
 
-  let poolStates = mkPoolStates poolState :: Map (L.KeyHash L.StakePool) PoolParams
+  let poolStates =
+        mkPoolStates currentEpoch poolState :: Map (L.KeyHash L.StakePool) PoolParams
       output =
         outputFormat
           & ( id
