@@ -405,6 +405,7 @@ test-suite cardano-cli-test
     Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
+    Test.Cli.Debug.CheckPoolRegistration
     Test.Cli.FilePermissions
     Test.Cli.Governance.Committee
     Test.Cli.Governance.DRep
