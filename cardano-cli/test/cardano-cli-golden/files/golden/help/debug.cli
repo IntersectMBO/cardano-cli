@@ -1,6 +1,7 @@
 Usage: cardano-cli debug 
                            ( log-epoch-state
                            | check-node-configuration
+                           | check-pool-registration
                            | transaction
                            )
                            
@@ -17,4 +18,8 @@ Available commands:
                            command will not terminate.
   check-node-configuration Check hashes and paths of genesis files in the given
                            node configuration file.
+  check-pool-registration  Compare a stake pool registration certificate that
+                           has not been submitted yet against the pool's
+                           parameters on chain, and report what submitting it
+                           would change.
   transaction              Transaction commands

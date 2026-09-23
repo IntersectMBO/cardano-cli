@@ -29,6 +29,13 @@ data DebugCmdError
       -- ^ The actual hash (the hash found by hashing the genesis file)
       !Text
       -- ^ The expected hash (the hash mentioned in the configuration file)
+  | -- | @DebugNotAPoolRegistrationCertificate filepath found@ represents a file
+    -- that holds a certificate, but not a stake pool registration one.
+    DebugNotAPoolRegistrationCertificate
+      !FilePath
+      -- ^ The file path of the certificate
+      !Text
+      -- ^ What the file turned out to hold
   | DebugTxCmdError !TxCmdError
   deriving Show
 
@@ -49,4 +56,9 @@ instance Error DebugCmdError where
         <> pretty actualHash
         <> ", but the node configuration files states that this hash is expected: "
         <> pretty expectedHash
+    DebugNotAPoolRegistrationCertificate fp found ->
+      "The file "
+        <> pretty fp
+        <> " is not a stake pool registration certificate. It holds: "
+        <> pretty found
     DebugTxCmdError err -> renderTxCmdError err

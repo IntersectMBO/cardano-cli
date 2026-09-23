@@ -152,6 +152,9 @@ library
     Cardano.CLI.EraIndependent.Cip.Run
     Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
     Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run
+    Cardano.CLI.EraIndependent.Debug.CheckPoolRegistration.Command
+    Cardano.CLI.EraIndependent.Debug.CheckPoolRegistration.Internal.Diff
+    Cardano.CLI.EraIndependent.Debug.CheckPoolRegistration.Run
     Cardano.CLI.EraIndependent.Debug.Command
     Cardano.CLI.EraIndependent.Debug.LogEpochState.Command
     Cardano.CLI.EraIndependent.Debug.LogEpochState.Run
@@ -291,6 +294,7 @@ library
     prettyprinter-ansi-terminal,
     random,
     rio,
+    scientific,
     split,
     text,
     time,

@@ -1,0 +1,42 @@
+Usage: cardano-cli debug check-pool-registration 
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   --socket-path SOCKET_PATH
+                                                   --pool-registration-cert-file FILEPATH
+                                                   [ --output-json
+                                                   | --output-text
+                                                   | --output-yaml
+                                                   ]
+                                                   [--out-file FILEPATH]
+                                                   
+
+  Compare a stake pool registration certificate that has not been submitted yet
+  against the pool's parameters on chain, and report what submitting it would
+  change.
+
+Available options:
+  --cardano-mode           For talking to a node running in full Cardano mode
+                           (default).
+  --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
+                           (default: 21600)
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
+  --pool-registration-cert-file FILEPATH
+                           Input filepath of the stake pool registration
+                           certificate to check.
+  --output-json            Format check-pool-registration output to JSON.
+  --output-text            Format check-pool-registration output to TEXT
+                           (default).
+  --output-yaml            Format check-pool-registration output to YAML.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text

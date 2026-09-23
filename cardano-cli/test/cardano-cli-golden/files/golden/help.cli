@@ -8397,6 +8397,7 @@ Usage: cardano-cli latest transaction txid
 Usage: cardano-cli debug 
                            ( log-epoch-state
                            | check-node-configuration
+                           | check-pool-registration
                            | transaction
                            )
                            
@@ -8416,6 +8417,25 @@ Usage: cardano-cli debug check-node-configuration --node-configuration-file FILE
                                                     
 
   Check hashes and paths of genesis files in the given node configuration file.
+
+Usage: cardano-cli debug check-pool-registration 
+                                                   [--cardano-mode
+                                                     [--epoch-slots SLOTS]]
+                                                   ( --mainnet
+                                                   | --testnet-magic NATURAL
+                                                   )
+                                                   --socket-path SOCKET_PATH
+                                                   --pool-registration-cert-file FILEPATH
+                                                   [ --output-json
+                                                   | --output-text
+                                                   | --output-yaml
+                                                   ]
+                                                   [--out-file FILEPATH]
+                                                   
+
+  Compare a stake pool registration certificate that has not been submitted yet
+  against the pool's parameters on chain, and report what submitting it would
+  change.
 
 Usage: cardano-cli debug transaction view 
 

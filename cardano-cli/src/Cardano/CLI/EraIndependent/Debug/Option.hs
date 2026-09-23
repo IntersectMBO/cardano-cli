@@ -13,6 +13,7 @@ import Cardano.Api
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
+import Cardano.CLI.EraIndependent.Debug.CheckPoolRegistration.Command
 import Cardano.CLI.EraIndependent.Debug.Command
 import Cardano.CLI.EraIndependent.Debug.LogEpochState.Command
 import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
@@ -53,6 +54,15 @@ pDebugCmds envCli =
             Opt.progDesc
               "Check hashes and paths of genesis files in the given node configuration file."
     , Opt.hsubparser $
+        commandWithMetavar "check-pool-registration" $
+          Opt.info pCheckPoolRegistrationCmdArgs $
+            Opt.progDesc $
+              mconcat
+                [ "Compare a stake pool registration certificate that has not been submitted yet"
+                , " against the pool's parameters on chain, and report what submitting it would"
+                , " change."
+                ]
+    , Opt.hsubparser $
         commandWithMetavar "transaction" $
           Opt.info
             ( asum
@@ -79,6 +89,23 @@ pDebugCmds envCli =
     fmap DebugCheckNodeConfigurationCmd $
       CheckNodeConfigCmdArgs
         <$> pNodeConfigurationFileIn
+  pCheckPoolRegistrationCmdArgs :: Parser DebugCmds
+  pCheckPoolRegistrationCmdArgs =
+    fmap DebugCheckPoolRegistrationCmd $
+      CheckPoolRegistrationCmdArgs
+        <$> ( LocalNodeConnectInfo
+                <$> pConsensusModeParams
+                <*> pNetworkId envCli
+                <*> pSocketPath envCli
+            )
+        <*> pPoolRegistrationCertFileIn
+        <*> pFormatFlags
+          "check-pool-registration output"
+          [ flagFormatJson
+          , flagFormatText & setDefault
+          , flagFormatYaml
+          ]
+        <*> pMaybeOutputFile
   pTransactionView :: Parser DebugCmds
   pTransactionView =
     fmap DebugTransactionViewCmd $
@@ -90,6 +117,13 @@ pDebugCmds envCli =
           ]
         <*> pMaybeOutputFile
         <*> pInputTxOrTxBodyFile
+
+pPoolRegistrationCertFileIn :: Parser (File () In)
+pPoolRegistrationCertFileIn =
+  File
+    <$> parseFilePath
+      "pool-registration-cert-file"
+      "Input filepath of the stake pool registration certificate to check."
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =
