@@ -3982,6 +3982,15 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-ref-script-size-per-tx WORD32]
                                                                                   [--ref-script-cost-stride WORD32]
                                                                                   [--ref-script-cost-multiplier RATIONAL]
+                                                                                  [--leios-announcement-period-length MILLISECONDS]
+                                                                                  [--leios-vote-period-length MILLISECONDS]
+                                                                                  [--leios-diffusion-period-length MILLISECONDS]
+                                                                                  [--leios-committee-size WORD16]
+                                                                                  [--leios-quorum-stake-threshold RATIONAL]
+                                                                                  [--max-endorser-block-references-size WORD32]
+                                                                                  [--max-endorser-block-txs-size WORD32]
+                                                                                  [--max-endorser-block-execution-units (INT, INT)]
+                                                                                  [--max-ref-script-size-per-endorser-block WORD32]
                                                                                   [--cost-model-file FILE]
                                                                                   --out-file FILEPATH
                                                                                   
