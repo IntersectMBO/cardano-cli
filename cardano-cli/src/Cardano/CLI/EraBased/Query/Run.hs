@@ -48,6 +48,7 @@ import Cardano.Api.Experimental.Certificate
   , PoolId
   , getKesPeriod
   , getOpCertCount
+  , unKESPeriod
   )
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)

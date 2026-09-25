@@ -18,6 +18,7 @@ import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Hashes (DataHash)
 
@@ -139,7 +140,10 @@ readRefScript sbe = \case
   ReferenceScriptAnyEraNone -> pure L.SNothing
   ReferenceScriptAnyEra fp -> do
     script <- readFileScriptInAnyLang fp
-    pure $ maybe L.SNothing (L.SJust . toShelleyScript) (toScriptInEra sbe script)
+    -- Reject (rather than silently drop) a reference script whose language
+    -- the era does not support; see validateScriptSupportedInShelleyBasedEra.
+    scriptInEra <- fromEitherCli $ validateScriptSupportedInShelleyBasedEra sbe script
+    pure $ L.SJust (toShelleyScript scriptInEra)
 
 toTxOutValueInShelleyBasedEra
   :: ShelleyBasedEra era
