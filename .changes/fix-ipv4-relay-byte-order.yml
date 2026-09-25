@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1451
+kind:
+  - bugfix
+description: |
+  The IPv4 address of a stake pool's registered relay is no longer byte-reversed in stake pool registration certificates, in pool state query output, or in transaction view output; this is fixed by requiring cardano-ledger-binary 1.9.1.0 (#1442).

@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2026-07-30T07:30:12Z
-  , cardano-haskell-packages 2026-09-04T06:57:08Z
+  , cardano-haskell-packages 2026-09-24T00:08:56Z
 
 packages:
   cardano-cli
@@ -45,6 +45,9 @@ if os(windows)
   allow-newer: *:time
   -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
   constraints: network <3.2.8.0
+
+-- cardano-ledger-binary 1.9.0.0 reversed the byte order of relay IPv4 addresses (cardano-cli#1442)
+constraints: cardano-ledger-binary >=1.9.1
 
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
 -- especially as it brings in all kinds of complications for GHC.
