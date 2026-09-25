@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1452
+kind:
+  - feature
+description: |
+  Add `--*-plutus-script-v4` flags for Plutus V4 reference script witnesses (spending, minting, withdrawal, certificate, vote and proposal), matching the existing `v2` and `v3` flags.

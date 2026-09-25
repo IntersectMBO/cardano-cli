@@ -1140,7 +1140,9 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Voting.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
+        <*> ( plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
+                <|> plutusSLanguageP appendedPrefix L.SPlutusV4 "v4"
+            )
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1198,7 +1200,9 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Proposing.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
+        <*> ( plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
+                <|> plutusSLanguageP appendedPrefix L.SPlutusV4 "v4"
+            )
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1544,7 +1548,9 @@ pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP pr
 
 pAnyPlutusSLanguage :: String -> Parser AnySLanguage
 pAnyPlutusSLanguage prefix =
-  plutusSLanguageP prefix L.SPlutusV2 "v2" <|> plutusSLanguageP prefix L.SPlutusV3 "v3"
+  plutusSLanguageP prefix L.SPlutusV2 "v2"
+    <|> plutusSLanguageP prefix L.SPlutusV3 "v3"
+    <|> plutusSLanguageP prefix L.SPlutusV4 "v4"
 
 plutusSLanguageP
   :: L.PlutusLanguage lang
