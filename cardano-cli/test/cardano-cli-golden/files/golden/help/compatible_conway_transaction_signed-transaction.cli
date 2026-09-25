@@ -22,7 +22,9 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             )
                                                                             --proposal-execution-units (INT, INT)]
                                                                         | --proposal-tx-in-reference TX_IN
-                                                                          --proposal-plutus-script-v3
+                                                                          ( --proposal-plutus-script-v3
+                                                                          | --proposal-plutus-script-v4
+                                                                          )
                                                                           ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --proposal-reference-tx-in-redeemer-file JSON_FILE
                                                                           | --proposal-reference-tx-in-redeemer-value JSON_VALUE
@@ -38,7 +40,9 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             )
                                                                             --vote-execution-units (INT, INT)]
                                                                         | --vote-tx-in-reference TX_IN
-                                                                          --vote-plutus-script-v3
+                                                                          ( --vote-plutus-script-v3
+                                                                          | --vote-plutus-script-v4
+                                                                          )
                                                                           ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --vote-reference-tx-in-redeemer-file JSON_FILE
                                                                           | --vote-reference-tx-in-redeemer-value JSON_VALUE
@@ -63,6 +67,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                         | --certificate-tx-in-reference TX_IN
                                                                           ( --certificate-plutus-script-v2
                                                                           | --certificate-plutus-script-v3
+                                                                          | --certificate-plutus-script-v4
                                                                           )
                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
@@ -143,6 +148,8 @@ Available options:
                            input must have a plutus reference script attached.
   --proposal-plutus-script-v3
                            Specify a plutus script v3 reference script.
+  --proposal-plutus-script-v4
+                           Specify a plutus script v4 reference script.
   --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -174,6 +181,7 @@ Available options:
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --vote-plutus-script-v3  Specify a plutus script v3 reference script.
+  --vote-plutus-script-v4  Specify a plutus script v4 reference script.
   --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -221,6 +229,8 @@ Available options:
                            Specify a plutus script v2 reference script.
   --certificate-plutus-script-v3
                            Specify a plutus script v3 reference script.
+  --certificate-plutus-script-v4
+                           Specify a plutus script v4 reference script.
   --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.

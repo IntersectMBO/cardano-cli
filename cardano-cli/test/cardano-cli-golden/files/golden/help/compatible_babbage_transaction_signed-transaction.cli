@@ -31,6 +31,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                          | --certificate-tx-in-reference TX_IN
                                                                            ( --certificate-plutus-script-v2
                                                                            | --certificate-plutus-script-v3
+                                                                           | --certificate-plutus-script-v4
                                                                            )
                                                                            ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                            | --certificate-reference-tx-in-redeemer-file JSON_FILE
@@ -126,6 +127,8 @@ Available options:
                            Specify a plutus script v2 reference script.
   --certificate-plutus-script-v3
                            Specify a plutus script v3 reference script.
+  --certificate-plutus-script-v4
+                           Specify a plutus script v4 reference script.
   --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
