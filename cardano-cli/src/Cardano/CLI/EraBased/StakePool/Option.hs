@@ -18,7 +18,6 @@ import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
-import Cardano.CLI.EraIndependent.Node.Option (pBlsSigningKeyFile)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common (SigningKeyFile)
 
@@ -134,6 +133,13 @@ pStakePoolRegistrationCertificateCmd envCli = do
 pBlsSigningKeyFileForEra :: Exp.Era era -> Parser (Maybe (SigningKeyFile In))
 pBlsSigningKeyFileForEra Exp.ConwayEra = pure Nothing
 pBlsSigningKeyFileForEra Exp.DijkstraEra = Just <$> pBlsSigningKeyFile
+
+pBlsSigningKeyFile :: Parser (SigningKeyFile In)
+pBlsSigningKeyFile =
+  File
+    <$> parseFilePath
+      "bls-signing-key-file"
+      "Input filepath of the BLS signing key."
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
