@@ -47,6 +47,7 @@ import Cardano.Api.Experimental.Certificate
   , PoolId
   , getKesPeriod
   , getOpCertCount
+  , unKESPeriod
   )
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
@@ -427,7 +428,7 @@ runQueryKesPeriodInfoCmd
        in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
 
     opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
-    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
+    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . unKESPeriod . getKesPeriod
 
     opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
     opCertEndKesPeriod gParams oCert =

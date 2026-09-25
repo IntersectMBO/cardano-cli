@@ -2,7 +2,7 @@
 
 module Test.Golden.Shelley.TextEnvelope.Keys.GenesisDelegateKeys where
 
-import Cardano.Api (AsType (..), HasTextEnvelope (..))
+import Cardano.Api (AsType (..), textEnvelopeType)
 import Cardano.Api.Experimental.Certificate (AsType (AsOperationalCertificateIssueCounter))
 
 import Control.Monad (void)
