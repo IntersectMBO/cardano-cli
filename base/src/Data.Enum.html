@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE Safe #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE NoImplicitPrelude #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- Module      :  Data.Enum</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Copyright   :  (c) The University of Glasgow, 1992-2002</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- License     :  see libraries/base/LICENSE</span><span>
+</span><span id="line-9"></span><span class="hs-comment">--</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- Maintainer  :  ghc-devs@haskell.org</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- Stability   :  stable</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- Portability :  non-portable (GHC extensions)</span><span>
+</span><span id="line-13"></span><span class="hs-comment">--</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- The 'Enum' class.</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--</span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- @since 4.20.0.0</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.Enum.html"><span class="hs-identifier">Data.Enum</span></a></span><span>
+</span><span id="line-21"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#Enum"><span class="hs-identifier">Enum</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-pragma">{-# DEPRECATED</span><span> </span><span class="hs-pragma">&quot;Bounded should be imported from Data.Bounded&quot;</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-23"></span><span>      </span><span class="annot"><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#Bounded"><span class="hs-identifier">Bounded</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.Enum.html#enumerate"><span class="hs-identifier">enumerate</span></a></span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html"><span class="hs-identifier">GHC.Internal.Enum</span></a></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- | Returns a list of all values of an enum type</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- 'enumerate' is often used to list all values of a custom enum data structure, such as a custom Color enum below:</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- data Color = Yellow | Red | Blue</span><span>
+</span><span id="line-35"></span><span class="hs-comment">--     deriving (Enum, Bounded, Show)</span><span>
+</span><span id="line-36"></span><span class="hs-comment">--</span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- allColors :: [Color]</span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- allColors = enumerate</span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- -- Result: [Yellow, Red, Blue]</span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-41"></span><span class="hs-comment">--</span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- Note that you need to derive the 'Bounded' type class as well, only 'Enum' is not enough.</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- 'Enum' allows for sequential enumeration, while 'Bounded' provides the 'minBound' and 'maxBound' values.</span><span>
+</span><span id="line-44"></span><span class="hs-comment">--</span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- 'enumerate' is commonly used together with the TypeApplications syntax. Here is an example of using 'enumerate' to retrieve all values of the 'Ordering' type:</span><span>
+</span><span id="line-46"></span><span class="hs-comment">--</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- &gt;&gt; enumerate @Ordering</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- [LT, EQ, GT]</span><span>
+</span><span id="line-49"></span><span class="hs-comment">--</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- The '@' symbol here is provided by the TypeApplications language extension.</span><span>
+</span><span id="line-51"></span><span class="hs-comment">--</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- @since base-4.22.0.0</span><span>
+</span><span id="line-53"></span><span id="local-6989586621679160452"><span class="annot"><a href="Data.Enum.html#enumerate"><span class="hs-identifier hs-type">enumerate</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#Enum"><span class="hs-identifier hs-type">Enum</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679160452"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#Bounded"><span class="hs-identifier hs-type">Bounded</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679160452"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621679160452"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span></span><span>
+</span><span id="line-54"></span><span id="enumerate"><span class="annot"><span class="annottext">enumerate :: forall a. (Enum a, Bounded a) =&gt; [a]
+</span><a href="Data.Enum.html#enumerate"><span class="hs-identifier hs-var hs-var">enumerate</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">a
+forall a. Bounded a =&gt; a
+</span><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#minBound"><span class="hs-identifier hs-var">minBound</span></a></span><span> </span><span class="hs-glyph">..</span><span> </span><span class="annot"><span class="annottext">a
+forall a. Bounded a =&gt; a
+</span><a href="../../ghc-internal-9.1401.0-inplace/src/GHC.Internal.Enum.html#maxBound"><span class="hs-identifier hs-var">maxBound</span></a></span><span class="hs-special">]</span></pre></body></html>
