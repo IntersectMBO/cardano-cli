@@ -1,0 +1,7 @@
+description: |
+  Add new Leios parameters to create-protocol-parameters-update command
+  line options
+kind:
+  - feature
+pr: 1445
+project: cardano-cli
