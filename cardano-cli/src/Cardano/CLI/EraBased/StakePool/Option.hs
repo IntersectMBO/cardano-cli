@@ -1,9 +1,7 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.StakePool.Option
   ( pStakePoolCmds
@@ -100,20 +98,20 @@ pExpectedStakePoolMetadataHash =
   pExpectedHash (StakePoolMetadataHash . L.extractHash . L.castSafeHash) "stake pool metadata"
 
 pStakePoolRegistrationCertificateCmd
-  :: forall era
-   . IsEra era
+  :: IsEra era
   => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd envCli = do
+  let era = useEra
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolRegistrationCertificateCmd $
-          Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
+          Cmd.StakePoolRegistrationCertificateCmdArgs (convert era)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
-            <*> pBlsSigningKeyFileForEra @era
+            <*> pBlsSigningKeyFileForEra era
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
@@ -133,13 +131,9 @@ pStakePoolRegistrationCertificateCmd envCli = do
 
 -- | A pool registers its voting key from Dijkstra onwards, so the BLS signing
 -- key is mandatory there and not offered at all in earlier eras.
-pBlsSigningKeyFileForEra
-  :: forall era
-   . IsEra era
-  => Parser (Maybe (SigningKeyFile In))
-pBlsSigningKeyFileForEra = case useEra @era of
-  Exp.ConwayEra -> pure Nothing
-  Exp.DijkstraEra -> Just <$> pBlsSigningKeyFile
+pBlsSigningKeyFileForEra :: Exp.Era era -> Parser (Maybe (SigningKeyFile In))
+pBlsSigningKeyFileForEra Exp.ConwayEra = pure Nothing
+pBlsSigningKeyFileForEra Exp.DijkstraEra = Just <$> pBlsSigningKeyFile
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
