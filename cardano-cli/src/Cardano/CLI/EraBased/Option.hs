@@ -7,7 +7,6 @@ module Cardano.CLI.EraBased.Option
   )
 where
 
-import Cardano.Api (DijkstraEra)
 import Cardano.Api.Experimental
 
 import Cardano.CLI.Environment
