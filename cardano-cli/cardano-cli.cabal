@@ -429,6 +429,7 @@ test-suite cardano-cli-test
     Test.Cli.Run.Query
     Test.Cli.Shelley.Genesis.Create
     Test.Cli.Transaction.Build
+    Test.Cli.Transaction.SubTransaction
     Test.Cli.VerificationKey
 
   ghc-options:
@@ -488,6 +489,7 @@ test-suite cardano-cli-golden
     Test.Golden.CreateTestnetData
     Test.Golden.Debug.TransactionView
     Test.Golden.Dijkstra.Transaction.Assemble
+    Test.Golden.Dijkstra.Transaction.SubTransaction
     Test.Golden.ErrorsSpec
     Test.Golden.Genesis.Common
     Test.Golden.Governance.Action
