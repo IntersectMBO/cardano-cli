@@ -79,6 +79,7 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdSubTxByronWitnessUnsupported
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -185,6 +186,8 @@ renderTxCmdError = \case
   TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
   TxCmdDeprecatedEra e -> pretty e
+  TxCmdSubTxByronWitnessUnsupported ->
+    "Byron (bootstrap) witnesses are not supported for sub-transactions."
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->

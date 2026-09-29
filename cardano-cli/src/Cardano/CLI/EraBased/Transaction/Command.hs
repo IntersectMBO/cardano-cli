@@ -34,6 +34,7 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
@@ -55,6 +56,7 @@ data TransactionCmds era
   | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
+  | TransactionSubTransactionCmds !(SubTransactionCmds era)
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
@@ -347,3 +349,4 @@ renderTransactionCmds = \case
   TransactionCalculatePlutusScriptCostCmd{} -> "transaction calculate-plutus-script-cost"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"
+  TransactionSubTransactionCmds cmd -> renderSubTransactionCmds cmd
