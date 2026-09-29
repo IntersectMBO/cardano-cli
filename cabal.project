@@ -73,6 +73,15 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+-- TEMPORARY: sub-transaction type definitions, pending release of cardano-api
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: a84f8e2848fa9f09a375ff28f6b2b1a3e786e6e7
+  subdir:
+    cardano-api
+  --sha256: sha256-WSl5hxDasoREHbl5VmhckHolvF3rxZvJ35lIR+TQZuI=
+
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
   allow-newer:

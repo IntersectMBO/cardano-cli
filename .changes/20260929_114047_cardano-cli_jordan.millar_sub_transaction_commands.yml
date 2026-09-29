@@ -1,0 +1,9 @@
+project: cardano-cli
+
+pr: 1453
+
+kind:
+  - feature
+
+description: |
+  Add the Dijkstra-only `transaction sub-transaction` command group with `build-raw` (builds an unsigned sub-transaction from the Conway-era transaction options plus `--guard-key-hash`, `--guard-verification-key`, `--guard-verification-key-file` and `--guard-script-hash`), `sign` and `txid`, and add a repeatable `--sub-transaction FILE` option to `dijkstra transaction build-raw` that embeds signed sub-transactions in a top-level transaction. Sub-transactions are written as `Unwitnessed SubTx DijkstraEra` / `Witnessed SubTx DijkstraEra` text envelopes.

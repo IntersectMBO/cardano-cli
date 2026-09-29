@@ -1,0 +1,9 @@
+project: cardano-cli
+
+pr: 1453
+
+kind:
+  - maintenance
+
+description: |
+  Pin cardano-api to the sub-transaction type definitions commit and adapt to the cardano-keys API changes it brings in: getKesPeriod now returns the KESPeriod newtype and textEnvelopeType is a standalone function rather than a HasTextEnvelope method.
