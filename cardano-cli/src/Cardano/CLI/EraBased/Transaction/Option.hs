@@ -328,6 +328,7 @@ pTransactionBuildRaw =
       <*> pProposalFiles ManualBalance
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
+      <*> pSubTransactionFiles @era
       <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 

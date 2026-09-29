@@ -11,12 +11,14 @@
 {-# LANGUAGE TypeApplications #-}
 
 -- | Runners for Dijkstra sub-transactions: the @transaction sub-transaction@
--- command group.
+-- command group, and reading signed sub-transactions for embedding in a
+-- top-level transaction.
 module Cardano.CLI.EraBased.Transaction.SubTransaction.Run
   ( runSubTransactionCmds
   , runSubTransactionBuildRawCmd
   , runSubTransactionSignCmd
   , runSubTransactionTxIdCmd
+  , readSignedSubTransactions
   )
 where
 
@@ -50,10 +52,13 @@ import RIO hiding (toList)
 
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Data ((:~:) (..))
+import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.OSet.Strict (OSet)
 import Data.OSet.Strict qualified as OSet
 import Data.Set qualified as Set
+import Data.Type.Equality (TestEquality (..))
 import Vary qualified
 
 runSubTransactionCmds :: Cmd.SubTransactionCmds era -> CIO e ()
@@ -61,6 +66,32 @@ runSubTransactionCmds = \case
   Cmd.SubTransactionBuildRawCmd args -> runSubTransactionBuildRawCmd args
   Cmd.SubTransactionSignCmd args -> runSubTransactionSignCmd args
   Cmd.SubTransactionTxIdCmd args -> runSubTransactionTxIdCmd args
+
+-- | Read the signed sub-transactions named on the command line, checking that
+-- each is for the era of the transaction embedding it and that none is given
+-- twice (the ledger keys them by id, so a duplicate would silently collapse).
+readSignedSubTransactions
+  :: Exp.Era era
+  -> [SignedSubTxFile In]
+  -> CIO e [Exp.SignedSubTx era]
+readSignedSubTransactions eon subTransactionFiles = do
+  signedSubTxs <- forM subTransactionFiles $ \(File subTxPath) -> do
+    subTxFile <- liftIO $ fileOrPipe subTxPath
+    AnySignedSubTx subTxEra signedSubTx <-
+      fromEitherIOCli $ first TxCmdTextEnvError <$> readFileSignedSubTx subTxFile
+    case testEquality eon subTxEra of
+      Just Refl -> pure signedSubTx
+      Nothing ->
+        Exp.obtainCommonConstraints eon $
+          Exp.obtainCommonConstraints subTxEra $
+            throwCliError $
+              TxCmdSubTxEraMismatch
+                (AnyCardanoEra $ toCardanoEra eon)
+                (AnyCardanoEra $ toCardanoEra subTxEra)
+                subTxPath
+  case [i | (i : _ : _) <- List.group (List.sort (map Exp.getSignedSubTxId signedSubTxs))] of
+    duplicateId : _ -> throwCliError $ TxCmdDuplicateSubTransaction duplicateId
+    [] -> pure signedSubTxs
 
 runSubTransactionBuildRawCmd
   :: forall era e

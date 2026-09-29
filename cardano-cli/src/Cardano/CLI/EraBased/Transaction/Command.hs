@@ -95,6 +95,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
+  , subTransactionFiles :: ![SignedSubTxFile In]
+  -- ^ Signed sub-transactions to embed. Dijkstra era onwards; always empty in Conway.
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }

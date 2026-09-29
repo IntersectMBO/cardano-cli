@@ -5,9 +5,11 @@
 {-# LANGUAGE TypeApplications #-}
 
 -- | Parsers for Dijkstra sub-transactions: the @transaction sub-transaction@
--- command group.
+-- command group and the @--sub-transaction@ option with which a top-level
+-- transaction embeds signed sub-transactions.
 module Cardano.CLI.EraBased.Transaction.SubTransaction.Option
   ( pTransactionSubTransactionCmds
+  , pSubTransactionFiles
   )
 where
 
@@ -202,3 +204,15 @@ pInputSubTxFile =
     [ InputUnsignedSubTxFile <$> pUnsignedSubTxFileIn
     , InputSignedSubTxFile <$> pSignedSubTxFileIn
     ]
+
+-- | Signed sub-transactions to embed in a top-level transaction. Only Dijkstra
+-- has sub-transactions, so the option does not exist in Conway.
+pSubTransactionFiles :: forall era. Exp.IsEra era => Parser [SignedSubTxFile In]
+pSubTransactionFiles = case Exp.useEra @era of
+  Exp.ConwayEra -> pure []
+  Exp.DijkstraEra ->
+    many $
+      File
+        <$> parseFilePath
+          "sub-transaction"
+          "Filepath of a signed sub-transaction to embed in this transaction (zero or more)."
