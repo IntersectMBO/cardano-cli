@@ -140,6 +140,9 @@ library
     Cardano.CLI.EraBased.Transaction.Internal.HashCheck
     Cardano.CLI.EraBased.Transaction.Option
     Cardano.CLI.EraBased.Transaction.Run
+    Cardano.CLI.EraBased.Transaction.SubTransaction.Command
+    Cardano.CLI.EraBased.Transaction.SubTransaction.Option
+    Cardano.CLI.EraBased.Transaction.SubTransaction.Run
     Cardano.CLI.EraIndependent.Address.Command
     Cardano.CLI.EraIndependent.Address.Info.Run
     Cardano.CLI.EraIndependent.Address.Option

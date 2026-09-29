@@ -62,6 +62,7 @@ import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   , checkProposalHashes
   , checkVotingProcedureHashes
   )
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Run
 import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.LocalStateQuery (checkNodeNetworkId)
 import Cardano.CLI.Orphan ()
@@ -115,6 +116,7 @@ runTransactionCmds = \case
     runTransactionPolicyIdCmd args
   Cmd.TransactionWitnessCmd args -> fromExceptTCli $ runTransactionWitnessCmd args
   Cmd.TransactionSignWitnessCmd args -> fromExceptTCli $ runTransactionSignWitnessCmd args
+  Cmd.TransactionSubTransactionCmds cmd -> runSubTransactionCmds cmd
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
