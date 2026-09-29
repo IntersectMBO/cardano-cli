@@ -5450,6 +5450,7 @@ Usage: cardano-cli dijkstra transaction build-raw
                                                       ]]
                                                     [--current-treasury-value LOVELACE]
                                                     [--treasury-donation LOVELACE]
+                                                    [--sub-transaction FILEPATH]
                                                     [--out-canonical-cbor]
                                                     --out-file FILEPATH
                                                     

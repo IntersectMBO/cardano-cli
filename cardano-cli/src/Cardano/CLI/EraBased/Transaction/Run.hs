@@ -471,6 +471,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     txBodyContent <-
       fromEitherCli $
         constructTxBodyContent
+          []
           mScriptValidity
           (Just ledgerPParams)
           txInsAndMaybeScriptWits
@@ -601,9 +602,12 @@ runTransactionBuildRawCmd
     , proposalFiles
     , mCurrentTreasuryValue
     , mTreasuryDonation
+    , subTransactionFiles
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
+    signedSubTxs <- readSignedSubTransactions eon subTransactionFiles
+
     txInsAndMaybeScriptWits <-
       readSpendScriptWitnesses txIns
 
@@ -665,6 +669,7 @@ runTransactionBuildRawCmd
     txBody :: Exp.UnsignedTx (Exp.LedgerEra era) <-
       fromEitherCli $
         runTxBuildRaw
+          signedSubTxs
           mScriptValidity
           txInsAndMaybeScriptWits
           readOnlyRefIns
@@ -696,7 +701,9 @@ runTransactionBuildRawCmd
 
 runTxBuildRaw
   :: Exp.IsEra era
-  => Maybe ScriptValidity
+  => [Exp.SignedSubTx era]
+  -- ^ Signed sub-transactions to embed (Dijkstra era onwards)
+  -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
   -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ TxIn with potential script witness
@@ -733,6 +740,7 @@ runTxBuildRaw
   -- ^ Supplemental datums
   -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
 runTxBuildRaw
+  subTxs
   mScriptValidity
   inputsAndMaybeScriptWits
   readOnlyRefIns
@@ -757,6 +765,7 @@ runTxBuildRaw
   suppDatums = do
     txBodyContent <-
       constructTxBodyContent
+        subTxs
         mScriptValidity
         (fromShelleyLedgerPParamsShim Exp.useEra . unLedgerProtocolParameters <$> mpparams)
         inputsAndMaybeScriptWits
@@ -785,7 +794,9 @@ runTxBuildRaw
 constructTxBodyContent
   :: forall era
    . Exp.IsEra era
-  => Maybe ScriptValidity
+  => [Exp.SignedSubTx era]
+  -- ^ Signed sub-transactions to embed (Dijkstra era onwards)
+  -> Maybe ScriptValidity
   -> Maybe (L.PParams (Exp.LedgerEra era))
   -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ TxIn with potential script witness
@@ -826,6 +837,7 @@ constructTxBodyContent
   -- ^ Supplemental datums
   -> Either TxCmdError (Exp.TxBodyContent (Exp.LedgerEra era))
 constructTxBodyContent
+  subTxs
   mScriptValidity
   mPparams
   inputsAndMaybeScriptWits
@@ -912,6 +924,7 @@ constructTxBodyContent
             & maybe id Exp.setTxCurrentTreasuryValue validatedCurrentTreasuryValue
             & maybe id Exp.setTxTreasuryDonation validatedTreasuryDonation
             & Exp.setTxSupplementalDatums suppDatums
+            & Exp.setTxSignedSubTransactions subTxs
         )
 
 runTxBuild
@@ -1028,6 +1041,7 @@ runTxBuild
       txBodyContent <-
         hoistEither $
           constructTxBodyContent
+            []
             mScriptValidity
             (Just $ fromShelleyLedgerPParamsShim Exp.useEra $ unLedgerProtocolParameters pparams)
             inputsAndMaybeScriptWits
