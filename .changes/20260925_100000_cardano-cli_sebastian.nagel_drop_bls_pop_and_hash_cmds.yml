@@ -1,0 +1,16 @@
+project: cardano-cli
+
+pr: 1449
+
+kind:
+  - compatible
+
+description: |
+  Removed the `node issue-pop-BLS` and `node key-hash-BLS` commands. A pool's BLS
+  proof of possession is now built straight into the registration certificate from
+  the signing key given to `stake-pool registration-certificate
+  --bls-signing-key-file`, so there is no need to issue one as a standalone
+  artifact; a standalone BLS key hash was never needed at all.
+  Both commands shipped in 10.16.0.0 but no node release ever made use of
+  their output, so removing them breaks no existing workflow. `node key-gen-BLS` is
+  unaffected, and either command can be reinstated if a concrete use case turns up.
