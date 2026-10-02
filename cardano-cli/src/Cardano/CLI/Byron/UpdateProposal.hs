@@ -27,7 +27,7 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
-import Control.Tracer (stdoutTracer, traceWith)
+import Hermod.Tracing.API.Tracer (stdoutTracer, traceWith)
 
 runProposalCreation
   :: NetworkId

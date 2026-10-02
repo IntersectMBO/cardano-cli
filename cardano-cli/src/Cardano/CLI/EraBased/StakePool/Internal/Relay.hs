@@ -15,9 +15,10 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.Network.Ping qualified as Ping
 
 import Control.Monad
-import Control.Tracer (nullTracer, (>$<))
 import Data.ByteString.Char8 qualified as BSC
 import Data.IP (IP (IPv4, IPv6))
+
+import Hermod.Tracing.API.Tracer (nullTracer, (>$<))
 
 -- | Check that every relay is reachable, by connecting to it with
 -- 'Ping.pingClients''. Fails with the collected errors if any relay cannot be

@@ -1,0 +1,7 @@
+project: cardano-cli
+pr: 0
+kind:
+  - maintenance
+description: |
+  Use `hermod-tracing-api` instead of `contra-tracer`, as `cardano-diffusion`
+  (whose ping client the stake pool relay check uses) and `cardano-api` now do.

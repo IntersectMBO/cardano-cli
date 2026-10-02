@@ -27,8 +27,9 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Helper (ensureNewFileLBS)
 import Cardano.CLI.Type.Common
 
-import Control.Tracer (stdoutTracer, traceWith)
 import Data.ByteString qualified as BS
+
+import Hermod.Tracing.API.Tracer (stdoutTracer, traceWith)
 
 runVoteCreation
   :: NetworkId
