@@ -2,7 +2,7 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.Operational where
 
-import Cardano.Api (HasTextEnvelope (..))
+import Cardano.Api (textEnvelopeType)
 import Cardano.Api.Experimental.Certificate (AsType (AsOperationalCertificate))
 
 import Control.Monad (void)

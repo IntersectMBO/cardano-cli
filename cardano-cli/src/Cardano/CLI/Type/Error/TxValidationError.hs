@@ -11,6 +11,7 @@ module Cardano.CLI.Type.Error.TxValidationError
   ( TxAuxScriptsValidationError (..)
   , TxVotingError (..)
   , validateScriptSupportedInEra
+  , validateScriptSupportedInShelleyBasedEra
   , validateTxAuxScripts
   , validateRequiredSigners
   , validateTxScriptValidity
@@ -50,15 +51,22 @@ validateScriptSupportedInEra
   :: IsEra era
   => ScriptInAnyLang
   -> Either ScriptLanguageValidationError (ScriptInEra era)
-validateScriptSupportedInEra script@(ScriptInAnyLang lang _) =
-  let era = convert useEra
-   in case toScriptInEra era script of
-        Nothing ->
-          Left $
-            ScriptLanguageValidationError
-              (AnyScriptLanguage lang)
-              (anyCardanoEra $ toCardanoEra era)
-        Just script' -> pure script'
+validateScriptSupportedInEra = validateScriptSupportedInShelleyBasedEra $ convert useEra
+
+-- | As 'validateScriptSupportedInEra', but for call sites that only have a
+-- legacy 'ShelleyBasedEra' witness in scope (no 'IsEra' constraint).
+validateScriptSupportedInShelleyBasedEra
+  :: ShelleyBasedEra era
+  -> ScriptInAnyLang
+  -> Either ScriptLanguageValidationError (ScriptInEra era)
+validateScriptSupportedInShelleyBasedEra sbe script@(ScriptInAnyLang lang _) =
+  case toScriptInEra sbe script of
+    Nothing ->
+      Left $
+        ScriptLanguageValidationError
+          (AnyScriptLanguage lang)
+          (anyCardanoEra $ toCardanoEra sbe)
+    Just script' -> pure script'
 
 validateTxTotalCollateral
   :: IsEra era
