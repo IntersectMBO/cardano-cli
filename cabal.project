@@ -43,6 +43,13 @@ if os(windows)
   allow-newer: *:time
   -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
   constraints: network <3.2.8.0
+  -- cardano-config and kes-agent (pulled in by ouroboros-consensus 5.0 and
+  -- cardano-api) require network ^>=3.2.8, but they only need APIs that are
+  -- already in 3.2.7, so let them accept the WINE-compatible network pinned
+  -- above.
+  allow-older:
+    , cardano-config:network
+    , kes-agent:network
 
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
 -- especially as it brings in all kinds of complications for GHC.
