@@ -283,6 +283,20 @@
                 substituteInPlace cbits/unix.c src/unix/Time/Internal.hs \
                   --replace-fail hourglass_clock_calendar time_hourglass_clock_calendar
               '';
+              # cardano-addresses vendors cardano-crypto's C bits, so the two
+              # packages define 15 identical symbols (the ed25519 set, the
+              # wallet_encrypted_* wrappers, and two unprefixed helpers), which
+              # the GHC RTS linker likewise refuses. Namespace the vendored
+              # copy and make the file-local helpers static.
+              packages.cardano-addresses.postPatch = ''
+                substituteInPlace cbits/ed25519/ed25519.c cbits/ed25519/ed25519.h cbits/encrypted_sign.c \
+                  --replace-fail cardano_crypto_ cardano_addresses_
+                substituteInPlace cbits/encrypted_sign.c lib/Cardano/Address/Crypto/Wallet/Encrypted.hs \
+                  --replace-fail wallet_encrypted_ addresses_wallet_encrypted_
+                substituteInPlace cbits/encrypted_sign.c \
+                  --replace-fail 'void clear(void *buf' 'static void clear(void *buf' \
+                  --replace-fail 'void scalar_add_no_overflow(' 'static void scalar_add_no_overflow('
+              '';
             }
             # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
             ({
