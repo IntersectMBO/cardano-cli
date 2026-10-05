@@ -390,7 +390,8 @@ mkPoolStates
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
-      { poolParameters = (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
+      { poolParameters =
+          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
           (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials futurePp) <$> mDeposit
