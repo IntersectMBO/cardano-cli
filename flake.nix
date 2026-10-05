@@ -267,6 +267,11 @@
                 );
             })
             {
+              # haskell.nix's windows.nix points crypton-x509-system >=1.7 at a
+              # patch path that does not exist (missing ".patch" suffix); the
+              # postPatch below already applies the same Crypt32 -> crypt32
+              # rename, so drop the broken patch list.
+              packages.crypton-x509-system.patches = lib.mkForce [];
               packages.crypton-x509-system.postPatch = ''
                 substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
               '';
