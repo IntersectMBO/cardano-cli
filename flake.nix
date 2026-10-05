@@ -275,6 +275,14 @@
               packages.crypton-x509-system.postPatch = ''
                 substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
               '';
+              # hourglass (via dns) and its fork time-hourglass (via crypton)
+              # both define the C symbol hourglass_clock_calendar; the GHC RTS
+              # linker refuses the duplicate when it loads both for Template
+              # Haskell in cross-compiled builds. Rename the fork's copy.
+              packages.time-hourglass.postPatch = ''
+                substituteInPlace cbits/unix.c src/unix/Time/Internal.hs \
+                  --replace-fail hourglass_clock_calendar time_hourglass_clock_calendar
+              '';
             }
             # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
             ({
