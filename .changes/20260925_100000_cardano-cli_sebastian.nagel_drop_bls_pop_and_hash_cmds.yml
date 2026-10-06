@@ -1,6 +1,6 @@
 project: cardano-cli
 
-pr: 1449
+pr: 1439
 
 kind:
   - breaking
