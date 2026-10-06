@@ -31,8 +31,6 @@ module Cardano.CLI.Read
   , readTx -- For testing purposes
 
     -- * Sub-transactions
-  , AnyUnsignedSubTx (..)
-  , AnySignedSubTx (..)
   , readFileUnsignedSubTx
   , readFileSignedSubTx
 
@@ -342,21 +340,15 @@ fromSomeShelleyTx =
 
 -- Sub-transactions
 
--- | An unsigned Dijkstra sub-transaction read from a TextEnvelope, in whatever
--- era the envelope type named.
-data AnyUnsignedSubTx where
-  AnyUnsignedSubTx :: Exp.Era era -> Exp.UnsignedSubTx era -> AnyUnsignedSubTx
+-- Sub-transactions only exist in Dijkstra, so the envelope type fixes the era.
 
-data AnySignedSubTx where
-  AnySignedSubTx :: Exp.Era era -> Exp.SignedSubTx era -> AnySignedSubTx
-
-readFileUnsignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnyUnsignedSubTx)
+readFileUnsignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.UnsignedSubTx)
 readFileUnsignedSubTx =
-  readFileOrPipeTextEnvelopeAnyOf (Exp.unsignedSubTxFromSomeTypes AnyUnsignedSubTx)
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsUnsignedSubTx id]
 
-readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnySignedSubTx)
+readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.SignedSubTx)
 readFileSignedSubTx =
-  readFileOrPipeTextEnvelopeAnyOf (Exp.signedSubTxFromSomeTypes AnySignedSubTx)
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
 
 -- Tx witnesses
 

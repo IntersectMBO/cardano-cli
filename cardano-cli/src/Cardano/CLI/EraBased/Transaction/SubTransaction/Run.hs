@@ -52,55 +52,39 @@ import RIO hiding (toList)
 
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
-import Data.Data ((:~:) (..))
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.OSet.Strict (OSet)
 import Data.OSet.Strict qualified as OSet
 import Data.Set qualified as Set
-import Data.Type.Equality (TestEquality (..))
 import Vary qualified
 
-runSubTransactionCmds :: Cmd.SubTransactionCmds era -> CIO e ()
+runSubTransactionCmds :: Cmd.SubTransactionCmds -> CIO e ()
 runSubTransactionCmds = \case
   Cmd.SubTransactionBuildRawCmd args -> runSubTransactionBuildRawCmd args
   Cmd.SubTransactionSignCmd args -> runSubTransactionSignCmd args
   Cmd.SubTransactionTxIdCmd args -> runSubTransactionTxIdCmd args
 
 -- | Read the signed sub-transactions named on the command line, checking that
--- each is for the era of the transaction embedding it and that none is given
--- twice (the ledger keys them by id, so a duplicate would silently collapse).
+-- none is given twice (the ledger keys them by id, so a duplicate would
+-- silently collapse).
 readSignedSubTransactions
-  :: Exp.Era era
-  -> [SignedSubTxFile In]
-  -> CIO e [Exp.SignedSubTx era]
-readSignedSubTransactions eon subTransactionFiles = do
+  :: [SignedSubTxFile In]
+  -> CIO e [Exp.SignedSubTx]
+readSignedSubTransactions subTransactionFiles = do
   signedSubTxs <- forM subTransactionFiles $ \(File subTxPath) -> do
     subTxFile <- liftIO $ fileOrPipe subTxPath
-    AnySignedSubTx subTxEra signedSubTx <-
-      fromEitherIOCli $ first TxCmdTextEnvError <$> readFileSignedSubTx subTxFile
-    case testEquality eon subTxEra of
-      Just Refl -> pure signedSubTx
-      Nothing ->
-        Exp.obtainCommonConstraints eon $
-          Exp.obtainCommonConstraints subTxEra $
-            throwCliError $
-              TxCmdSubTxEraMismatch
-                (AnyCardanoEra $ toCardanoEra eon)
-                (AnyCardanoEra $ toCardanoEra subTxEra)
-                subTxPath
+    fromEitherIOCli $ first TxCmdTextEnvError <$> readFileSignedSubTx subTxFile
   case [i | (i : _ : _) <- List.group (List.sort (map Exp.getSignedSubTxId signedSubTxs))] of
     duplicateId : _ -> throwCliError $ TxCmdDuplicateSubTransaction duplicateId
     [] -> pure signedSubTxs
 
 runSubTransactionBuildRawCmd
-  :: forall era e
-   . Cmd.SubTransactionBuildRawCmdArgs era
+  :: Cmd.SubTransactionBuildRawCmdArgs
   -> CIO e ()
 runSubTransactionBuildRawCmd
   Cmd.SubTransactionBuildRawCmdArgs
-    { eon
-    , txIns
+    { txIns
     , readOnlyRefIns
     , txouts
     , mMintedAssets
@@ -118,17 +102,17 @@ runSubTransactionBuildRawCmd
     , mTreasuryDonation
     , guards
     , outFile
-    } = Exp.obtainCommonConstraints eon $ do
+    } = do
     txInsAndMaybeScriptWits <-
       readSpendScriptWitnesses txIns
 
-    certFilesAndMaybeScriptWits :: [(CertificateFile, Exp.AnyWitness (Exp.LedgerEra era))] <-
+    certFilesAndMaybeScriptWits :: [(CertificateFile, Exp.AnyWitness (Exp.LedgerEra Exp.DijkstraEra))] <-
       readCertificateScriptWitnesses certificates
 
     withdrawalsAndMaybeScriptWits <-
       mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
-      readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
+      readTxMetadata (convert eon) metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
@@ -149,26 +133,22 @@ runSubTransactionBuildRawCmd
         supplementalDatums = mconcat (map snd txOutsAndDatums)
 
     votingProceduresAndMaybeScriptWits <-
-      conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
+      conwayEraOnwardsConstraints (convert eon) $
         readVotingProceduresFiles voteFiles
 
     proposals <-
-      readTxGovernanceActions @era proposalFiles
+      readTxGovernanceActions @Exp.DijkstraEra proposalFiles
 
     certsAndMaybeScriptWits <-
       sequence
-        [ (,mSwit)
-            <$> ( obtainCommonConstraints eon $
-                    fromEitherIOCli $
-                      readFileTextEnvelope (File certFile)
-                )
+        [ (,mSwit) <$> fromEitherIOCli (readFileTextEnvelope (File certFile))
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
 
     guardCredentials <-
       mapM (readVerificationKeyOrHashOrFileOrScriptHash (\(PaymentKeyHash kh) -> coerceKeyRole kh)) guards
 
-    subTx <-
+    subTx :: Exp.SubTxBodyContent (Exp.LedgerEra Exp.DijkstraEra) <-
       fromEitherCli $
         constructSubTx
           pparams
@@ -190,12 +170,15 @@ runSubTransactionBuildRawCmd
           (OSet.fromList guardCredentials)
 
     unsignedSubTx <-
-      fromEitherCli $ first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedSubTx eon subTx
+      fromEitherCli $ first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedSubTx subTx
 
     fromEitherIOCli $ writeFileTextEnvelope outFile Nothing unsignedSubTx
+   where
+    eon :: Exp.Era Exp.DijkstraEra
+    eon = Exp.DijkstraEra
 
 -- | The sub-transaction analogue of 'constructTxBodyContent'. It shares the
--- value preparation but ends in a 'Exp.SubTx' setter chain, which has no fee,
+-- value preparation but builds a 'Exp.SubTxBodyContent', which has no fee,
 -- collateral, required signers or script validity, and adds guards.
 constructSubTx
   :: forall era
@@ -226,7 +209,7 @@ constructSubTx
   -- ^ Supplemental datums
   -> OSet (L.Credential L.Guard)
   -- ^ Guards
-  -> Either TxCmdError (Exp.SubTx (Exp.LedgerEra era))
+  -> Either TxCmdError (Exp.SubTxBodyContent (Exp.LedgerEra era))
 constructSubTx
   mPparams
   inputsAndMaybeScriptWits
@@ -269,25 +252,25 @@ constructSubTx
           Exp.mkTxVotingProcedures (convertVotingProcedures votingProcedures)
       let txProposals = [(obtainCommonConstraints (Exp.useEra @era) p, w) | (Proposal p, w) <- proposals]
       return
-        ( Exp.defaultSubTx
-            & Exp.setSubTxIns inputsAndMaybeScriptWits
-            & Exp.setSubTxInsReference refInputs
-            & Exp.setSubTxOuts txouts
-            & maybe id Exp.setSubTxValidityLowerBound mLowerBound
-            & maybe id Exp.setSubTxValidityUpperBound mUpperBound
-            & Exp.setSubTxMetadata expTxMetadata
-            & Exp.setSubTxAuxScripts auxScripts
-            & Exp.setSubTxWithdrawals (convertWithdrawals withdrawals)
-            & maybe id (Exp.setSubTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
-            & Exp.setSubTxCertificates
+        ( Exp.defaultSubTxBodyContent
+            & Exp.setTxIns inputsAndMaybeScriptWits
+            & Exp.setTxInsReference refInputs
+            & Exp.setTxOuts txouts
+            & maybe id Exp.setTxValidityLowerBound mLowerBound
+            & maybe id Exp.setTxValidityUpperBound mUpperBound
+            & Exp.setTxMetadata expTxMetadata
+            & Exp.setTxAuxScripts auxScripts
+            & Exp.setTxWithdrawals (convertWithdrawals withdrawals)
+            & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
+            & Exp.setTxCertificates
               (Exp.mkTxCertificates Exp.useEra certsAndMaybeScriptWits)
-            & Exp.setSubTxMintValue validatedMintValue
-            & Exp.setSubTxVotingProcedures validatedVotingProcedures
-            & Exp.setSubTxProposalProcedures (Exp.mkTxProposalProcedures txProposals)
-            & maybe id Exp.setSubTxCurrentTreasuryValue (unTxCurrentTreasuryValue <$> mCurrentTreasury)
-            & maybe id Exp.setSubTxTreasuryDonation (unTxTreasuryDonation <$> mTreasuryDonation)
-            & Exp.setSubTxSupplementalDatums suppDatums
-            & Exp.setSubTxGuards guards
+            & Exp.setTxMintValue validatedMintValue
+            & Exp.setTxVotingProcedures validatedVotingProcedures
+            & Exp.setTxProposalProcedures (Exp.mkTxProposalProcedures txProposals)
+            & maybe id Exp.setTxCurrentTreasuryValue (unTxCurrentTreasuryValue <$> mCurrentTreasury)
+            & maybe id Exp.setTxTreasuryDonation (unTxTreasuryDonation <$> mTreasuryDonation)
+            & Exp.setTxSupplementalDatums suppDatums
+            & Exp.setTxGuards guards
         )
 
 runSubTransactionSignCmd
@@ -309,15 +292,13 @@ runSubTransactionSignCmd
       throwCliError TxCmdSubTxByronWitnessUnsupported
 
     subTxFile <- liftIO $ fileOrPipe subTxFilePath
-    AnyUnsignedSubTx era unsigned <-
+    unsigned <-
       fromEitherIOCli $ first TxCmdTextEnvError <$> readFileUnsignedSubTx subTxFile
 
     let keyWits = map (Exp.makeSubTxKeyWitness unsigned) sksShelley
         signed = Exp.signSubTx [] keyWits unsigned
 
-    Exp.obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile Nothing signed
+    fromEitherIOCli $ writeFileTextEnvelope outFile Nothing signed
 
 runSubTransactionTxIdCmd
   :: Cmd.SubTransactionTxIdCmdArgs
@@ -331,12 +312,12 @@ runSubTransactionTxIdCmd
       case inputSubTxFile of
         InputUnsignedSubTxFile (File path) -> do
           file <- liftIO $ fileOrPipe path
-          AnyUnsignedSubTx _ unsigned <-
+          unsigned <-
             fromEitherIOCli $ first TxCmdTextEnvError <$> readFileUnsignedSubTx file
           pure $ Exp.getUnsignedSubTxId unsigned
         InputSignedSubTxFile (File path) -> do
           file <- liftIO $ fileOrPipe path
-          AnySignedSubTx _ signed <-
+          signed <-
             fromEitherIOCli $ first TxCmdTextEnvError <$> readFileSignedSubTx file
           pure $ Exp.getSignedSubTxId signed
 

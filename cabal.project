@@ -136,8 +136,8 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/input-output-hk/cardano-api
-  tag: d612005d7f4c9fecc6d21d1c126cdd4e9dff018f
-  --sha256: sha256-GutYJXYDYHCuTwFvq3ougPw7OtoiLvfSoZTv8QP838E=
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: c9943eb31ca918deb64cc5bc4949048749ed6303
+  --sha256: sha256-2we4ypKkedQYc7N+LVC2rdQGhqL9ll0wX9JTOiS8LPg=
   subdir:
     cardano-api

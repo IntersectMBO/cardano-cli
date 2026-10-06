@@ -80,14 +80,14 @@ pTransactionSubTransactionCmds =
                     Opt.progDesc "Print a sub-transaction identifier."
           ]
 
-pSubTransactionBuildRaw :: forall era. Exp.IsEra era => Parser (SubTransactionCmds era)
+pSubTransactionBuildRaw :: Parser SubTransactionCmds
 pSubTransactionBuildRaw =
   fmap SubTransactionBuildRawCmd $
-    SubTransactionBuildRawCmdArgs Exp.useEra
+    SubTransactionBuildRawCmdArgs
       <$> some (pTxIn ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxOut
-      <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
+      <*> (fmap join . optional $ pMintMultiAsset @Exp.DijkstraEra ManualBalance)
       <*> optional pInvalidBefore
       <*> optional pInvalidHereafterSlot
       <*> many (pCertificateFile ManualBalance)
@@ -103,7 +103,7 @@ pSubTransactionBuildRaw =
       <*> many pGuard
       <*> pUnsignedSubTxFileOut
 
-pSubTransactionSign :: Parser (SubTransactionCmds era)
+pSubTransactionSign :: Parser SubTransactionCmds
 pSubTransactionSign =
   fmap SubTransactionSignCmd $
     SubTransactionSignCmdArgs
@@ -111,7 +111,7 @@ pSubTransactionSign =
       <*> many pWitnessSigningData
       <*> pSignedSubTxFileOut
 
-pSubTransactionTxId :: Parser (SubTransactionCmds era)
+pSubTransactionTxId :: Parser SubTransactionCmds
 pSubTransactionTxId =
   fmap SubTransactionTxIdCmd $
     SubTransactionTxIdCmdArgs

@@ -606,7 +606,7 @@ runTransactionBuildRawCmd
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
-    signedSubTxs <- readSignedSubTransactions eon subTransactionFiles
+    signedSubTxs <- readSignedSubTransactions subTransactionFiles
 
     txInsAndMaybeScriptWits <-
       readSpendScriptWitnesses txIns
@@ -701,7 +701,7 @@ runTransactionBuildRawCmd
 
 runTxBuildRaw
   :: Exp.IsEra era
-  => [Exp.SignedSubTx era]
+  => [Exp.SignedSubTx]
   -- ^ Signed sub-transactions to embed (Dijkstra era onwards)
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -794,7 +794,7 @@ runTxBuildRaw
 constructTxBodyContent
   :: forall era
    . Exp.IsEra era
-  => [Exp.SignedSubTx era]
+  => [Exp.SignedSubTx]
   -- ^ Signed sub-transactions to embed (Dijkstra era onwards)
   -> Maybe ScriptValidity
   -> Maybe (L.PParams (Exp.LedgerEra era))
@@ -924,8 +924,16 @@ constructTxBodyContent
             & maybe id Exp.setTxCurrentTreasuryValue validatedCurrentTreasuryValue
             & maybe id Exp.setTxTreasuryDonation validatedTreasuryDonation
             & Exp.setTxSupplementalDatums suppDatums
-            & Exp.setTxSignedSubTransactions subTxs
+            & embedSubTransactions
         )
+   where
+    -- Sub-transactions only exist in Dijkstra. The parser does not accept
+    -- @--sub-transaction@ in Conway, so the list is empty there.
+    embedSubTransactions
+      :: Exp.TxBodyContent (Exp.LedgerEra era) -> Exp.TxBodyContent (Exp.LedgerEra era)
+    embedSubTransactions = case Exp.useEra @era of
+      Exp.ConwayEra -> id
+      Exp.DijkstraEra -> Exp.setTxSignedSubTransactions subTxs
 
 runTxBuild
   :: forall era

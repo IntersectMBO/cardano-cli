@@ -12,7 +12,6 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraBased.Script.Type
@@ -23,18 +22,18 @@ import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFileOrScriptHash)
 import Vary (Vary)
 
 -- | Commands for Dijkstra sub-transactions: the pieces a top-level
--- transaction embeds with @--sub-transaction@.
-data SubTransactionCmds era
-  = SubTransactionBuildRawCmd !(SubTransactionBuildRawCmdArgs era)
+-- transaction embeds with @--sub-transaction@. Sub-transactions only exist in
+-- Dijkstra, so these carry no era index.
+data SubTransactionCmds
+  = SubTransactionBuildRawCmd !SubTransactionBuildRawCmdArgs
   | SubTransactionSignCmd !SubTransactionSignCmdArgs
   | SubTransactionTxIdCmd !SubTransactionTxIdCmdArgs
 
 -- | Like 'TransactionBuildRawCmdArgs' for a sub-transaction body. A
 -- sub-transaction has no fee, collateral, required signers or script
 -- validity flag; guards replace required signers.
-data SubTransactionBuildRawCmdArgs era = SubTransactionBuildRawCmdArgs
-  { eon :: !(Exp.Era era)
-  , txIns :: ![(TxIn, Maybe AnySpendScript)]
+data SubTransactionBuildRawCmdArgs = SubTransactionBuildRawCmdArgs
+  { txIns :: ![(TxIn, Maybe AnySpendScript)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyRefIns :: ![TxIn]
   -- ^ Read only reference inputs
@@ -76,7 +75,7 @@ data SubTransactionTxIdCmdArgs = SubTransactionTxIdCmdArgs
   }
   deriving Show
 
-renderSubTransactionCmds :: SubTransactionCmds era -> Text
+renderSubTransactionCmds :: SubTransactionCmds -> Text
 renderSubTransactionCmds = \case
   SubTransactionBuildRawCmd{} -> "transaction sub-transaction build-raw"
   SubTransactionSignCmd{} -> "transaction sub-transaction sign"

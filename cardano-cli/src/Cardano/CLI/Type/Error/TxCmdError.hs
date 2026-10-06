@@ -79,8 +79,6 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
-  | -- | A sub-transaction file is for a different era than the transaction embedding it.
-    TxCmdSubTxEraMismatch !AnyCardanoEra !AnyCardanoEra !FilePath
   | -- | The same sub-transaction was given more than once.
     TxCmdDuplicateSubTransaction !TxId
   | TxCmdSubTxByronWitnessUnsupported
@@ -190,15 +188,6 @@ renderTxCmdError = \case
   TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
   TxCmdDeprecatedEra e -> pretty e
-  TxCmdSubTxEraMismatch era era' file ->
-    "The era of a sub-transaction does not match the era of the transaction. "
-      <> "The transaction is for the "
-      <> pretty era
-      <> " era, but the sub-transaction in "
-      <> pshow file
-      <> " is for the "
-      <> pretty era'
-      <> " era."
   TxCmdDuplicateSubTransaction subTxId ->
     "The sub-transaction with id "
       <> pretty (serialiseToRawBytesHexText subTxId)

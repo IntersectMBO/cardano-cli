@@ -56,7 +56,7 @@ data TransactionCmds era
   | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
-  | TransactionSubTransactionCmds !(SubTransactionCmds era)
+  | TransactionSubTransactionCmds !SubTransactionCmds
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
