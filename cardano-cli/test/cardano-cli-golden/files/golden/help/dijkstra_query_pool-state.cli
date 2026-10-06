@@ -15,7 +15,9 @@ Usage: cardano-cli dijkstra query pool-state
                                                [--out-file FILEPATH]
                                                
 
-  Dump the pool state
+  Dump the pool state. For pools that have registered a BLS voting key, the
+  bksRegisteredIn epoch reported is the current epoch rather than the epoch the
+  key was registered in, as the node does not expose that value yet.
 
 Available options:
   --cardano-mode           For talking to a node running in full Cardano mode

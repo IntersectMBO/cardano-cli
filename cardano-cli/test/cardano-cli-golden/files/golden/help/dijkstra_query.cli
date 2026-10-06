@@ -66,7 +66,11 @@ Available commands:
                            pool parameters
                            (Ledger.NewEpochState.esLState._delegationState._pState._pParams
                            -- advanced command)
-  pool-state               Dump the pool state
+  pool-state               Dump the pool state. For pools that have registered a
+                           BLS voting key, the bksRegisteredIn epoch reported is
+                           the current epoch rather than the epoch the key was
+                           registered in, as the node does not expose that value
+                           yet.
   proposals                Get the governance proposals that are eligible for
                            ratification. Proposals submitted during the current
                            epoch are excluded, as they cannot be ratified until

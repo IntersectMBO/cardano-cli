@@ -15,6 +15,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as MemberStatus (MemberStatus (..))
 import Cardano.Api.Experimental
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
@@ -169,12 +170,22 @@ pKesPeriodInfo envCli =
       Opt.info (pKesPeriodInfoCmd envCli) $
         Opt.progDesc "Get information about the current KES period and your node's operational certificate."
 
-pPoolState :: IsEra era => EnvCli -> Parser (QueryCmds era)
+poolStateDesc :: forall era. IsEra era => String
+poolStateDesc = case useEra @era of
+  Exp.ConwayEra -> "Dump the pool state"
+  Exp.DijkstraEra ->
+    mconcat
+      [ "Dump the pool state. For pools that have registered a BLS voting key, the "
+      , "bksRegisteredIn epoch reported is the current epoch rather than the epoch "
+      , "the key was registered in, as the node does not expose that value yet."
+      ]
+
+pPoolState :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pPoolState envCli =
   Opt.hsubparser $
     commandWithMetavar "pool-state" $
       Opt.info (pQueryPoolStateCmd envCli) $
-        Opt.progDesc "Dump the pool state"
+        Opt.progDesc (poolStateDesc @era)
 
 pTxMempool :: EnvCli -> Parser (QueryCmds era)
 pTxMempool envCli =
@@ -206,7 +217,8 @@ pQueryLedgerPeerSnapshot envCli =
 -- which must be re-exposed thru cardano-api
 
 pQueryCmds
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryCmds envCli =
@@ -271,7 +283,7 @@ pQueryCmds envCli =
         . Opt.hsubparser
         . commandWithMetavar "pool-state"
         . Opt.info (pQueryPoolStateCmd envCli)
-        $ Opt.progDesc "Dump the pool state"
+        $ Opt.progDesc (poolStateDesc @era)
     , pQueryProposalsCmd envCli
     , Just $
         Opt.hsubparser $
