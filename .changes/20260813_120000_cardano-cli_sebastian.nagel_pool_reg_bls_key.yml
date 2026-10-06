@@ -3,5 +3,5 @@ description: |
   Genesis pool parameters built by `genesis create-staked` and `genesis create-testnet-data` set the new ledger `sppBlsKey` field to `SNothing`.
 kind:
   - feature
-pr: 1423
+pr: 1439
 project: cardano-cli
