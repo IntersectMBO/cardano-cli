@@ -1,5 +1,32 @@
 # Changelog for cardano-cli
 
+## 11.3.0.0 -- 2026-10-07
+
+- The IPv4 address of a stake pool's registered relay is no longer byte-reversed in stake pool registration certificates, in pool state query output, or in transaction view output; this is fixed by requiring cardano-ledger-binary 1.9.1.0 (#1442).
+  (bugfix)
+  [PR 1451](https://github.com/intersectmbo/cardano-cli/pull/1451)
+
+- `stake-pool registration-certificate` can now register a stake pool's BLS voting key. The new `--bls-signing-key-file FILEPATH` option is era-gated: it is mandatory from the Dijkstra era onwards and not offered in Conway or earlier, so existing Conway invocations are unaffected. The signing key is read as a text envelope (produce one with `node key-gen-BLS`) and converted to the registered verification key plus proof of possession via `toLedgerBlsKey`.
+  Genesis pool parameters built by `genesis create-staked` and `genesis create-testnet-data` set the new ledger `sppBlsKey` field to `SNothing`.
+  (feature)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Fix Dijkstra era commands (BLS key generation, transaction witness/assemble) that were failing with "TODO DijkstraEra" because the era dispatch in runAnyEraCommand was unconditionally calling obtainCommonConstraints, which is not yet implemented for DijkstraEra. Commands that do not require EraCommonConstraints now work correctly for the Dijkstra era.
+  (bugfix)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Add new Leios parameters to create-protocol-parameters-update command line options
+  (feature)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Removed the `node issue-pop-BLS` and `node key-hash-BLS` commands. A pool's BLS proof of possession is now built straight into the registration certificate from the signing key given to `stake-pool registration-certificate --bls-signing-key-file`, so there is no need to issue one as a standalone artifact; a standalone BLS key hash was never needed at all. Both commands shipped in 10.16.0.0 but no node release ever made use of their output, so removing them breaks no existing workflow. `node key-gen-BLS` is unaffected, and either command can be reinstated if a concrete use case turns up.
+  (breaking)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Adapt to cardano-ledger-core 1.22, where `mkStakePoolState` stamps a pool's BLS voting key with the epoch its registration takes effect in. The pool-state query does not report that epoch yet, so `query pool-state` fills `bksRegisteredIn` with the epoch the parameters take effect in: the current epoch for the active parameters and the next one for the future parameters. The reported value is a placeholder until the ledger exposes the real one (https://github.com/IntersectMBO/cardano-ledger/issues/6147); the feature is not yet used on mainnet.
+  (compatible)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
 ## 11.2.3.1 -- 2026-09-04
 
 - Update cardano-api to 11.7.0.0, fixing plutus redeemer pointer indexing in transaction building: proposal pointers now follow the transaction's insertion order and certificate pointers count unwitnessed certificates.
