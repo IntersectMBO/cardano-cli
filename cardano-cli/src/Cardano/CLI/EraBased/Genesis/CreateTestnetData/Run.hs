@@ -453,7 +453,7 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams)
+      :: Delegation -> (L.KeyHash L.Staking, GenesisStakePoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
@@ -765,7 +765,7 @@ createPoolCredentials fmt dir = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !L.StakePoolParams
+  , dPoolParams :: !GenesisStakePoolParams
   }
   deriving (Generic, NFData)
 
@@ -777,7 +777,7 @@ buildPoolParams
   -- ^ The index of the pool being built. Starts at 0.
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map. Starts at 0
-  -> ExceptT GenesisCmdError IO L.StakePoolParams
+  -> ExceptT GenesisCmdError IO (L.StakePoolParams era)
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -802,6 +802,7 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.sppMargin = minBound
       , L.sppAccountAddress =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
+      , L.sppBlsKey = L.SNothing
       , L.sppOwners = mempty
       , L.sppRelays = lookupPoolRelay specifiedRelays
       , L.sppMetadata = L.SNothing
@@ -826,7 +827,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.StakePoolParams
+  -> GenesisStakePoolParams
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -849,7 +850,7 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash L.StakePool, L.StakePoolParams)]
+  -> [(L.KeyHash L.StakePool, GenesisStakePoolParams)]
   -- ^ Pool map
   -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map

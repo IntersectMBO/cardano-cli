@@ -10,6 +10,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Certificate (Hash (StakePoolMetadataHash), StakePoolMetadata)
 import Cardano.Api.Ledger qualified as L
 
@@ -18,6 +19,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.Parser
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Data.Foldable qualified as F
 import Options.Applicative hiding (help, str)
@@ -99,14 +101,16 @@ pStakePoolRegistrationCertificateCmd
   => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd envCli = do
+  let era = useEra
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolRegistrationCertificateCmd $
-          Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
+          Cmd.StakePoolRegistrationCertificateCmdArgs (convert era)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
+            <*> pBlsSigningKeyFileForEra era
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
@@ -123,6 +127,19 @@ pStakePoolRegistrationCertificateCmd envCli = do
             <*> pOutputFile
       )
     $ Opt.progDesc "Create a stake pool registration certificate"
+
+-- | A pool registers its voting key from Dijkstra onwards, so the BLS signing
+-- key is mandatory there and not offered at all in earlier eras.
+pBlsSigningKeyFileForEra :: Exp.Era era -> Parser (Maybe (SigningKeyFile In))
+pBlsSigningKeyFileForEra Exp.ConwayEra = pure Nothing
+pBlsSigningKeyFileForEra Exp.DijkstraEra = Just <$> pBlsSigningKeyFile
+
+pBlsSigningKeyFile :: Parser (SigningKeyFile In)
+pBlsSigningKeyFile =
+  File
+    <$> parseFilePath
+      "bls-signing-key-file"
+      "Input filepath of the BLS signing key."
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))

@@ -371,8 +371,20 @@ data PoolParams = PoolParams
   }
   deriving Show
 
-mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
+-- | The current epoch is needed to reconstruct a 'L.StakePoolState' from the
+-- query result. 'L.QueryPoolStateResult' does not report the epoch in which a
+-- pool's BLS voting key was registered, so the epoch in which the parameters
+-- take effect is used instead: the current epoch for the active parameters and
+-- the next one for the future parameters, which @POOLREAP@ activates at the
+-- epoch boundary. This only affects pools that have registered a BLS key, and
+-- it means the @bksRegisteredIn@ field in the @query pool-state@ output is a
+-- placeholder.
+--
+-- TODO: use the real registration epoch once the ledger exposes it through a
+-- query. See https://github.com/IntersectMBO/cardano-ledger/issues/6147.
+mkPoolStates :: EpochNo -> PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
 mkPoolStates
+  currentEpoch
   ( PoolState
       ( L.QueryPoolStateResult
           { L.qpsrStakePoolParams
@@ -385,10 +397,13 @@ mkPoolStates
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
-      { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
+      { poolParameters =
+          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (\deposit -> L.mkStakePoolState deposit stakingCredentials futurePp) <$> mDeposit
+          -- Future parameters only take effect at the next epoch boundary.
+          (\deposit -> L.mkStakePoolState (succ currentEpoch) deposit stakingCredentials futurePp)
+            <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 

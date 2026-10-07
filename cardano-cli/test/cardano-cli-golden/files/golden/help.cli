@@ -3983,6 +3983,15 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-ref-script-size-per-tx WORD32]
                                                                                   [--ref-script-cost-stride WORD32]
                                                                                   [--ref-script-cost-multiplier RATIONAL]
+                                                                                  [--leios-announcement-period-length MILLISECONDS]
+                                                                                  [--leios-vote-period-length MILLISECONDS]
+                                                                                  [--leios-diffusion-period-length MILLISECONDS]
+                                                                                  [--leios-committee-size WORD16]
+                                                                                  [--leios-quorum-stake-threshold RATIONAL]
+                                                                                  [--max-endorser-block-references-size WORD32]
+                                                                                  [--max-endorser-block-txs-size WORD32]
+                                                                                  [--max-endorser-block-execution-units (INT, INT)]
+                                                                                  [--max-ref-script-size-per-endorser-block WORD32]
                                                                                   [--cost-model-file FILE]
                                                                                   --out-file FILEPATH
                                                                                   
@@ -4256,8 +4265,6 @@ Usage: cardano-cli dijkstra node
                                    | key-gen-VRF
                                    | key-gen-BLS
                                    | key-hash-VRF
-                                   | key-hash-BLS
-                                   | issue-pop-BLS
                                    | new-counter
                                    | issue-op-cert
                                    )
@@ -4319,23 +4326,6 @@ Usage: cardano-cli dijkstra node key-hash-VRF
                                                 
 
   Print hash of a node's operational VRF key.
-
-Usage: cardano-cli dijkstra node key-hash-BLS 
-                                                ( --verification-key STRING
-                                                | --verification-key-file FILEPATH
-                                                )
-                                                [--out-file FILEPATH]
-                                                
-
-  Print hash of a node's operational BLS key.
-
-Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
-                                                 --out-file FILEPATH
-                                                 
-
-  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
-  key and its proof of possession are required by stake pool operators to
-  participate as voting member/block producing node in Leios.
 
 Usage: cardano-cli dijkstra node new-counter 
                                                ( --stake-pool-verification-key STRING
@@ -4672,7 +4662,10 @@ Usage: cardano-cli dijkstra query pool-state
                                                [--out-file FILEPATH]
                                                
 
-  Dump the pool state
+  Dump the pool state. For pools that have registered a BLS voting key, the
+  bksRegisteredIn epoch reported is the epoch the parameters take effect in
+  rather than the epoch the key was registered in, as the node does not expose
+  that value yet.
 
 Usage: cardano-cli dijkstra query proposals 
                                               [--cardano-mode
@@ -5204,6 +5197,7 @@ Usage: cardano-cli dijkstra stake-pool registration-certificate
                                                                   ( --vrf-verification-key STRING
                                                                   | --vrf-verification-key-file FILEPATH
                                                                   )
+                                                                  --bls-signing-key-file FILEPATH
                                                                   --pool-pledge LOVELACE
                                                                   --pool-cost LOVELACE
                                                                   --pool-margin RATIONAL

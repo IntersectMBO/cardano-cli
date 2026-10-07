@@ -747,7 +747,7 @@ runGenesisCreateStakedCmd
    where
     adjustTemplate t = t{sgNetworkMagic = unNetworkMagic (toNetworkMagic networkId)}
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams)
+      :: Delegation -> (L.KeyHash L.Staking, GenesisStakePoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
 -- -------------------------------------------------------------------------------------------------
@@ -763,7 +763,7 @@ updateOutputTemplate
   -- ^ Number of UTxO addresses that are delegating
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash L.StakePool, L.StakePoolParams)]
+  -> [(L.KeyHash L.StakePool, GenesisStakePoolParams)]
   -- ^ Pool map
   -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
@@ -950,7 +950,7 @@ createPoolCredentials fmt dir index = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !L.StakePoolParams
+  , dPoolParams :: !GenesisStakePoolParams
   }
   deriving (Generic, NFData)
 
@@ -961,7 +961,7 @@ buildPoolParams
   -> Maybe Word
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map
-  -> ExceptT GenesisCmdError IO L.StakePoolParams
+  -> ExceptT GenesisCmdError IO GenesisStakePoolParams
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -986,6 +986,7 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.sppMargin = minBound
       , L.sppAccountAddress =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
+      , L.sppBlsKey = L.SNothing
       , L.sppOwners = mempty
       , L.sppRelays = lookupPoolRelay specifiedRelays
       , L.sppMetadata = L.SNothing
@@ -1041,7 +1042,7 @@ writeBulkPoolCredentials dir bulkIx poolIxs = do
 computeInsecureDelegation
   :: StdGen
   -> NetworkId
-  -> L.StakePoolParams
+  -> GenesisStakePoolParams
   -> IO (StdGen, Delegation)
 computeInsecureDelegation g0 nw pool = do
   (paymentVK, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
@@ -1091,7 +1092,7 @@ updateTemplate
   -- ^ Amount of lovelace not delegated
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> Map (L.KeyHash L.Staking) L.StakePoolParams
+  -> Map (L.KeyHash L.Staking) GenesisStakePoolParams
   -- ^ Genesis staking: pools/delegation map & delegated initial UTxO spec
   -> Lovelace
   -- ^ Number of UTxO Addresses for delegation

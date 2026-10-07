@@ -1,0 +1,9 @@
+project: cardano-cli
+
+pr: 1439
+
+kind:
+  - compatible
+
+description: |
+  Adapt to cardano-ledger-core 1.22, where `mkStakePoolState` stamps a pool's BLS voting key with the epoch its registration takes effect in. The pool-state query does not report that epoch yet, so `query pool-state` fills `bksRegisteredIn` with the epoch the parameters take effect in: the current epoch for the active parameters and the next one for the future parameters. The reported value is a placeholder until the ledger exposes the real one (https://github.com/IntersectMBO/cardano-ledger/issues/6147); the feature is not yet used on mainnet.

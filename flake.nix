@@ -210,13 +210,18 @@
               ...
             }: let
               cliExe = "${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
-              needsQemu = pkgs.stdenv.hostPlatform.isLinux
+              needsQemu =
+                pkgs.stdenv.hostPlatform.isLinux
                 && pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
                 && pkgs.stdenv.hostPlatform.parsed.cpu.name != pkgs.stdenv.buildPlatform.parsed.cpu.name;
               qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
                 exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
               '';
-              exportCliPath = "export CARDANO_CLI=${if needsQemu then qemuWrapped else cliExe}";
+              exportCliPath = "export CARDANO_CLI=${
+                if needsQemu
+                then qemuWrapped
+                else cliExe
+              }";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"
@@ -262,8 +267,35 @@
                 );
             })
             {
+              # haskell.nix's windows.nix points crypton-x509-system >=1.7 at a
+              # patch path that does not exist (missing ".patch" suffix); the
+              # postPatch below already applies the same Crypt32 -> crypt32
+              # rename, so drop the broken patch list.
+              packages.crypton-x509-system.patches = lib.mkForce [];
               packages.crypton-x509-system.postPatch = ''
                 substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
+              '';
+              # hourglass (via dns) and its fork time-hourglass (via crypton)
+              # both define the C symbol hourglass_clock_calendar; the GHC RTS
+              # linker refuses the duplicate when it loads both for Template
+              # Haskell in cross-compiled builds. Rename the fork's copy.
+              packages.time-hourglass.postPatch = ''
+                substituteInPlace cbits/unix.c src/unix/Time/Internal.hs \
+                  --replace-fail hourglass_clock_calendar time_hourglass_clock_calendar
+              '';
+              # cardano-addresses vendors cardano-crypto's C bits, so the two
+              # packages define 15 identical symbols (the ed25519 set, the
+              # wallet_encrypted_* wrappers, and two unprefixed helpers), which
+              # the GHC RTS linker likewise refuses. Namespace the vendored
+              # copy and make the file-local helpers static.
+              packages.cardano-addresses.postPatch = ''
+                substituteInPlace cbits/ed25519/ed25519.c cbits/ed25519/ed25519.h cbits/encrypted_sign.c \
+                  --replace-fail cardano_crypto_ cardano_addresses_
+                substituteInPlace cbits/encrypted_sign.c lib/Cardano/Address/Crypto/Wallet/Encrypted.hs \
+                  --replace-fail wallet_encrypted_ addresses_wallet_encrypted_
+                substituteInPlace cbits/encrypted_sign.c \
+                  --replace-fail 'void clear(void *buf' 'static void clear(void *buf' \
+                  --replace-fail 'void scalar_add_no_overflow(' 'static void scalar_add_no_overflow('
               '';
             }
             # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
