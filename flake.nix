@@ -261,6 +261,16 @@
                   else ''''
                 );
             })
+            ({lib, pkgs, ...}: lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
+              # The locked haskell.nix overlay omits the .patch suffix for >= 1.7.
+              # Replace that defective list while retaining both versioned patches.
+              packages.crypton-x509-system.patches = lib.mkForce [
+                ({version}:
+                  if builtins.compareVersions version "1.7" < 0
+                  then inputs.haskellNix + "/overlays/patches/crypton-x509-system-1.6.patch"
+                  else inputs.haskellNix + "/overlays/patches/crypton-x509-system.patch")
+              ];
+            })
             {
               packages.crypton-x509-system.postPatch = ''
                 substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'

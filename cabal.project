@@ -114,8 +114,8 @@ if impl(ghc >=9.14)
 source-repository-package
   type: git
   location: https://github.com/colll78/dns.git
-  tag: a3ef6cdcdb5173d88c2e2a3201f528dbe0df1c0c
-  --sha256: sha256-fOWp3BFVkD4dJvxVtskdOyPg5uN9GUEL7NEj9Z4pBm8=
+  tag: 7bd4304298b38db3da0e72dec2b311f4cd785657
+  --sha256: sha256-HRBHCYqk4Y63M81ry+qs7o6qtottda1RddK84lTSb/E=
 
 -- Temporary public source prerequisites for the coordinated CIP-160 proposals.
 -- Proposed versions are unreleased; remove after official package delivery.
