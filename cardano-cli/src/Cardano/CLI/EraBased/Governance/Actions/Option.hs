@@ -312,6 +312,18 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
     <*> convertToLedger id (optional pRefScriptCostStride)
     <*> convertToLedger id (optional pRefScriptCostMultiplier)
+    -- The Leios/endorser-block parameters below aren't settable via this CLI
+    -- yet (Leios isn't active on any network), so use 'SNothing' as the
+    -- placeholder, same as the Alonzo cost models above.
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
 
 pMaxRefScriptSizePerBlock :: Parser Word32
 pMaxRefScriptSizePerBlock =

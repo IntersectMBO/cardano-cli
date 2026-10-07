@@ -371,8 +371,9 @@ data PoolParams = PoolParams
   }
   deriving Show
 
-mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
+mkPoolStates :: EpochNo -> PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
 mkPoolStates
+  currentEpoch
   ( PoolState
       ( L.QueryPoolStateResult
           { L.qpsrStakePoolParams
@@ -385,10 +386,12 @@ mkPoolStates
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
-      { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
+      { poolParameters =
+          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (\deposit -> L.mkStakePoolState deposit stakingCredentials futurePp) <$> mDeposit
+          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials futurePp)
+            <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 
