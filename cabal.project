@@ -47,6 +47,10 @@ if os(windows)
   allow-newer: *:time
   -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
   constraints: network <3.2.8.0
+  -- cardano-config only uses PortNumber; it does not need the new 3.2.8
+  -- socket options that break the WINE Template Haskell interpreter.
+  -- kes-agent uses the existing raw-bearer/snocket interfaces, not those options.
+  allow-older: cardano-config:network, kes-agent:network
 -- cardano-ledger-binary 1.9.0.0 reversed the byte order of relay IPv4 addresses (cardano-cli#1442)
 constraints: cardano-ledger-binary >=1.9.1
 
@@ -84,7 +88,15 @@ if impl(ghc >=9.14)
     , dictionary-sharing:containers
     , diff-containers:base
     , fs-sim:QuickCheck
+    , grapesy:base
+    , grapesy:containers
+    , grapesy:tls
+    , grpc-spec:base
+    , grpc-spec:containers
+    , lens-family:containers
+    , lens-family-core:containers
     , lsm-tree:data-elevator
+    , newtype-generics:base
     , ordered-containers:containers
     , partial-order:containers
     , safe-wild-cards:template-haskell
