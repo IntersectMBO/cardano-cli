@@ -122,8 +122,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/colll78/cardano-ledger.git
-  tag: 03b9b682157b96eecc3e5c057599b18d0b376b65
-  --sha256: sha256-B1sHHR2Lmm4C6WUhuBA7cM6HlpJxOt3k8ItVUCkwvEA=
+  tag: 4ab1c0df3373b962c641efb4935aca0e7e68967b
+  --sha256: sha256-+EearRC1REi8n7pRvsR6AmTC/lyLYkxRdvkwUV1Ilk0=
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
@@ -154,8 +154,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/colll78/ouroboros-consensus.git
-  tag: fc8743ac2b27116ec1bf1f20afccd0b3aa966b76
-  --sha256: sha256-QYh5cGwW+IhalDRYm7OKyT056oFO/WViHuMs6R6MA2c=
+  tag: 0c91555c0c0dfeef6cb0ac6facd42b471630f5b0
+  --sha256: sha256-19A5YUoKnfUAc/KBPg3s25HaI+zwMGiIk4Vng3NJXH4=
 
 -- Exact public compatibility prerequisites; proposed versions are unreleased.
 source-repository-package
@@ -180,8 +180,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/colll78/cardano-api.git
-  tag: a5cf9378dd6539824d79719436503a4aa7cb0aed
-  --sha256: sha256-YrLcZkQ7IjcLqygZ0sQg8TDs5jPaDXl8GXX9uhvIzCQ=
+  tag: a3966fb8dca37e796929ae870f0bc8edea521986
+  --sha256: sha256-zhmSimpXLCW+NvoZWMX1HNnEpPOSSsngsXzSwbpx9pE=
   subdir:
     cardano-api
     cardano-api-gen
