@@ -16,3 +16,4 @@ description: |
   V4 evaluation, protected-change and body-signature binding tests.
   Preserve pool-query JSON fields while reporting the unavailable BLS registration
   epoch as null, instead of inventing registration history.
+  Update ledger-state JSON encoding for the upstream six-field NewEpochState, preserving outer keys and reading currentStakeDistribution from the current set snapshot. Nested state JSON and CBOR follow the upstream ledger schema.
