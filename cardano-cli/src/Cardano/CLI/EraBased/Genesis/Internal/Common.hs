@@ -9,7 +9,8 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Genesis.Internal.Common
-  ( decodeShelleyGenesisFile
+  ( GenesisStakePoolParams
+  , decodeShelleyGenesisFile
   , decodeAlonzoGenesisFile
   , decodeConwayGenesisFile
   , decodeDijkstraGenesisFile
@@ -35,6 +36,7 @@ import Cardano.Crypto.Hash (HashAlgorithm)
 import Cardano.Crypto.Hash qualified as Hash
 import Cardano.Crypto.Random qualified as Crypto
 import Cardano.Ledger.Dijkstra.Genesis (DijkstraGenesis (..))
+import Cardano.Ledger.Shelley qualified as L
 
 import Data.Aeson qualified as A
 import Data.Binary.Get qualified as Bin
@@ -90,6 +92,15 @@ readAndDecodeGenesisFileWith decode' fpath = do
     (GenesisCmdGenesisFileDecodeError (typeRep $ Proxy @a) fpath . Text.pack)
     . hoistEither
     $ decode' lbs
+
+-- | Stake pool parameters for the Shelley genesis file.
+--
+-- Pinned to 'L.ShelleyEra' because the ledger's 'ShelleyGenesisStaking' field
+-- @sgsPools@ requires @StakePoolParams ShelleyEra@. The era index on
+-- 'L.StakePoolParams' is phantom (cardano-ledger-core 1.22) and is dropped by
+-- 'mkStakePoolState' when the initial pool state is built, so this holds for
+-- whichever era the chain starts in.
+type GenesisStakePoolParams = L.StakePoolParams L.ShelleyEra
 
 genStuffedAddress :: L.Network -> IO (AddressInEra ShelleyEra)
 genStuffedAddress network = do
