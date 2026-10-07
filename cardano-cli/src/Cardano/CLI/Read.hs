@@ -117,6 +117,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 
 import RIO (readFileBinary)
 import Prelude
@@ -215,7 +216,10 @@ readAnyScript anyScriptFp = do
         Left err -> throwCliError err
         Right script ->
           case Exp.useEra @era of
-            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+            Exp.DijkstraEra ->
+              let s :: L.NativeScript (Exp.LedgerEra Exp.ConwayEra)
+                  s = toAllegraTimelock script
+               in pure . Exp.AnySimpleScript . Exp.SimpleScript $ Dijkstra.upgradeTimelock s
             era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
               let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
               return . Exp.AnySimpleScript $ Exp.SimpleScript s

@@ -71,6 +71,7 @@ data TxCmdError
     forall era. TxCmdVotingError (TxVotingError era)
   | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
   | TxCmdMakeUnsignedTxError !Exp.MakeUnsignedTxError
+  | TxCmdReceivingAuthorizationError !Exp.MakeUnsignedTxError ![Text]
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
@@ -172,6 +173,9 @@ renderTxCmdError = \case
     prettyError e
   TxCmdMakeUnsignedTxError e ->
     prettyError e
+  TxCmdReceivingAuthorizationError e addresses ->
+    vsep $
+      prettyError e : "Protected destinations requiring Receiving authorization:" : map pretty addresses
   TxCmdPoolMetadataHashError e ->
     "Hash of the pool metadata hash is not valid:" <+> prettyError e
   TxCmdHashCheckError url e ->

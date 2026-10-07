@@ -54,6 +54,23 @@ Usage: cardano-cli dijkstra transaction build-estimate
                                                            | --tx-out-inline-datum-value JSON_VALUE
                                                            ]
                                                            [--tx-out-reference-script-file FILEPATH]]
+                                                         [--receiving-output-index OUTPUT_INDEX
+                                                           ( --receiving-script-file FILEPATH
+                                                             [
+                                                               ( --receiving-redeemer-cbor-file CBOR_FILE
+                                                               | --receiving-redeemer-file JSON_FILE
+                                                               | --receiving-redeemer-value JSON_VALUE
+                                                               )
+                                                               --receiving-execution-units (INT, INT)]
+                                                           | --receiving-simple-script-tx-in-reference TX_IN
+                                                           | --receiving-tx-in-reference TX_IN
+                                                             --receiving-plutus-script-v4
+                                                             ( --receiving-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                             | --receiving-reference-tx-in-redeemer-file JSON_FILE
+                                                             | --receiving-reference-tx-in-redeemer-value JSON_VALUE
+                                                             )
+                                                             --receiving-reference-tx-in-execution-units (INT, INT)
+                                                           )]
                                                          --change-address ADDRESS
                                                          [--mint VALUE
                                                            ( --mint-script-file FILEPATH
@@ -307,6 +324,45 @@ Available options:
                            top-level strings and numbers.
   --tx-out-reference-script-file FILEPATH
                            Reference script input file.
+  --receiving-output-index OUTPUT_INDEX
+                           Zero-based original body output index to authorize.
+                           Repeat for each protected script output, including
+                           protected script change.
+  --receiving-script-file FILEPATH
+                           Native or Plutus V4 script authorizing this protected
+                           output.
+  --receiving-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --receiving-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --receiving-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --receiving-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --receiving-simple-script-tx-in-reference TX_IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a simple reference script attached.
+  --receiving-tx-in-reference TX_IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --receiving-plutus-script-v4
+                           Specify a plutus script v4 reference script.
+  --receiving-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --receiving-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --receiving-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --receiving-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --change-address ADDRESS Address where ADA in excess of the tx fee will go to.
   --mint VALUE             Mint multi-asset value(s) with the multi-asset cli
                            syntax. You must specify a script witness.

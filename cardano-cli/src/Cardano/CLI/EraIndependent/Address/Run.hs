@@ -55,6 +55,8 @@ runAddressCmds = \case
     runAddressKeyHashCmd vkf mOFp
   AddressBuild paymentVerifier mbStakeVerifier nw mOutFp ->
     runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp
+  AddressProtect txt mOFp ->
+    runAddressProtectCmd txt mOFp
   AddressInfo txt mOFp ->
     runAddressInfoCmd txt mOFp
 
@@ -208,7 +210,7 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
       return $ serialiseAddress (addr :: AddressAny)
     PaymentVerifierScriptFile (File fp) -> do
       script <-
-        readAnyScript @_ @ConwayEra fp
+        readAnyScript @_ @DijkstraEra fp
 
       let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
           payCred = PaymentCredentialByScript hash
@@ -235,7 +237,7 @@ makeStakeAddressRef stakeIdentifier =
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
         StakeVerifierScriptFile (File fp) -> do
           script <-
-            Exp.readAnyScript @_ @ConwayEra fp
+            Exp.readAnyScript @_ @DijkstraEra fp
 
           let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
               stakeCred = StakeCredentialByScript hash
@@ -252,3 +254,15 @@ buildShelleyAddress
 buildShelleyAddress vkey mbStakeVerifier nw =
   makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey))
     <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
+
+-- | Explicitly opt in to Receiving. The address remains bound to the same
+-- payment and stake credentials; this does not create a receiving witness.
+runAddressProtectCmd :: Text -> Maybe (File () Out) -> CIO e ()
+runAddressProtectCmd addrTxt mOutputFp = do
+  addr <- case deserialiseAddress (AsAddress AsShelleyAddr) addrTxt of
+    Nothing -> throwCliError @String "Protection requires a valid Shelley base or enterprise payment address"
+    Just ordinary -> either (throwCliError @String) pure $ protectShelleyAddress ordinary
+  let outText = serialiseAddress addr
+  case mOutputFp of
+    Just (File fpath) -> liftIO $ Text.writeFile fpath outText
+    Nothing -> liftIO $ Text.putStr outText

@@ -39,6 +39,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
 import Data.Universe (Some)
+import Data.Word (Word32)
 import Vary (Vary)
 
 data TransactionCmds era
@@ -73,6 +74,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
+  , receivingScripts :: ![(Word32, AnyNonAssetScript)]
   , mMintedAssets :: !(Maybe (L.MultiAsset, [AnyMintScript]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
@@ -144,6 +146,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , mTotalCollateral :: !(Maybe Coin)
   -- ^ Total collateral
   , txouts :: ![TxOutAnyEra]
+  , receivingScripts :: ![(Word32, AnyNonAssetScript)]
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
@@ -191,6 +194,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mReturnCollateral :: !(Maybe TxOutShelleyBasedEra)
   -- ^ Return collateral
   , txouts :: ![TxOutAnyEra]
+  , receivingScripts :: ![(Word32, AnyNonAssetScript)]
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output

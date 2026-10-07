@@ -30,6 +30,9 @@ data AddressCmds
       (Maybe StakeIdentifier)
       NetworkId
       (Maybe (File () Out))
+  | AddressProtect
+      Text
+      (Maybe (File () Out))
   | AddressInfo
       Text
       (Maybe (File () Out))
@@ -41,3 +44,4 @@ renderAddressCmds = \case
   AddressKeyHash{} -> "address key-hash"
   AddressBuild{} -> "address build"
   AddressInfo{} -> "address info"
+  AddressProtect{} -> "address protect"

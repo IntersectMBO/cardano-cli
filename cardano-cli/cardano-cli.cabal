@@ -1,6 +1,6 @@
 cabal-version: 3.8
 name: cardano-cli
-version: 11.2.3.1
+version: 11.3.0.0
 synopsis: The Cardano command-line interface
 description: The Cardano command-line interface.
 copyright: 2020-2023 Input Output Global Inc (IOG).
@@ -16,7 +16,26 @@ license-files:
   NOTICE
 
 build-type: Simple
-extra-source-files: README.md
+extra-source-files:
+  README.md
+  RECEIVING.md
+  test/cardano-cli-golden/files/golden/help.cli
+  test/cardano-cli-golden/files/golden/help/address.cli
+  test/cardano-cli-golden/files/golden/help/address_protect.cli
+  test/cardano-cli-golden/files/golden/help/conway_address.cli
+  test/cardano-cli-golden/files/golden/help/conway_address_protect.cli
+  test/cardano-cli-golden/files/golden/help/dijkstra_address.cli
+  test/cardano-cli-golden/files/golden/help/dijkstra_address_protect.cli
+  test/cardano-cli-golden/files/golden/help/dijkstra_transaction_build-estimate.cli
+  test/cardano-cli-golden/files/golden/help/dijkstra_transaction_build-raw.cli
+  test/cardano-cli-golden/files/golden/help/dijkstra_transaction_build.cli
+  test/cardano-cli-golden/files/golden/help/latest_address.cli
+  test/cardano-cli-golden/files/golden/help/latest_address_protect.cli
+  test/cardano-cli-test/files/input/calculate-min-fee/offline-protocol-params-preview.json
+  test/cardano-cli-test/files/input/plutus/v1-always-succeeds.plutus
+  test/cardano-cli-test/files/input/plutus/v3-always-succeeds.plutus
+  test/cardano-cli-test/files/input/plutus/v4-receiving-even-datum.plutus
+  test/cardano-cli-test/files/input/preview-era-history.json
 
 common project-config
   default-language: Haskell2010
@@ -117,6 +136,7 @@ library
     Cardano.CLI.EraBased.Script.Proposal.Read
     Cardano.CLI.EraBased.Script.Proposal.Type
     Cardano.CLI.EraBased.Script.Read.Common
+    Cardano.CLI.EraBased.Script.Receiving.Read
     Cardano.CLI.EraBased.Script.Spend.Read
     Cardano.CLI.EraBased.Script.Spend.Type
     Cardano.CLI.EraBased.Script.Type
@@ -246,13 +266,13 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=11.7,
+    cardano-api ^>=11.9,
     cardano-binary,
     cardano-crypto,
-    cardano-crypto-class ^>=2.5,
-    cardano-crypto-wrapper ^>=1.7,
+    cardano-crypto-class ^>=2.6,
+    cardano-crypto-wrapper ^>=1.8,
     cardano-data >=1.1,
-    cardano-diffusion:ping ^>=1.1.1,
+    cardano-diffusion:ping ^>=1.3,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
     cardano-ledger-conway,
@@ -368,6 +388,10 @@ test-suite cardano-cli-test
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-diffusion:ping,
+    cardano-keys,
+    cardano-ledger-api,
+    cardano-ledger-core,
+    cardano-ledger-dijkstra,
     cardano-slotting,
     containers,
     directory,
@@ -421,10 +445,12 @@ test-suite cardano-cli-test
     Test.Cli.Pioneers.Exercise5
     Test.Cli.Pioneers.Exercise6
     Test.Cli.Pipes
+    Test.Cli.Query.PoolState
     Test.Cli.Run.Hash
     Test.Cli.Run.Query
     Test.Cli.Shelley.Genesis.Create
     Test.Cli.Transaction.Build
+    Test.Cli.Transaction.Receiving
     Test.Cli.VerificationKey
 
   ghc-options:

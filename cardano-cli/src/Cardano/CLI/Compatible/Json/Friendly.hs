@@ -47,6 +47,8 @@ import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
+import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
+import Cardano.Ledger.Dijkstra.TxBody qualified as Dijkstra
 import Cardano.Ledger.Keys (coerceKeyRole)
 
 import Control.Applicative ((<|>))
@@ -188,6 +190,12 @@ friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
                ]
             <> alonzoScriptWitnessPairs era ledgerTx
             <> conwayBodyPairs body
+            <> case era of
+              Exp.ConwayEra -> []
+              Exp.DijkstraEra ->
+                [ "required recipient payment key witnesses (protected outputs)"
+                    .= toJSON [PaymentKeyHash kh | kh <- Set.toList (Dijkstra.receivingKeyHashes body)]
+                ]
 
 renderCollateralInputs
   :: L.AlonzoEraTxBody (Exp.LedgerEra era)
@@ -317,10 +325,13 @@ renderRedeemerInfo era tx redeemerPurpose (redeemerData, exUnits) =
           ]
       mCorrespondingInput = strictMaybeToMaybe $ Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) redeemerPurpose
       mPurposeRendered = renderPurpose era <$> mCorrespondingInput
-   in object
+   in object $
         [ "purpose" .= fromMaybe inputNotFoundError mPurposeRendered
         , "redeemer" .= renderRedeemer redeemerData exUnits
         ]
+          <> case era of
+            Exp.ConwayEra -> []
+            Exp.DijkstraEra -> ["redeemer pointer" .= redeemerPurpose]
 
 renderRedeemer :: Ledger.Data era -> ExUnits -> Aeson.Value
 renderRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
@@ -396,8 +407,14 @@ renderPurpose era purpose = case era of
       ]
 
   dijkstraView
-    :: Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
-  dijkstraView _ = error "TODO Dijkstra"
+    :: Dijkstra.DijkstraEraScript ledgerEra
+    => Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
+  dijkstraView p =
+    asum
+      [ labelPurpose "guarding script hash" . unAsIxItem <$> Dijkstra.toGuardingPurpose p
+      , labelPurpose "receiving protected output at index" . unAsIxItem
+          <$> Dijkstra.toReceivingPurpose p
+      ]
 
 renderScriptData
   :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)
@@ -518,22 +535,25 @@ friendlyTxOut era (Exp.TxOut ledgerTxOut) =
                 , "address" .= serialiseAddress byronAdr
                 , "amount" .= friendlyLedgerValue era ledgerValue
                 ]
-              AddressInEra (ShelleyAddressInEra _) saddr@(ShelleyAddress net cred stake) ->
-                friendlyPaymentCredential (fromShelleyPaymentCredential cred)
-                  : [ "address era" .= Aeson.String "Shelley"
-                    , "network" .= net
-                    , "address" .= serialiseAddress saddr
-                    , "amount" .= friendlyLedgerValue era ledgerValue
-                    , "stake reference"
-                        .= friendlyStakeReference (fromShelleyStakeReference stake)
-                    , "datum" .= case ledgerTxOut ^. L.datumTxOutL of
-                        L.NoDatum -> Aeson.Null
-                        L.DatumHash h -> toJSON h
-                        L.Datum bd ->
-                          scriptDataToJson ScriptDataJsonDetailedSchema $
-                            fromAlonzoData (L.binaryDataToData bd)
-                    , "reference script" .= refScript
-                    ]
+              AddressInEra (ShelleyAddressInEra _) saddr ->
+                let (net, cred, stake) = shelleyAddressCredentials saddr
+                 in friendlyPaymentCredential (fromShelleyPaymentCredential cred)
+                      : ( [ "address era" .= Aeson.String "Shelley"
+                          , "network" .= net
+                          , "address" .= serialiseAddress saddr
+                          , "amount" .= friendlyLedgerValue era ledgerValue
+                          , "stake reference"
+                              .= friendlyStakeReference (fromShelleyStakeReference stake)
+                          , "datum" .= case ledgerTxOut ^. L.datumTxOutL of
+                              L.NoDatum -> Aeson.Null
+                              L.DatumHash h -> toJSON h
+                              L.Datum bd ->
+                                scriptDataToJson ScriptDataJsonDetailedSchema $
+                                  fromAlonzoData (L.binaryDataToData bd)
+                          , "reference script" .= refScript
+                          ]
+                            <> ["protected" .= True | isProtectedShelleyAddress saddr]
+                        )
  where
   beo = convert era :: BabbageEraOnwards era
   sbe = convert era :: ShelleyBasedEra era

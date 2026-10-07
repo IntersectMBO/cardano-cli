@@ -43,7 +43,8 @@ import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Certificate
-  ( OperationalCertificate (..)
+  ( KESPeriod (..)
+  , OperationalCertificate (..)
   , PoolId
   , getKesPeriod
   , getOpCertCount
@@ -427,7 +428,9 @@ runQueryKesPeriodInfoCmd
        in CurrentKesPeriod $ unSlotNo currSlot `div` slotsPerKesPeriod
 
     opCertStartingKesPeriod :: OperationalCertificate -> OpCertStartingKesPeriod
-    opCertStartingKesPeriod = OpCertStartingKesPeriod . fromIntegral . getKesPeriod
+    opCertStartingKesPeriod cert =
+      let KESPeriod start = getKesPeriod cert
+       in OpCertStartingKesPeriod (fromIntegral start)
 
     opCertEndKesPeriod :: GenesisParameters era -> OperationalCertificate -> OpCertEndingKesPeriod
     opCertEndKesPeriod gParams oCert =
@@ -1173,14 +1176,14 @@ writePoolState
   :: Exp.Era era
   -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState
+  -> SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
 writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
   poolState <-
     liftEither . first QueryCmdPoolStateDecodeError $
       decodePoolState (convert era) serialisedCurrentEpochState
 
-  let poolStates = mkPoolStates poolState :: Map (L.KeyHash L.StakePool) PoolParams
+  let poolStates = mkPoolStates poolState
       output =
         outputFormat
           & ( id

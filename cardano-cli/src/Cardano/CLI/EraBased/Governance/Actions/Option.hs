@@ -307,7 +307,23 @@ pIntroducedInConwayPParams =
 
 pIntroducedInDijkstraPParams :: Parser (IntroducedInDijkstraPParams ledgerera)
 pIntroducedInDijkstraPParams =
-  IntroducedInDijkstraPParams
+  ( \maxBlock maxTx stride multiplier ->
+      IntroducedInDijkstraPParams
+        { idMaxRefScriptSizePerBlock = maxBlock
+        , idMaxRefScriptSizePerTx = maxTx
+        , idRefScriptCostStride = stride
+        , idRefScriptCostMultiplier = multiplier
+        , idLeiosAnnouncementPeriodLength = L.SNothing
+        , idLeiosVotePeriodLength = L.SNothing
+        , idLeiosDiffusionPeriodLength = L.SNothing
+        , idLeiosCommitteeSize = L.SNothing
+        , idLeiosQuorumStakeThreshold = L.SNothing
+        , idMaxEndorserBlockReferencesSize = L.SNothing
+        , idMaxEndorserBlockTxsSize = L.SNothing
+        , idMaxEndorserBlockExUnits = L.SNothing
+        , idMaxRefScriptSizePerEndorserBlock = L.SNothing
+        }
+  )
     <$> convertToLedger id (optional pMaxRefScriptSizePerBlock)
     <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
     <*> convertToLedger id (optional pRefScriptCostStride)

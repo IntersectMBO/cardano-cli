@@ -37,6 +37,10 @@ pAddressCmds envCli =
                 Opt.info (pAddressBuild envCli) $
                   Opt.progDesc "Build a Shelley payment address, with optional delegation to a stake address."
           , Opt.hsubparser $
+              commandWithMetavar "protect" $
+                Opt.info pAddressProtect $
+                  Opt.progDesc "Protect a base or enterprise payment address with Dijkstra Receiving authorization."
+          , Opt.hsubparser $
               commandWithMetavar "info" $
                 Opt.info pAddressInfo $
                   Opt.progDesc "Print information about an address."
@@ -74,5 +78,11 @@ pAddressBuild envCli =
 pAddressInfo :: Parser AddressCmds
 pAddressInfo =
   AddressInfo
+    <$> pAddress
+    <*> pMaybeOutputFile
+
+pAddressProtect :: Parser AddressCmds
+pAddressProtect =
+  AddressProtect
     <$> pAddress
     <*> pMaybeOutputFile

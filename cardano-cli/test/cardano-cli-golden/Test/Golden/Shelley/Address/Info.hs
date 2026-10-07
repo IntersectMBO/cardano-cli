@@ -2,8 +2,12 @@
 
 module Test.Golden.Shelley.Address.Info where
 
+import Cardano.Api qualified as Api
+
 import Control.Monad (when)
+import Data.ByteString qualified as BS
 import Data.List qualified as L
+import Data.Text qualified as Text
 
 import Test.Cardano.CLI.Util
 
@@ -58,3 +62,27 @@ hprop_golden_shelleyAddressInfo =
 
       H.assert $ "Encoding: Hex" `L.isInfixOf` infoText3
       H.assert $ "Era: Shelley" `L.isInfixOf` infoText3
+
+-- The CLI must retain the independent fixed header/payload vector through
+-- explicit creation and inspection, including its original protected bytes.
+hprop_protected_address_creation_and_inspection :: Property
+hprop_protected_address_creation_and_inspection = watchdogProp . propertyOnce $ do
+  ordinary <-
+    H.evalEither $
+      Api.deserialiseFromRawBytes
+        (Api.AsAddress Api.AsShelleyAddr)
+        (BS.cons 0x61 (BS.replicate 28 0x11))
+  protectedText <-
+    execCardanoCLI
+      ["latest", "address", "protect", "--address", Text.unpack $ Api.serialiseAddress ordinary]
+  protected <-
+    H.evalEither $
+      Api.deserialiseFromRawBytes
+        (Api.AsAddress Api.AsShelleyAddr)
+        (BS.cons 0x69 (BS.replicate 28 0x11))
+  protectedText H.=== Text.unpack (Api.serialiseAddress protected)
+  info <- execCardanoCLI ["latest", "address", "info", "--address", protectedText]
+  H.assert $ "\"protected\": true" `L.isInfixOf` info
+  H.assert $ "\"requiresBodySignature\": true" `L.isInfixOf` info
+  H.assert $ "\"era\": \"dijkstra\"" `L.isInfixOf` info
+  H.assert $ "6911111111111111111111111111111111111111111111111111111111" `L.isInfixOf` info

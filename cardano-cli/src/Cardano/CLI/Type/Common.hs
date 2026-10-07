@@ -111,7 +111,6 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
-import Cardano.Ledger.State qualified as L
 
 import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
@@ -364,14 +363,14 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
-data PoolParams = PoolParams
-  { poolParameters :: Maybe L.StakePoolState
-  , futurePoolParameters :: Maybe L.StakePoolState
+data PoolParams era = PoolParams
+  { poolParameters :: Maybe (L.StakePoolParams era, L.CompactForm Coin)
+  , futurePoolParameters :: Maybe (L.StakePoolParams era, L.CompactForm Coin)
   , retiringEpoch :: Maybe EpochNo
   }
   deriving Show
 
-mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
+mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) (PoolParams (ShelleyLedgerEra era))
 mkPoolStates
   ( PoolState
       ( L.QueryPoolStateResult
@@ -383,31 +382,53 @@ mkPoolStates
         )
     ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
-        stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
-      { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
+      { poolParameters = (\deposit -> (pp, deposit)) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (\deposit -> L.mkStakePoolState deposit stakingCredentials futurePp) <$> mDeposit
+          (\deposit -> (futurePp, deposit)) <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 
 -- | Pretty printing for pool parameters
-instance ToJSON PoolParams where
+instance ToJSON (PoolParams era) where
   toJSON (PoolParams p fp r) =
     object
-      [ "poolParams" .= p
-      , "futurePoolParams" .= fp
+      [ "poolParams" .= renderQueriedPoolParams p
+      , "futurePoolParams" .= renderQueriedPoolParams fp
       , "retiring" .= r
       ]
 
   toEncoding (PoolParams p fp r) =
     pairs $
       mconcat
-        [ "poolParams" .= p
-        , "futurePoolParams" .= fp
+        [ "poolParams" .= renderQueriedPoolParams p
+        , "futurePoolParams" .= renderQueriedPoolParams fp
         , "retiring" .= r
         ]
+
+-- Preserve the existing state-shaped JSON for queried parameters. The legacy
+-- pool query omits BLS registration history, so its epoch is explicitly unknown;
+-- reconstructing StakePoolState would invent the epoch at which the key renewed.
+renderQueriedPoolParams :: Maybe (L.StakePoolParams era, L.CompactForm Coin) -> Aeson.Value
+renderQueriedPoolParams Nothing = Aeson.Null
+renderQueriedPoolParams (Just (pp, deposit)) =
+  object
+    [ "spsVrf" .= L.sppVrf pp
+    , "spsBlsKey" .= fmap renderBlsKey (L.sppBlsKey pp)
+    , "spsPledge" .= L.sppPledge pp
+    , "spsCost" .= L.sppCost pp
+    , "spsMargin" .= L.sppMargin pp
+    , "spsAccountId" .= L.aaId (L.sppAccountAddress pp)
+    , "spsOwners" .= L.sppOwners pp
+    , "spsRelays" .= L.sppRelays pp
+    , "spsMetadata" .= L.sppMetadata pp
+    , "spsDeposit" .= deposit
+    , "spsDelegators" .= ([] :: [L.Credential L.Staking])
+    ]
+ where
+  renderBlsKey key =
+    object ["bksKey" .= key, "bksRegisteredIn" .= Aeson.Null]
 
 type SigningKeyFile = File (SigningKey ())
 

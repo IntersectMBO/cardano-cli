@@ -16,7 +16,7 @@ Usage: cardano-cli
                      )
                      
 
-Usage: cardano-cli address (key-gen | key-hash | build | info) 
+Usage: cardano-cli address (key-gen | key-hash | build | protect | info) 
 
   Payment address commands.
 
@@ -60,6 +60,11 @@ Usage: cardano-cli address build
                                    
 
   Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli address protect --address ADDRESS [--out-file FILEPATH] 
+
+  Protect a base or enterprise payment address with Dijkstra Receiving
+  authorization.
 
 Usage: cardano-cli address info --address ADDRESS [--out-file FILEPATH] 
 
@@ -1030,7 +1035,7 @@ Usage: cardano-cli conway
 
   Conway era commands
 
-Usage: cardano-cli conway address (key-gen | key-hash | build | info) 
+Usage: cardano-cli conway address (key-gen | key-hash | build | protect | info) 
 
   Payment address commands.
 
@@ -1074,6 +1079,13 @@ Usage: cardano-cli conway address build
                                           
 
   Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli conway address protect --address ADDRESS
+                                            [--out-file FILEPATH]
+                                            
+
+  Protect a base or enterprise payment address with Dijkstra Receiving
+  authorization.
 
 Usage: cardano-cli conway address info --address ADDRESS [--out-file FILEPATH] 
 
@@ -3467,7 +3479,14 @@ Usage: cardano-cli dijkstra
 
   Dijkstra era commands
 
-Usage: cardano-cli dijkstra address (key-gen | key-hash | build | info) 
+Usage: cardano-cli dijkstra address 
+                                      ( key-gen
+                                      | key-hash
+                                      | build
+                                      | protect
+                                      | info
+                                      )
+                                      
 
   Payment address commands.
 
@@ -3513,6 +3532,13 @@ Usage: cardano-cli dijkstra address build
                                             
 
   Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli dijkstra address protect --address ADDRESS
+                                              [--out-file FILEPATH]
+                                              
+
+  Protect a base or enterprise payment address with Dijkstra Receiving
+  authorization.
 
 Usage: cardano-cli dijkstra address info --address ADDRESS
                                            [--out-file FILEPATH]
@@ -5354,6 +5380,23 @@ Usage: cardano-cli dijkstra transaction build-raw
                                                       | --tx-out-inline-datum-value JSON_VALUE
                                                       ]
                                                       [--tx-out-reference-script-file FILEPATH]]
+                                                    [--receiving-output-index OUTPUT_INDEX
+                                                      ( --receiving-script-file FILEPATH
+                                                        [
+                                                          ( --receiving-redeemer-cbor-file CBOR_FILE
+                                                          | --receiving-redeemer-file JSON_FILE
+                                                          | --receiving-redeemer-value JSON_VALUE
+                                                          )
+                                                          --receiving-execution-units (INT, INT)]
+                                                      | --receiving-simple-script-tx-in-reference TX_IN
+                                                      | --receiving-tx-in-reference TX_IN
+                                                        --receiving-plutus-script-v4
+                                                        ( --receiving-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                        | --receiving-reference-tx-in-redeemer-file JSON_FILE
+                                                        | --receiving-reference-tx-in-redeemer-value JSON_VALUE
+                                                        )
+                                                        --receiving-reference-tx-in-execution-units (INT, INT)
+                                                      )]
                                                     [--mint VALUE
                                                       ( --mint-script-file FILEPATH
                                                         [
@@ -5522,6 +5565,20 @@ Usage: cardano-cli dijkstra transaction build
                                                   | --tx-out-inline-datum-value JSON_VALUE
                                                   ]
                                                   [--tx-out-reference-script-file FILEPATH]]
+                                                [--receiving-output-index OUTPUT_INDEX
+                                                  ( --receiving-script-file FILEPATH
+                                                    [ --receiving-redeemer-cbor-file CBOR_FILE
+                                                    | --receiving-redeemer-file JSON_FILE
+                                                    | --receiving-redeemer-value JSON_VALUE
+                                                    ]
+                                                  | --receiving-simple-script-tx-in-reference TX_IN
+                                                  | --receiving-tx-in-reference TX_IN
+                                                    --receiving-plutus-script-v4
+                                                    ( --receiving-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                    | --receiving-reference-tx-in-redeemer-file JSON_FILE
+                                                    | --receiving-reference-tx-in-redeemer-value JSON_VALUE
+                                                    )
+                                                  )]
                                                 --change-address ADDRESS
                                                 [--mint VALUE
                                                   ( --mint-script-file FILEPATH
@@ -5674,6 +5731,23 @@ Usage: cardano-cli dijkstra transaction build-estimate
                                                            | --tx-out-inline-datum-value JSON_VALUE
                                                            ]
                                                            [--tx-out-reference-script-file FILEPATH]]
+                                                         [--receiving-output-index OUTPUT_INDEX
+                                                           ( --receiving-script-file FILEPATH
+                                                             [
+                                                               ( --receiving-redeemer-cbor-file CBOR_FILE
+                                                               | --receiving-redeemer-file JSON_FILE
+                                                               | --receiving-redeemer-value JSON_VALUE
+                                                               )
+                                                               --receiving-execution-units (INT, INT)]
+                                                           | --receiving-simple-script-tx-in-reference TX_IN
+                                                           | --receiving-tx-in-reference TX_IN
+                                                             --receiving-plutus-script-v4
+                                                             ( --receiving-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                             | --receiving-reference-tx-in-redeemer-file JSON_FILE
+                                                             | --receiving-reference-tx-in-redeemer-value JSON_VALUE
+                                                             )
+                                                             --receiving-reference-tx-in-execution-units (INT, INT)
+                                                           )]
                                                          --change-address ADDRESS
                                                          [--mint VALUE
                                                            ( --mint-script-file FILEPATH
@@ -5975,7 +6049,7 @@ Usage: cardano-cli latest
 
   Latest era commands (Conway)
 
-Usage: cardano-cli latest address (key-gen | key-hash | build | info) 
+Usage: cardano-cli latest address (key-gen | key-hash | build | protect | info) 
 
   Payment address commands.
 
@@ -6019,6 +6093,13 @@ Usage: cardano-cli latest address build
                                           
 
   Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli latest address protect --address ADDRESS
+                                            [--out-file FILEPATH]
+                                            
+
+  Protect a base or enterprise payment address with Dijkstra Receiving
+  authorization.
 
 Usage: cardano-cli latest address info --address ADDRESS [--out-file FILEPATH] 
 

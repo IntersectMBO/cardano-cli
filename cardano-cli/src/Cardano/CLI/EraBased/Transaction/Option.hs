@@ -13,9 +13,11 @@ where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
@@ -28,6 +30,7 @@ import Data.Function ((&))
 import Data.Functor
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Universe (Some)
+import Data.Word (Word32)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -205,6 +208,7 @@ pTransactionBuildCmd envCli = do
         <*> optional pReturnCollateral
         <*> optional pTotalCollateral
         <*> many pTxOut
+        <*> pReceivingScripts @era AutoBalance
         <*> pChangeAddress
         <*> (fmap join . optional $ pMintMultiAsset @era AutoBalance)
         <*> optional pInvalidBefore
@@ -267,6 +271,7 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> many pTxOut
+        <*> pReceivingScripts @era ManualBalance
         <*> pChangeAddress
         <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
         <*> optional pInvalidBefore
@@ -312,6 +317,7 @@ pTransactionBuildRaw =
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
+      <*> pReceivingScripts @era ManualBalance
       <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter Exp.useEra
@@ -562,3 +568,47 @@ pIsCborOutCanonical =
     <&> \case
       True -> TxCborCanonical
       False -> TxCborNotCanonical
+
+-- Receiving applies to each protected script output, including final change.
+-- The index is its original zero-based body output position.
+pReceivingScripts
+  :: forall era
+   . Exp.IsEra era
+  => BalanceTxExecUnits -> Parser [(Word32, AnyNonAssetScript)]
+pReceivingScripts balance = case Exp.useEra @era of
+  Exp.ConwayEra -> pure []
+  Exp.DijkstraEra ->
+    many $
+      (,)
+        <$> Opt.option
+          (bounded "OUTPUT_INDEX")
+          ( Opt.long "receiving-output-index"
+              <> Opt.metavar "OUTPUT_INDEX"
+              <> Opt.help
+                "Zero-based original body output index to authorize. Repeat for each protected script output, including protected script change."
+          )
+        <*> (onDisk <|> nativeReference <|> plutusReference)
+ where
+  units prefix = case balance of
+    AutoBalance -> pure (ExecutionUnits 0 0)
+    ManualBalance -> pExecutionUnits prefix
+  onDisk =
+    create
+      <$> pScriptFor
+        "receiving-script-file"
+        Nothing
+        "Native or Plutus V4 script authorizing this protected output."
+      <*> optional ((,) <$> pScriptRedeemerOrFile "receiving" <*> units "receiving")
+  create file Nothing = AnyNonAssetScriptSimple (OnDiskSimpleScript file)
+  create file (Just (redeemer, budget)) = AnyNonAssetScriptPlutus (OnDiskPlutusNonAssetScript file redeemer budget)
+  nativeReference =
+    AnyNonAssetScriptSimple . ReferenceSimpleScript
+      <$> pReferenceTxIn "receiving-simple-script-" "simple"
+  plutusReference =
+    AnyNonAssetScriptPlutus
+      <$> ( ReferencePlutusNonAssetScript
+              <$> pReferenceTxIn "receiving-" "plutus"
+              <*> plutusSLanguageP "receiving-" L.SPlutusV4 "v4"
+              <*> pScriptRedeemerOrFile "receiving-reference-tx-in"
+              <*> units "receiving-reference-tx-in"
+          )

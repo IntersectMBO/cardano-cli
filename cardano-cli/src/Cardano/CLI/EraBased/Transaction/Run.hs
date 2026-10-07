@@ -53,6 +53,7 @@ import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
+import Cardano.CLI.EraBased.Script.Receiving.Read
 import Cardano.CLI.EraBased.Script.Spend.Read
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
@@ -73,6 +74,7 @@ import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
+import Cardano.Ledger.Address qualified as LedgerAddress
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Ledger.Hashes (DataHash)
 import Cardano.Prelude (putLByteString)
@@ -124,7 +126,8 @@ runTransactionCmds = \case
 --
 
 runTransactionBuildCmd
-  :: Exp.IsEra era
+  :: forall era e
+   . Exp.IsEra era
   => Cmd.TransactionBuildCmdArgs era
   -> CIO e ()
 runTransactionBuildCmd
@@ -144,6 +147,7 @@ runTransactionBuildCmd
     , mReturnCollateral = mReturnColl
     , mTotalCollateral
     , txouts
+    , receivingScripts
     , changeAddresses
     , mMintedAssets
     , mValidityLowerBound
@@ -206,6 +210,7 @@ runTransactionBuildCmd
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
         returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
+    receivingWitnesses <- readReceivingScriptWitnesses @era receivingScripts
     txOutsAndDatums <- mapM toTxOutInEra txouts
     let txOuts = map fst txOutsAndDatums
         supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
@@ -269,7 +274,9 @@ runTransactionBuildCmd
             (map (\(_, _, wit) -> wit) withdrawalsAndMaybeScriptWits)
             (map snd votingProceduresAndMaybeScriptWits)
             (map snd proposals)
-            readOnlyReferenceInputs
+            ( readOnlyReferenceInputs
+                <> receivingReferenceInputs txins receivingWitnesses
+            )
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
@@ -319,6 +326,7 @@ runTransactionBuildCmd
           mCurrenTreasuryValue
           mTreasuryDonation
           supplementalDatums
+          receivingWitnesses
 
     -- TODO: Calculating the script cost should live as a different command.
     -- Why? Because then we can simply read a txbody and figure out
@@ -399,6 +407,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txinsc = txInsCollateral
     , mReturnCollateral = mReturnColl
     , txouts
+    , receivingScripts
     , changeAddress = TxOutChangeAddress changeAddr
     , mMintedAssets
     , mValidityLowerBound
@@ -450,6 +459,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
         returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
+    receivingWitnesses <- readReceivingScriptWitnesses @era receivingScripts
     txOutsAndDatums <- mapM toTxOutInEra txouts
     let txOuts = map fst txOutsAndDatums
         supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
@@ -505,18 +515,27 @@ runTransactionBuildEstimateCmd -- TODO change type
           currentTreasuryValue
           treasuryDonation
           supplementalDatums
+          receivingWitnesses
 
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
         poolsToDeregister =
           fromList $
             catMaybes [getPoolDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
         totCol = fromMaybe 0 plutusCollateral
+        -- Receiving uses raw output positions; prospective change is appended
+        -- after the authored outputs. Fees use the final API body.
+        witnessDomainContent :: Exp.TxBodyContent (Exp.LedgerEra era)
+        witnessDomainContent = case currentEra of
+          Exp.ConwayEra -> txBodyContent
+          Exp.DijkstraEra ->
+            let changeOutput = Exp.TxOut $ L.mkBasicTxOut (toShelleyAddr (anyAddressInShelleyBasedEra sbe changeAddr)) mempty
+             in Exp.setTxOuts (Exp.txOuts txBodyContent <> [changeOutput]) txBodyContent
         pScriptExecUnits =
           obtainCommonConstraints currentEra $
             fromList
               [ (obtainCommonConstraints currentEra index, Exp.getAnyPlutusScriptWitnessExecutionUnits psw)
               | (sWitIndex, Exp.AnyScriptWitnessPlutus psw) <-
-                  Exp.collectTxBodyScriptWitnesses txBodyContent
+                  Exp.collectTxBodyScriptWitnesses @era witnessDomainContent
               , index <- maybeToList $ Api.fromScriptWitnessIndex (convert currentEra) sWitIndex
               ]
 
@@ -539,7 +558,7 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     unsignedTx <-
       fromEitherCli $
-        first TxCmdMakeUnsignedTxError $
+        first (receivingConstructionError @era (Exp.txOuts balancedTxBody)) $
           Exp.makeUnsignedTx currentEra balancedTxBody
     fromEitherIOCli
       $ ( if isCborOutCanonical == TxCborCanonical
@@ -599,6 +618,7 @@ runTransactionBuildRawCmd
     , mTotalCollateral
     , requiredSigners = reqSigners
     , txouts
+    , receivingScripts
     , mMintedAssets
     , mValidityLowerBound
     , mValidityUpperBound
@@ -650,6 +670,7 @@ runTransactionBuildRawCmd
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
         returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
+    receivingWitnesses <- readReceivingScriptWitnesses @era receivingScripts
     txOutsAndDatums <- mapM toTxOutInEra txouts
     let txOuts = map fst txOutsAndDatums
         supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
@@ -699,6 +720,7 @@ runTransactionBuildRawCmd
           mCurrentTreasuryValue
           mTreasuryDonation
           supplementalDatums
+          receivingWitnesses
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
     fromEitherIOCli $
@@ -707,7 +729,8 @@ runTransactionBuildRawCmd
         else writeTxFileTextEnvelope (convert Exp.useEra) txBodyOutFile noWitTx
 
 runTxBuildRaw
-  :: Exp.IsEra era
+  :: forall era
+   . Exp.IsEra era
   => Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
   -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
@@ -743,6 +766,8 @@ runTxBuildRaw
   -> Maybe TxTreasuryDonation
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
+  -> Map.Map Word32 (Exp.AnyScriptWitness (Exp.LedgerEra era))
+  -- ^ Receiving witnesses for the final protected output domain
   -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
 runTxBuildRaw
   mScriptValidity
@@ -766,7 +791,8 @@ runTxBuildRaw
   proposals
   mCurrentTreasury
   mTreasuryDonation
-  suppDatums = do
+  suppDatums
+  receivingWitnesses = do
     txBodyContent <-
       constructTxBodyContent
         mScriptValidity
@@ -791,8 +817,41 @@ runTxBuildRaw
         mCurrentTreasury
         mTreasuryDonation
         suppDatums
+        receivingWitnesses
 
-    first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
+    first (receivingConstructionError @era txouts) $ Exp.makeUnsignedTx Exp.useEra txBodyContent
+
+-- Retain the original protected address when explaining missing or incorrect
+-- Receiving authorization, including its independent protection bit.
+receivingConstructionError
+  :: forall era
+   . Exp.IsEra era
+  => [Exp.TxOut (Exp.LedgerEra era)]
+  -> Exp.MakeUnsignedTxError
+  -> TxCmdError
+receivingConstructionError outputs err = case err of
+  Exp.MakeUnsignedTxInvalidReceivingWitness{} ->
+    Exp.obtainCommonConstraints (Exp.useEra @era) $
+      TxCmdReceivingAuthorizationError
+        err
+        [ serialiseAddress (fromShelleyAddr (convert (Exp.useEra @era)) addr)
+        | Exp.TxOut output <- outputs
+        , let addr = output ^. L.addrTxOutL
+        , LedgerAddress.AddrProtected{} <- [addr]
+        ]
+  _ -> TxCmdMakeUnsignedTxError err
+
+-- Automatically derived references may use an already consumed script input.
+-- Explicit reference inputs retain their existing validation semantics.
+receivingReferenceInputs
+  :: [(TxIn, witness)]
+  -> Map.Map Word32 (Exp.AnyScriptWitness era)
+  -> [TxIn]
+receivingReferenceInputs inputs witnesses =
+  filter (`Set.notMember` consumed) $
+    mapMaybe Exp.getAnyScriptWitnessReferenceInput (Map.elems witnesses)
+ where
+  consumed = Set.fromList (map fst inputs)
 
 constructTxBodyContent
   :: forall era
@@ -836,6 +895,8 @@ constructTxBodyContent
   -- being used.
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
+  -> Map.Map Word32 (Exp.AnyScriptWitness (Exp.LedgerEra era))
+  -- ^ Receiving witnesses for the final protected output domain
   -> Either TxCmdError (Exp.TxBodyContent (Exp.LedgerEra era))
 constructTxBodyContent
   mScriptValidity
@@ -859,7 +920,8 @@ constructTxBodyContent
   proposals
   mCurrentTreasury
   mTreasuryDonation
-  suppDatums =
+  suppDatums
+  receivingWitnesses =
     do
       let allReferenceInputs =
             getAllReferenceInputs
@@ -869,7 +931,7 @@ constructTxBodyContent
               (map (\(_, _, mSwit) -> mSwit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              (readOnlyRefIns <> receivingReferenceInputs inputsAndMaybeScriptWits receivingWitnesses)
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       -- TODO: Figure how to expose resolved datums
@@ -924,6 +986,7 @@ constructTxBodyContent
             & maybe id Exp.setTxCurrentTreasuryValue validatedCurrentTreasuryValue
             & maybe id Exp.setTxTreasuryDonation validatedTreasuryDonation
             & Exp.setTxSupplementalDatums suppDatums
+            & Exp.setTxReceivingWitnesses receivingWitnesses
         )
 
 convertWithdrawals
@@ -992,6 +1055,8 @@ runTxBuild
   -- ^ The current treasury value and the donation.
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
+  -> Map.Map Word32 (Exp.AnyScriptWitness (Exp.LedgerEra era))
+  -- ^ Receiving witnesses for the final protected output domain
   -> ExceptT TxCmdError IO (Exp.UnsignedTx (Exp.LedgerEra era), Exp.TxBodyContent (Exp.LedgerEra era))
 runTxBuild
   socketPath
@@ -1017,7 +1082,8 @@ runTxBuild
   proposals
   mCurrentTreasury
   mTreasuryDonation
-  suppDatums = do
+  suppDatums
+  receivingWitnesses = do
     let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
       -- TODO: All functions should be parameterized by ShelleyBasedEra
@@ -1032,7 +1098,7 @@ runTxBuild
               (map (\(_, _, wit) -> wit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              (readOnlyRefIns <> receivingReferenceInputs inputsAndMaybeScriptWits receivingWitnesses)
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
           localNodeConnInfo =
@@ -1085,6 +1151,7 @@ runTxBuild
             mCurrentTreasury
             mTreasuryDonation
             suppDatums
+            receivingWitnesses
 
       firstExceptT TxCmdTxInsDoNotExist
         . hoistEither
@@ -1629,7 +1696,7 @@ runTransactionPolicyIdCmd
     { scriptFile = File sFile
     } = do
     script <-
-      readAnyScript @_ @ConwayEra sFile
+      readAnyScript @_ @DijkstraEra sFile
     let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
     liftIO . Text.putStrLn $ serialiseToRawBytesHexText hash
 

@@ -1,4 +1,4 @@
-Usage: cardano-cli latest address (key-gen | key-hash | build | info) 
+Usage: cardano-cli latest address (key-gen | key-hash | build | protect | info) 
 
   Payment address commands.
 
@@ -10,4 +10,6 @@ Available commands:
   key-hash                 Print the hash of an address key.
   build                    Build a Shelley payment address, with optional
                            delegation to a stake address.
+  protect                  Protect a base or enterprise payment address with
+                           Dijkstra Receiving authorization.
   info                     Print information about an address.

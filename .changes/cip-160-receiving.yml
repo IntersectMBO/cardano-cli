@@ -1,0 +1,18 @@
+project: cardano-cli
+pr: 0
+kind:
+  - breaking
+  - feature
+  - test
+description: |
+  Add explicit protected address creation and inspection, and output-indexed native
+  and Plutus V4 Receiving witnesses to Dijkstra transaction build, build-raw and
+  build-estimate, including scripts from consumed or reference inputs. Inspect
+  protected recipient payment key requirements and final Receiving pointers and
+  budgets, using the existing offline witness and assembly workflow. Exported
+  transaction build-command records gain receiving witness fields, requiring a
+  PVP major bump. Depend on the receiving-aware cardano-api 11.9 proposal and
+  compatible crypto/diffusion packages. Add repeated-hash per-output, reference, diagnostic,
+  V4 evaluation, protected-change and body-signature binding tests.
+  Preserve pool-query JSON fields while reporting the unavailable BLS registration
+  epoch as null, instead of inventing registration history.

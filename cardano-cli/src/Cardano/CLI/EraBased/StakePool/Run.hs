@@ -118,6 +118,7 @@ runStakePoolRegistrationCertificateCmd
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
+              , stakePoolBlsKey = Nothing
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr

@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-07-30T07:30:12Z
-  , cardano-haskell-packages 2026-09-24T00:08:56Z
+  , hackage.haskell.org 2026-09-02T14:05:07Z
+  , cardano-haskell-packages 2026-10-06T16:46:26Z
 
 packages:
   cardano-cli
@@ -33,19 +33,20 @@ package bitvec
 
 extra-packages: Cabal
 
-if impl(ghc < 9.14)
+if impl(ghc <9.14)
   constraints:
-    -- hourglass and time-hourglass both in dependency tree break musl build
-    , time-hourglass < 0
+    -- Both providers export the same C clock symbol in static musl builds.
+    -- DNS 4.2.0.1 shares the modern provider required by TLS.
     -- haskell.nix patch does not work for 1.6.8
-    , any.crypton-x509-system < 1.6.8
+    , hourglass < 0
+    , dns ^>=4.2.0.1
+    , any.crypton-x509-system (< 1.6.8 || >= 1.7)
 
 if os(windows)
   constraints: time ^>=1.14
   allow-newer: *:time
   -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
   constraints: network <3.2.8.0
-
 -- cardano-ledger-binary 1.9.0.0 reversed the byte order of relay IPv4 addresses (cardano-cli#1442)
 constraints: cardano-ledger-binary >=1.9.1
 
@@ -61,20 +62,17 @@ package formatting
 
 tests: True
 test-show-details: direct
-
 -- enable parallel builds
 jobs: $ncpus
 semaphore: True
-
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
-
 -- cabal-allow-newer begin
-if impl(ghc >= 9.14)
+if impl(ghc >=9.14)
   allow-newer:
     , bytestring-trie:base
     , canonical-json:containers
@@ -97,4 +95,91 @@ if impl(ghc >= 9.14)
     , tdigest:base
     , time-locale-compat:time
     , with-utf8:base
+
 -- cabal-allow-newer end
+-- Temporary upstream DNS prerequisite: https://github.com/kazu-yamamoto/dns/pull/177
+-- Share the modern time provider while retaining the static musl guard above.
+source-repository-package
+  type: git
+  location: https://github.com/colll78/dns.git
+  tag: a3ef6cdcdb5173d88c2e2a3201f528dbe0df1c0c
+  --sha256: sha256-fOWp3BFVkD4dJvxVtskdOyPg5uN9GUEL7NEj9Z4pBm8=
+
+-- Temporary public source prerequisites for the coordinated CIP-160 proposals.
+-- Proposed versions are unreleased; remove after official package delivery.
+source-repository-package
+  type: git
+  location: https://github.com/colll78/cardano-ledger.git
+  tag: 03b9b682157b96eecc3e5c057599b18d0b376b65
+  --sha256: sha256-B1sHHR2Lmm4C6WUhuBA7cM6HlpJxOt3k8ItVUCkwvEA=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/babbage/impl
+    eras/byron/crypto
+    eras/byron/ledger/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+    eras/mary/impl
+    eras/shelley/impl
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/small-steps
+    libs/vector-map
+
+source-repository-package
+  type: git
+  location: https://github.com/colll78/plutus.git
+  tag: dcbb7e3232c3322557410fe341ec84f3cd78dc04
+  --sha256: sha256-6n+edByIhXRu9+ZfeMhIKLlfkcj/7aRJ1mrH29mn4nE=
+  subdir: plutus-ledger-api
+
+source-repository-package
+  type: git
+  location: https://github.com/colll78/ouroboros-consensus.git
+  tag: fc8743ac2b27116ec1bf1f20afccd0b3aa966b76
+  --sha256: sha256-QYh5cGwW+IhalDRYm7OKyT056oFO/WViHuMs6R6MA2c=
+
+-- Exact public compatibility prerequisites; proposed versions are unreleased.
+source-repository-package
+  type: git
+  location: https://github.com/colll78/cardano-addresses.git
+  tag: 83cf033c671d8a03d95de52c1451195f331d538e
+  --sha256: sha256-L0Bt4ynhocsSopD2xsY+JqajASjSAggrBP46Szbzygg=
+
+source-repository-package
+  type: git
+  location: https://github.com/colll78/cardano-keys.git
+  tag: b63987bd43d99b82b91d29020ceab089fb61b123
+  --sha256: sha256-7oRxoZjCv/RhnnRWQ8LvI4sknlEGqy81j8uFxuJzOc0=
+  subdir: cardano-keys
+
+source-repository-package
+  type: git
+  location: https://github.com/colll78/cardano-config.git
+  tag: e7a6f979964d2f613671832af001d06f99a67a86
+  --sha256: sha256-D+PbL2GcvEwCpazxy8cYncl8EUjwuR4H5Wj2HWO3UX0=
+
+source-repository-package
+  type: git
+  location: https://github.com/colll78/cardano-api.git
+  tag: a5cf9378dd6539824d79719436503a4aa7cb0aed
+  --sha256: sha256-YrLcZkQ7IjcLqygZ0sQg8TDs5jPaDXl8GXX9uhvIzCQ=
+  subdir:
+    cardano-api
+    cardano-api-gen
+    cardano-rpc
+    cardano-wasm
+
+-- Dependency suites run in their owning repositories. Preserve all CLI suites.
+package *
+  tests: False
+  benchmarks: False
+
+package cardano-cli
+  tests: True

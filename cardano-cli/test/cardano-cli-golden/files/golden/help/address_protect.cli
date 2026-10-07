@@ -1,0 +1,9 @@
+Usage: cardano-cli address protect --address ADDRESS [--out-file FILEPATH] 
+
+  Protect a base or enterprise payment address with Dijkstra Receiving
+  authorization.
+
+Available options:
+  --address ADDRESS        A Cardano address
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text
