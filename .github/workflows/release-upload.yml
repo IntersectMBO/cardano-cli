@@ -114,7 +114,9 @@ jobs:
         timeout-minutes: 120
         run: |
           while true; do
-            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion')
+            # A check that has not finished has no conclusion (null). gh prints null as an empty line,
+            # and $(...) drops it when it comes last, so such a check would not be counted. Hence "pending".
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion // "pending"')
             # Here we are being careful, because we query the status of multiple jobs (once per line)
             # But the only thing we are sure is that "success" means a green job. There
             # could be unknown statuses, which is why we may retry when unsure (see 'sleep') below.
