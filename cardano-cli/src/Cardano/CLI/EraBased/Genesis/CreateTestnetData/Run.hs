@@ -61,7 +61,6 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
-import Cardano.Ledger.Shelley qualified as L
 import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Protocol.Crypto qualified as C
@@ -454,7 +453,7 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams L.ShelleyEra)
+      :: Delegation -> (L.KeyHash L.Staking, GenesisStakePoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
@@ -766,7 +765,7 @@ createPoolCredentials fmt dir = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !(L.StakePoolParams L.ShelleyEra)
+  , dPoolParams :: !GenesisStakePoolParams
   }
   deriving (Generic, NFData)
 
@@ -828,7 +827,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.StakePoolParams L.ShelleyEra
+  -> GenesisStakePoolParams
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -851,7 +850,7 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash L.StakePool, L.StakePoolParams L.ShelleyEra)]
+  -> [(L.KeyHash L.StakePool, GenesisStakePoolParams)]
   -- ^ Pool map
   -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
