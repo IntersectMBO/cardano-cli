@@ -62,6 +62,15 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-ref-script-size-per-tx WORD32]
                                                                                   [--ref-script-cost-stride WORD32]
                                                                                   [--ref-script-cost-multiplier RATIONAL]
+                                                                                  [--leios-announcement-period-length MILLISECONDS]
+                                                                                  [--leios-vote-period-length MILLISECONDS]
+                                                                                  [--leios-diffusion-period-length MILLISECONDS]
+                                                                                  [--leios-committee-size WORD16]
+                                                                                  [--leios-quorum-stake-threshold RATIONAL]
+                                                                                  [--max-endorser-block-references-size WORD32]
+                                                                                  [--max-endorser-block-txs-size WORD32]
+                                                                                  [--max-endorser-block-execution-units (INT, INT)]
+                                                                                  [--max-ref-script-size-per-endorser-block WORD32]
                                                                                   [--cost-model-file FILE]
                                                                                   --out-file FILEPATH
                                                                                   
@@ -219,6 +228,32 @@ Available options:
                            calculation.
   --ref-script-cost-multiplier RATIONAL
                            Reference script cost multiplier for fee calculation.
+  --leios-announcement-period-length MILLISECONDS
+                           Length of the Leios announcement period, in
+                           milliseconds.
+  --leios-vote-period-length MILLISECONDS
+                           Length of the Leios voting period, in milliseconds.
+  --leios-diffusion-period-length MILLISECONDS
+                           Length of the Leios diffusion period, in
+                           milliseconds.
+  --leios-committee-size WORD16
+                           Number of seats on the Leios voting committee.
+  --leios-quorum-stake-threshold RATIONAL
+                           Fraction of committee stake required to certify an
+                           endorser block.
+  --max-endorser-block-references-size WORD32
+                           Maximum total size of the transaction references in
+                           an endorser block.
+  --max-endorser-block-txs-size WORD32
+                           Maximum total size of the transactions referenced by
+                           an endorser block.
+  --max-endorser-block-execution-units (INT, INT)
+                           Max total script execution resource units allowed per
+                           endorser block. They are denominated as follows
+                           (steps, memory).
+  --max-ref-script-size-per-endorser-block WORD32
+                           Maximum total size of reference scripts per endorser
+                           block.
   --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

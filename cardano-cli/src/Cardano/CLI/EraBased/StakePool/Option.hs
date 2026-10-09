@@ -1,9 +1,7 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.StakePool.Option
   ( pStakePoolCmds
@@ -20,7 +18,6 @@ import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
-import Cardano.CLI.EraIndependent.Node.Option (pBlsSigningKeyFile)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common (SigningKeyFile)
 
@@ -100,26 +97,27 @@ pExpectedStakePoolMetadataHash =
   pExpectedHash (StakePoolMetadataHash . L.extractHash . L.castSafeHash) "stake pool metadata"
 
 pStakePoolRegistrationCertificateCmd
-  :: forall era
-   . IsEra era
+  :: IsEra era
   => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd envCli = do
+  let era = useEra
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolRegistrationCertificateCmd $
-          Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
+          Cmd.StakePoolRegistrationCertificateCmdArgs (convert era)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
-            <*> pMaybeBlsSigningKeyFile @era
+            <*> pBlsSigningKeyFileForEra era
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
             <*> pRewardAcctVerificationKeyOrFile
             <*> some pPoolOwnerVerificationKeyOrFile
             <*> many pPoolRelay
+            <*> pValidateRelays
             <*> optional
               ( pPotentiallyCheckedAnchorData
                   pMustCheckStakeMetadataHash
@@ -130,10 +128,18 @@ pStakePoolRegistrationCertificateCmd envCli = do
       )
     $ Opt.progDesc "Create a stake pool registration certificate"
 
-pMaybeBlsSigningKeyFile :: forall era. IsEra era => Parser (Maybe (SigningKeyFile In))
-pMaybeBlsSigningKeyFile = case useEra @era of
-  Exp.ConwayEra -> pure Nothing
-  Exp.DijkstraEra -> Just <$> pBlsSigningKeyFile
+-- | A pool registers its voting key from Dijkstra onwards, so the BLS signing
+-- key is mandatory there and not offered at all in earlier eras.
+pBlsSigningKeyFileForEra :: Exp.Era era -> Parser (Maybe (SigningKeyFile In))
+pBlsSigningKeyFileForEra Exp.ConwayEra = pure Nothing
+pBlsSigningKeyFileForEra Exp.DijkstraEra = Just <$> pBlsSigningKeyFile
+
+pBlsSigningKeyFile :: Parser (SigningKeyFile In)
+pBlsSigningKeyFile =
+  File
+    <$> parseFilePath
+      "bls-signing-key-file"
+      "Input filepath of the BLS signing key."
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))

@@ -21,6 +21,7 @@ import Cardano.Api.Experimental.Certificate
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata
+import Cardano.CLI.EraBased.StakePool.Internal.Relay (validateStakePoolRelays)
 import Cardano.CLI.Read
   ( getVerificationKeyFromStakePoolVerificationKeySource
   )
@@ -53,11 +54,15 @@ runStakePoolRegistrationCertificateCmd
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
+    , validateRelays
     , mMetadata
     , network
     , outFile
     } =
     shelleyBasedEraConstraints sbe $ do
+      when (validateRelays == ValidateRelays) $
+        validateStakePoolRelays network relays
+
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
@@ -84,7 +89,7 @@ runStakePoolRegistrationCertificateCmd
           blsSkey <-
             fromEitherIOCli @(FileError TextEnvelopeError) $
               readFileTextEnvelope @(SigningKey BlsKey) skeyFile
-          pure $ Just $ blsSigningKeyToLeiosKey blsSkey
+          pure $ Just $ toLedgerBlsKey blsSkey
 
       let stakePoolParams =
             StakePoolParameters

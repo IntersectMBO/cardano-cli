@@ -1,5 +1,64 @@
 # Changelog for cardano-cli
 
+## 11.3.0.0 -- 2026-10-07
+
+- The IPv4 address of a stake pool's registered relay is no longer byte-reversed in stake pool registration certificates, in pool state query output, or in transaction view output; this is fixed by requiring cardano-ledger-binary 1.9.1.0 (#1442).
+  (bugfix)
+  [PR 1451](https://github.com/intersectmbo/cardano-cli/pull/1451)
+
+- `stake-pool registration-certificate` can now register a stake pool's BLS voting key. The new `--bls-signing-key-file FILEPATH` option is era-gated: it is mandatory from the Dijkstra era onwards and not offered in Conway or earlier, so existing Conway invocations are unaffected. The signing key is read as a text envelope (produce one with `node key-gen-BLS`) and converted to the registered verification key plus proof of possession via `toLedgerBlsKey`.
+  Genesis pool parameters built by `genesis create-staked` and `genesis create-testnet-data` set the new ledger `sppBlsKey` field to `SNothing`.
+  (feature)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Fix Dijkstra era commands (BLS key generation, transaction witness/assemble) that were failing with "TODO DijkstraEra" because the era dispatch in runAnyEraCommand was unconditionally calling obtainCommonConstraints, which is not yet implemented for DijkstraEra. Commands that do not require EraCommonConstraints now work correctly for the Dijkstra era.
+  (bugfix)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Add new Leios parameters to create-protocol-parameters-update command line options
+  (feature)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Removed the `node issue-pop-BLS` and `node key-hash-BLS` commands. A pool's BLS proof of possession is now built straight into the registration certificate from the signing key given to `stake-pool registration-certificate --bls-signing-key-file`, so there is no need to issue one as a standalone artifact; a standalone BLS key hash was never needed at all. Both commands shipped in 10.16.0.0 but no node release ever made use of their output, so removing them breaks no existing workflow. `node key-gen-BLS` is unaffected, and either command can be reinstated if a concrete use case turns up.
+  (breaking)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+- Adapt to cardano-ledger-core 1.22, where `mkStakePoolState` stamps a pool's BLS voting key with the epoch its registration takes effect in. The pool-state query does not report that epoch yet, so `query pool-state` fills `bksRegisteredIn` with the epoch the parameters take effect in: the current epoch for the active parameters and the next one for the future parameters. The reported value is a placeholder until the ledger exposes the real one (https://github.com/IntersectMBO/cardano-ledger/issues/6147); the feature is not yet used on mainnet.
+  (compatible)
+  [PR 1439](https://github.com/intersectmbo/cardano-cli/pull/1439)
+
+## 11.2.3.1 -- 2026-09-04
+
+- Update cardano-api to 11.7.0.0, fixing plutus redeemer pointer indexing in transaction building: proposal pointers now follow the transaction's insertion order and certificate pointers count unwitnessed certificates.
+  (bugfix)
+  [PR 1440](https://github.com/intersectmbo/cardano-cli/pull/1440)
+
+## 11.2.3.0 -- 2026-09-03
+
+- Bumped ouroboros-consensus to address issue that affected queries `query kes-period-info` and `query tip`.
+  (bugfix)
+  [PR 1436](https://github.com/intersectmbo/cardano-cli/pull/1436)
+
+- The `dijkstra` era subcommand now provides the full command set: address, key, genesis, governance, query, stake-address, stake-pool, text-view and transaction commands, matching the other eras; previously only the node commands were available.
+  (feature)
+  [PR 1431](https://github.com/intersectmbo/cardano-cli/pull/1431)
+
+- `transaction view` now renders Dijkstra-era certificates instead of failing with an internal TODO error.
+  (feature)
+  [PR 1430](https://github.com/intersectmbo/cardano-cli/pull/1430)
+
+- Protocol-parameter update proposals can now be created in the Dijkstra era with `governance action create-protocol-parameters-update`, including cost models and the parameters the era introduces: maximum reference-script size per block and per transaction, and the reference-script cost stride and multiplier.
+  (feature)
+  [PR 1429](https://github.com/intersectmbo/cardano-cli/pull/1429)
+
+- Simple scripts read from JSON files now work in the Dijkstra era, instead of aborting with an internal TODO error.
+  (feature)
+  [PR 1427](https://github.com/intersectmbo/cardano-cli/pull/1427)
+
+- Fixed `transaction assemble` (also known as `transaction sign-witness`) rejecting witness files from eras after Conway: witness files from every supported era, including Dijkstra, are now accepted.
+  (bugfix)
+  [PR 1426](https://github.com/intersectmbo/cardano-cli/pull/1426)
+
 ## 11.2.2.0 -- 2026-08-25
 
 - Bump cardano-api to 11.6.0.0.
@@ -31,37 +90,37 @@
   [PR 1396](https://github.com/intersectmbo/cardano-cli/pull/1396)
 
 - new `cardano-cli ping` api
-  
+
   `cardano-cli ping` allows now to ping multiple servers, does domain name
   resolution and supports SRV records (as specified in
   https://cips.cardano.org/cip/CIP-0155)
-  
+
   Some examples:
-  
+
   Run a ping against two ip addresses, ipv4 & ipv6
   ```bash
   cardano-cli ping 127.0.0.1:3001 [::1]:3001
   ```
-  
+
   Run a ping against a domain name:
   ```bash
   cardano-cli ping my.domain.com:3001
   ```
-  
+
   Run a ping against an SRV domain.
   According to CIP#0155 the SRV record needs to be registered at
   `_cardano._tcp.srv.domain.com`
   ```bash
   cardano-cli ping srv.domain.com
   ```
-  
+
   Run a ping against unix socket
   ```bash
   cardano-cli ping /var/run/cardano-node.socket
   ```
-  
+
   `cardano-cli` ping has three modes of operation:
-  
+
   * ping mode: `--mode ping` (the default)
   * tip mode  `--mode tip`
   * query handshake parameters: `--mode query`
@@ -69,20 +128,20 @@
   [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
 
 - The interface for `cardano-cli ping` has been reshuffled:
-  
+
   Removed:
-  
+
   * `-h`/`--host`, `-u`/`--unixsock` and `-p`/`--port`. The target is now given as a
     positional argument instead (see below).
   * `-Q`/`--query-versions`, replaced by `--mode query`.
   * `-t`/`--tip`, replaced by `--mode tip`.
-  
+
   Renamed:
-  
+
   * `-m`/`--magic` is now `-m`/`--network-magic`.
-  
+
   Added:
-  
+
   * A positional `ADDRS` argument, which accepts one or more targets: an IP/DNS address
     with a port (`127.0.0.1:3001`, `[::1]:3001`, `example.org:3001`), an SRV name, or a
     UNIX socket path.
@@ -92,7 +151,7 @@
     (default `_cardano._tcp`).
   * `--color COLOR`, one of `auto`, `never` or `always`.
   * `--short-hash`, to show an abbreviated tip hash.
-  
+
   Note that `-h` is now only a short form of `--help`; it no longer means `--host`.
   (breaking, feature)
   [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)

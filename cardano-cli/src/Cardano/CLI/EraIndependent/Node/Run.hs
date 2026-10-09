@@ -13,7 +13,6 @@ module Cardano.CLI.EraIndependent.Node.Run
   , runNodeKeyGenKesCmd
   , runNodeKeyGenVrfCmd
   , runNodeKeyHashVrfCmd
-  , runNodeKeyHashBlsCmd
   , runNodeNewCounterCmd
   )
 where

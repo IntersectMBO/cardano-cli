@@ -75,7 +75,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.
   , blsSkeyFile :: !(Maybe (SigningKeyFile In))
-  -- ^ The BLS signing key (Dijkstra era only).
+  -- ^ BLS signing key, from which the registered voting key and its proof of
+  -- possession are derived. Required from Dijkstra onwards, unavailable before.
   , poolPledge :: !Coin
   -- ^ Pool pledge.
   , poolCost :: !Coin
@@ -88,6 +89,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Pool owner verification staking key(s).
   , relays :: ![StakePoolRelay]
   -- ^ Stake pool relays.
+  , validateRelays :: !ValidateRelays
+  -- ^ Whether to check that the relays above are reachable.
   , mMetadata
       :: !(Maybe (PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference))
   -- ^ Stake pool metadata.

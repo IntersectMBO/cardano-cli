@@ -30,6 +30,7 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
+import Cardano.CLI.EraBased.StakePool.Internal.Relay (validateStakePoolRelays)
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
@@ -42,6 +43,7 @@ import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
+import Control.Monad (forM, when)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
@@ -82,11 +84,15 @@ runStakePoolRegistrationCertificateCmd
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
+    , validateRelays
     , mMetadata
     , network
     , outFile
     } =
     obtainCommonConstraints era $ do
+      when (validateRelays == ValidateRelays) $
+        validateStakePoolRelays network relays
+
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
@@ -109,20 +115,19 @@ runStakePoolRegistrationCertificateCmd
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
-      -- BLS signing key for Leios voting registration (Dijkstra era only)
-      mLeiosKey <- case blsSkeyFile of
-        Nothing -> pure Nothing
-        Just skeyFile -> do
+      -- BLS voting key, registered from Dijkstra onwards
+      mBlsKey <-
+        forM blsSkeyFile $ \skeyFile -> do
           blsSkey <-
             fromEitherIOCli @(FileError TextEnvelopeError) $
               readFileTextEnvelope @(SigningKey BlsKey) skeyFile
-          pure $ Just $ blsSigningKeyToLeiosKey blsSkey
+          pure $ toLedgerBlsKey blsSkey
 
       let stakePoolParams =
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
-              , stakePoolBlsKey = mLeiosKey
+              , stakePoolBlsKey = mBlsKey
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr

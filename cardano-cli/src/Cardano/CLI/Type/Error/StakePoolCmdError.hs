@@ -13,9 +13,14 @@ import Cardano.Api.Experimental.Certificate
   ( Hash (StakePoolMetadataHash)
   , StakePoolMetadata
   , StakePoolMetadataValidationError
+  , StakePoolRelay
   )
 
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
+import Cardano.Network.Ping (PingException)
+
+import Control.Exception (displayException)
+import Prettyprinter qualified as PP
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -27,6 +32,8 @@ data StakePoolCmdError
       !(Hash StakePoolMetadata)
       -- ^ Actual hash
   | StakePoolCmdFetchURLError !FetchURLError
+  | StakePoolCmdRelayPingErrors ![PingException]
+  | StakePoolCmdInvalidRelayError !StakePoolRelay
   deriving Show
 
 instance Error StakePoolCmdError where
@@ -47,3 +54,14 @@ instance Error StakePoolCmdError where
             <+> pretty (show actualHash)
     StakePoolCmdFetchURLError fetchErr ->
       "Error fetching stake pool metadata: " <> prettyException fetchErr
+    StakePoolCmdRelayPingErrors errs ->
+      PP.vsep
+        [ "Errors validating stake pool relays:"
+        , PP.indent 2 $ PP.vsep (PP.pretty . displayException <$> errs)
+        ]
+    StakePoolCmdInvalidRelayError relay ->
+      PP.vsep
+        [ "Cannot validate stake pool relay:" <+> pretty (show relay)
+        , "A relay given by IP address must specify a port and at least one of an"
+            <+> "IPv4 or IPv6 address."
+        ]

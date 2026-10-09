@@ -132,7 +132,7 @@ shelleyToBabbageProtocolParametersUpdate
 shelleyToBabbageProtocolParametersUpdate sbe args = do
   let oFp = uppFilePath args
       anyEra = AnyShelleyBasedEra sbe
-  UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
+  UpdateProtocolParametersPreConway expEpoch genesisVerKeys <-
     fromExceptTCli $
       hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
         uppPreConway args
