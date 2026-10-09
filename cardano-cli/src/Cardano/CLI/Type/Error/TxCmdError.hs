@@ -83,6 +83,7 @@ data TxCmdError
     TxCmdDuplicateSubTransaction !TxId
   | TxCmdNonCanonicalSubTransaction !TxId
   | TxCmdSubTxCborError !DecoderError
+  | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
 
 instance Show TxCmdError where
@@ -200,6 +201,8 @@ renderTxCmdError = \case
       <> " has a non-canonical CBOR body. Canonicalising that body would invalidate its signatures. Rebuild it with sub-transaction build-raw --out-canonical-cbor and sign it again."
   TxCmdSubTxCborError err ->
     "Error canonicalising sub-transaction CBOR: " <> prettyError err
+  TxCmdSubTxUnsupportedPlutusLanguage language ->
+    "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
   TxCmdUtxoJsonError e ->

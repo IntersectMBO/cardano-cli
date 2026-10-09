@@ -8,3 +8,5 @@ kind:
 description: |
   Add the Dijkstra-only `transaction sub-transaction` command group with `build-raw` (builds an unsigned sub-transaction from the Conway-era transaction options plus `--guard-key-hash`, `--guard-verification-key`, `--guard-verification-key-file` and `--guard-script-hash`), `sign` and `txid`, and add a repeatable `--signed-sub-tx-file FILE` option to `dijkstra transaction build-raw` that embeds signed sub-transactions in a top-level transaction. Sub-transactions are written as `Unwitnessed SubTx DijkstraEra` / `Witnessed SubTx DijkstraEra` text envelopes.
   Sub-transaction build-raw supports --out-canonical-cbor before signing. Canonical output of a top-level transaction rejects embedded sub-transactions whose signed body bytes would change.
+  Sub-transaction builders expose only Plutus V4 reference-script selectors and reject Plutus V1-V3 script files; native scripts and key witnesses remain supported.
+  Add Dijkstra-only Plutus V4 reference-script flags for spending, minting, certificates, withdrawals, voting and proposals in both top-level and sub-transaction builders.

@@ -198,7 +198,7 @@ pTransactionBuildCmd envCli = do
             )
         <*> optional pScriptValidity
         <*> optional pWitnessOverride
-        <*> some (pTxIn AutoBalance)
+        <*> some (pTxInForEra (Exp.useEra @era) AutoBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
@@ -209,8 +209,8 @@ pTransactionBuildCmd envCli = do
         <*> (fmap join . optional $ pMintMultiAsset @era AutoBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter era'
-        <*> many (pCertificateFile AutoBalance)
-        <*> many (pWithdrawal AutoBalance)
+        <*> many (pCertificateFileForEra (Exp.useEra @era) AutoBalance)
+        <*> many (pWithdrawalForEra (Exp.useEra @era) AutoBalance)
         <*> pTxMetadataJsonSchema
         <*> many
           ( pScriptFor
@@ -219,8 +219,8 @@ pTransactionBuildCmd envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pVoteFiles AutoBalance
-        <*> pProposalFiles AutoBalance
+        <*> pVoteFilesForEra (Exp.useEra @era) AutoBalance
+        <*> pProposalFilesForEra (Exp.useEra @era) AutoBalance
         <*> pIncludeCurrentTreasuryValue
         <*> pTreasuryDonation
         <*> pIsCborOutCanonical
@@ -261,7 +261,7 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> optional pNumberOfByronKeyWitnesses
         <*> pProtocolParamsFile
         <*> pTotalUTxOValue
-        <*> some (pTxIn ManualBalance)
+        <*> some (pTxInForEra (Exp.useEra @era) ManualBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
@@ -271,8 +271,8 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter Exp.useEra
-        <*> many (pCertificateFile ManualBalance)
-        <*> many (pWithdrawal ManualBalance)
+        <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
+        <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
         <*> optional pTotalCollateral
         <*> optional pReferenceScriptSize
         <*> pTxMetadataJsonSchema
@@ -283,8 +283,8 @@ pTransactionBuildEstimateCmd _envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pVoteFiles ManualBalance
-        <*> pProposalFiles ManualBalance
+        <*> pVoteFilesForEra (Exp.useEra @era) ManualBalance
+        <*> pProposalFilesForEra (Exp.useEra @era) ManualBalance
         <*> pCurrentTreasuryValue
         <*> pTreasuryDonation
         <*> pIsCborOutCanonical
@@ -305,7 +305,7 @@ pTransactionBuildRaw =
   fmap TransactionBuildRawCmd $
     TransactionBuildRawCmdArgs Exp.useEra
       <$> optional pScriptValidity
-      <*> some (pTxIn ManualBalance)
+      <*> some (pTxInForEra (Exp.useEra @era) ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
@@ -316,14 +316,14 @@ pTransactionBuildRaw =
       <*> optional pInvalidBefore
       <*> pInvalidHereafter Exp.useEra
       <*> pTxFee
-      <*> many (pCertificateFile ManualBalance)
-      <*> many (pWithdrawal ManualBalance)
+      <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
+      <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pVoteFiles ManualBalance
-      <*> pProposalFiles ManualBalance
+      <*> pVoteFilesForEra (Exp.useEra @era) ManualBalance
+      <*> pProposalFilesForEra (Exp.useEra @era) ManualBalance
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
       <*> pSubTransactionFiles @era

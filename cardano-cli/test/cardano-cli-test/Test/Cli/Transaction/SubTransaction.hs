@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Test.Cli.Transaction.SubTransaction where
 
@@ -7,6 +8,8 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Control.Monad (forM_, void)
+import Data.Aeson ((.=))
+import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
 import Data.List (isInfixOf)
 import Lens.Micro ((^.))
@@ -481,3 +484,234 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
         , outFile
         ]
     checkEmbeddedBody outFile
+
+-- | Every script purpose must reject older Plutus witnesses before requiring
+-- protocol parameters or producing an unsigned body.
+hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts :: Property
+hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    scriptFile <- H.noteTempFile tempDir "old.plutus"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    let base = ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+        policy = replicate 56 '0'
+        disk prefix =
+          [ "--" ++ prefix ++ "-script-file"
+          , scriptFile
+          , "--" ++ prefix ++ "-redeemer-value"
+          , "0"
+          , "--" ++ prefix ++ "-execution-units"
+          , "(0,0)"
+          ]
+        purposes =
+          [
+            [ "--tx-in-script-file"
+            , scriptFile
+            , "--tx-in-datum-value"
+            , "0"
+            , "--tx-in-redeemer-value"
+            , "0"
+            , "--tx-in-execution-units"
+            , "(0,0)"
+            ]
+          , ["--mint", "1 " ++ policy] ++ disk "mint"
+          , [ "--certificate-file"
+            , "test/cardano-cli-test/files/input/sub-transaction/drep-registration-script.json"
+            ]
+              ++ disk "certificate"
+          , ["--withdrawal", "stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99+10000"]
+              ++ disk "withdrawal"
+          , ["--vote-file", "test/cardano-cli-test/files/input/sub-transaction/vote.drep.json"] ++ disk "vote"
+          , [ "--proposal-file"
+            , "test/cardano-cli-test/files/input/sub-transaction/protocol-parameters-update.action"
+            ]
+              ++ disk "proposal"
+          ]
+    forM_ [1 :: Int, 2, 3] $ \version -> do
+      H.evalIO $
+        Aeson.encodeFile scriptFile $
+          Aeson.object
+            [ "type" .= ("PlutusScriptV" ++ show version)
+            , "description" .= ("Language validation fixture" :: String)
+            , "cborHex" .= ("4e4d01000033222220051200120011" :: String)
+            ]
+      forM_ purposes $ \witnessArgs -> do
+        (exitCode, _, stderr) <- execDetailCardanoCLI $ base ++ witnessArgs ++ ["--out-file", outFile]
+        exitCode H.=== ExitFailure 1
+        H.assertWith stderr ("Sub-transactions require Plutus V4 for script execution" `isInfixOf`)
+        H.assertWith stderr (("PlutusV" ++ show version) `isInfixOf`)
+        exists <- H.evalIO $ doesFileExist outFile
+        exists H.=== False
+
+-- | Sub-transaction reference witnesses expose only the V4 language selector.
+hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts :: Property
+hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_ [1 :: Int, 2, 3] $ \version ->
+      forM_ v4ReferenceScriptCases $ \(purpose, witnessArgs) -> do
+        let olderFlag = "--" ++ purpose ++ "-plutus-script-v" ++ show version
+            replaceLanguage arg
+              | arg == "--" ++ purpose ++ "-plutus-script-v4" = olderFlag
+              | otherwise = arg
+        (exitCode, _, stderr) <-
+          execDetailCardanoCLI $
+            ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+              ++ map replaceLanguage witnessArgs
+              ++ ["--out-file", outFile]
+        exitCode H.=== ExitFailure 1
+        H.assertWith stderr (("Invalid option `" ++ olderFlag ++ "'") `isInfixOf`)
+        exists <- H.evalIO $ doesFileExist outFile
+        exists H.=== False
+
+-- | V4 witnesses and native scripts remain supported, and storing an older
+-- reference script in an output does not execute it.
+hprop_dijkstra_sub_transaction_accepts_v4_native_and_stored_scripts :: Property
+hprop_dijkstra_sub_transaction_accepts_v4_native_and_stored_scripts =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    scriptFile <- H.noteTempFile tempDir "v4.plutus"
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    H.evalIO $
+      Aeson.encodeFile scriptFile $
+        Aeson.object
+          [ "type" .= ("PlutusScriptV4" :: String)
+          , "description" .= ("Always succeeds" :: String)
+          , "cborHex" .= ("46450101002499" :: String)
+          ]
+    H.evalIO $
+      Aeson.encodeFile
+        paramsFile
+        (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra Exp.DijkstraEra))
+    let base = ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+    forM_
+      [
+        [ "--tx-in-script-file"
+        , scriptFile
+        , "--tx-in-redeemer-value"
+        , "0"
+        , "--tx-in-execution-units"
+        , "(0,0)"
+        , "--protocol-params-file"
+        , paramsFile
+        ]
+      , ["--tx-in-script-file", "test/cardano-cli-test/files/input/shelley/multisig/scripts/all"]
+      ,
+        [ "--tx-out"
+        , txOut
+        , "--tx-out-reference-script-file"
+        , "test/cardano-cli-test/files/input/plutus/v3-always-succeeds.plutus"
+        ]
+      ]
+      $ \witnessArgs -> do
+        void $ execCardanoCLI $ base ++ witnessArgs ++ ["--out-file", outFile]
+
+-- | The language selector is available for every reference-script purpose.
+v4ReferenceScriptCases :: [(String, [String])]
+v4ReferenceScriptCases =
+  let reference = replicate 64 '0' ++ "#0"
+      policy = replicate 56 '0'
+      witness prefix =
+        [ "--" ++ prefix ++ "-tx-in-reference"
+        , reference
+        , "--" ++ prefix ++ "-plutus-script-v4"
+        , "--" ++ prefix ++ "-reference-tx-in-redeemer-value"
+        , "0"
+        , "--" ++ prefix ++ "-reference-tx-in-execution-units"
+        , "(0,0)"
+        ]
+   in [ ("spending", witness "spending")
+      , ("mint", ["--mint", "1 " ++ policy] ++ witness "mint" ++ ["--policy-id", policy])
+      ,
+        ( "certificate"
+        , [ "--certificate-file"
+          , "test/cardano-cli-test/files/input/sub-transaction/drep-registration-script.json"
+          ]
+            ++ witness "certificate"
+        )
+      ,
+        ( "withdrawal"
+        , ["--withdrawal", "stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99+10000"]
+            ++ witness "withdrawal"
+        )
+      ,
+        ( "vote"
+        , ["--vote-file", "test/cardano-cli-test/files/input/sub-transaction/vote.drep.json"]
+            ++ witness "vote"
+        )
+      ,
+        ( "proposal"
+        , [ "--proposal-file"
+          , "test/cardano-cli-test/files/input/sub-transaction/protocol-parameters-update.action"
+          ]
+            ++ witness "proposal"
+        )
+      ]
+
+hprop_dijkstra_v4_reference_script_flags :: Property
+hprop_dijkstra_v4_reference_script_flags =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "tx.body"
+    H.evalIO $
+      Aeson.encodeFile
+        paramsFile
+        (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra Exp.DijkstraEra))
+    forM_ [(["sub-transaction", "build-raw"], []), (["build-raw"], ["--fee", "200000"])] $ \(command, feeArgs) ->
+      forM_ v4ReferenceScriptCases $ \(purpose, witnessArgs) -> do
+        H.note_ purpose
+        void $
+          execCardanoCLI $
+            ["dijkstra", "transaction"]
+              ++ command
+              ++ ["--tx-in", txIn]
+              ++ witnessArgs
+              ++ ["--tx-out", txOut, "--protocol-params-file", paramsFile]
+              ++ feeArgs
+              ++ ["--out-file", outFile]
+
+-- | Restricting sub-transactions must preserve older top-level reference witnesses.
+hprop_dijkstra_top_level_accepts_older_plutus_reference_scripts :: Property
+hprop_dijkstra_top_level_accepts_older_plutus_reference_scripts =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "tx.body"
+    H.evalIO $
+      Aeson.encodeFile
+        paramsFile
+        (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra Exp.DijkstraEra))
+    forM_ [2 :: Int, 3] $ \version ->
+      forM_ v4ReferenceScriptCases $ \(purpose, witnessArgs) ->
+        -- Governance reference witnesses start at V3.
+        if version == 2 && purpose `elem` ["vote", "proposal"]
+          then pure ()
+          else do
+            let replaceLanguage arg
+                  | arg == "--" ++ purpose ++ "-plutus-script-v4" =
+                      "--" ++ purpose ++ "-plutus-script-v" ++ show version
+                  | otherwise = arg
+            void $
+              execCardanoCLI $
+                ["dijkstra", "transaction", "build-raw", "--tx-in", txIn]
+                  ++ map replaceLanguage witnessArgs
+                  ++ ( if purpose == "spending" && version == 2
+                         then ["--spending-reference-tx-in-datum-value", "0"]
+                         else []
+                     )
+                  ++ ["--tx-out", txOut, "--fee", "200000", "--protocol-params-file", paramsFile, "--out-file", outFile]
+
+-- | Conway and latest must retain their existing language selectors.
+hprop_conway_rejects_v4_reference_script_flags :: Property
+hprop_conway_rejects_v4_reference_script_flags =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "tx.body"
+    forM_ ["conway", "latest"] $ \era ->
+      forM_ v4ReferenceScriptCases $ \(purpose, witnessArgs) -> do
+        (exitCode, _, stderr) <-
+          execDetailCardanoCLI $
+            [era, "transaction", "build-raw", "--tx-in", txIn]
+              ++ witnessArgs
+              ++ ["--tx-out", txOut, "--fee", "200000", "--out-file", outFile]
+        exitCode H.=== ExitFailure 1
+        H.assertWith stderr (("Invalid option `--" ++ purpose ++ "-plutus-script-v4'") `isInfixOf`)
+        exists <- H.evalIO $ doesFileExist outFile
+        exists H.=== False

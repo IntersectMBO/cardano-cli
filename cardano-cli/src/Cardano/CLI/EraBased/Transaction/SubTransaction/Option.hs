@@ -84,25 +84,38 @@ pSubTransactionBuildRaw :: Parser SubTransactionCmds
 pSubTransactionBuildRaw =
   fmap SubTransactionBuildRawCmd $
     SubTransactionBuildRawCmdArgs
-      <$> some (pTxIn ManualBalance)
+      <$> some (pTxInWithPlutusReferenceLanguage pReferenceLanguage ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxOut
-      <*> (fmap join . optional $ pMintMultiAsset @Exp.DijkstraEra ManualBalance)
+      <*> ( fmap join . optional $
+              pMintMultiAssetWithPlutusReferenceLanguage @Exp.DijkstraEra
+                pReferenceLanguage
+                ManualBalance
+          )
       <*> optional pInvalidBefore
       <*> optional pInvalidHereafterSlot
-      <*> many (pCertificateFile ManualBalance)
-      <*> many (pWithdrawal ManualBalance)
+      <*> many
+        ( pCertificateFileWithPlutusReferenceLanguage
+            pReferenceLanguage
+            ManualBalance
+        )
+      <*> many
+        (pWithdrawalWithPlutusReferenceLanguage pReferenceLanguage ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pVoteFiles ManualBalance
-      <*> pProposalFiles ManualBalance
+      <*> many
+        (pVoteFileWithPlutusReferenceLanguage pReferenceLanguage ManualBalance)
+      <*> many
+        (pProposalFileWithPlutusReferenceLanguage pReferenceLanguage ManualBalance)
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
       <*> many pGuard
       <*> pIsCborOutCanonical
       <*> pUnsignedSubTxFileOut
+ where
+  pReferenceLanguage = pPlutusV4ReferenceLanguage Exp.DijkstraEra
 
 pSubTransactionSign :: Parser SubTransactionCmds
 pSubTransactionSign =
