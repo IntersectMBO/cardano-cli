@@ -148,6 +148,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                     | --guard-key-hash HASH
                                                                     | --guard-script-hash HASH
                                                                     ]
+                                                                    [--out-canonical-cbor]
                                                                     --out-file FILEPATH
                                                                     
 
@@ -478,5 +479,7 @@ Available options:
   --guard-script-hash HASH Hash of a native or Plutus guard script
                            (hex-encoded). Obtain it with "cardano-cli hash
                            script ...".
+  --out-canonical-cbor     Produce transaction in canonical CBOR according to
+                           RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON unsigned sub-transaction.
   -h,--help                Show this help text

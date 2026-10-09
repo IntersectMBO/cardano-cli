@@ -17,6 +17,7 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Run
   , runSubTransactionSignCmd
   , runSubTransactionTxIdCmd
   , readSignedSubTransactions
+  , validateCanonicalSubTransactions
   )
 where
 
@@ -43,13 +44,15 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Key (readVerificationKeyOrHashOrFileOrScriptHash)
-import Cardano.Ledger.Hashes (DataHash)
+import Cardano.Ledger.Dijkstra.TxBody qualified as L
+import Cardano.Ledger.Hashes (DataHash, originalBytes)
 import Cardano.Ledger.Keys (coerceKeyRole)
 
 import RIO hiding (toList)
 
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Foldable qualified as Foldable
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.OSet.Strict (OSet)
@@ -99,6 +102,7 @@ runSubTransactionBuildRawCmd
     , mCurrentTreasuryValue
     , mTreasuryDonation
     , guards
+    , isCborOutCanonical
     , outFile
     } = do
     txInsAndMaybeScriptWits <-
@@ -170,7 +174,13 @@ runSubTransactionBuildRawCmd
     unsignedSubTx <-
       fromEitherCli $ first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedSubTx subTx
 
-    fromEitherIOCli $ writeFileTextEnvelope outFile Nothing unsignedSubTx
+    outputSubTx <-
+      if isCborOutCanonical == TxCborCanonical
+        then fromEitherCli $ do
+          cbor <- first TxCmdSubTxCborError $ canonicaliseCborBs (serialiseToCBOR unsignedSubTx)
+          first TxCmdSubTxCborError $ deserialiseFromCBOR Exp.AsUnsignedSubTx cbor
+        else pure unsignedSubTx
+    fromEitherIOCli $ writeFileTextEnvelope outFile Nothing outputSubTx
    where
     eon :: Exp.Era Exp.DijkstraEra
     eon = Exp.DijkstraEra
@@ -327,3 +337,22 @@ runSubTransactionTxIdCmd
               . Vary.on (\FormatYaml -> LBS.putStrLn $ Json.encodeYaml $ TxSubmissionResult subTxId)
               $ Vary.exhaustiveCase
           )
+
+-- | Canonicalising an outer transaction must preserve the body bytes signed by
+-- each embedded sub-transaction. Witness encoding is not part of this check.
+validateCanonicalSubTransactions
+  :: TxCborFormat
+  -> ShelleyBasedEra era
+  -> Tx era
+  -> Either TxCmdError ()
+validateCanonicalSubTransactions TxCborNotCanonical _ _ = Right ()
+validateCanonicalSubTransactions TxCborCanonical sbe (ShelleyTx _ tx) =
+  case sbe of
+    ShelleyBasedEraDijkstra ->
+      forM_ (Foldable.toList (tx ^. L.bodyTxL . L.subTransactionsTxBodyL)) $ \subTx -> do
+        let bodyBytes = originalBytes (subTx ^. L.bodyTxL)
+        canonicalBytes <- first TxCmdSubTxCborError $ canonicaliseCborBs bodyBytes
+        unless (bodyBytes == canonicalBytes) $
+          Left $
+            TxCmdNonCanonicalSubTransaction (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
+    _ -> Right ()
