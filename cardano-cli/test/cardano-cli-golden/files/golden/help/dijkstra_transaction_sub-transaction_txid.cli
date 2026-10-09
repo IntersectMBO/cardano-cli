@@ -1,0 +1,20 @@
+Usage: cardano-cli dijkstra transaction sub-transaction txid 
+                                                               ( --sub-tx-file FILEPATH
+                                                               | --signed-sub-tx-file FILEPATH
+                                                               )
+                                                               [ --output-json
+                                                               | --output-text
+                                                               | --output-yaml
+                                                               ]
+                                                               
+
+  Print a sub-transaction identifier.
+
+Available options:
+  --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
+  --signed-sub-tx-file FILEPATH
+                           Input filepath of the JSON signed sub-transaction.
+  --output-json            Format output to JSON (default).
+  --output-text            Format output to TEXT.
+  --output-yaml            Format output to YAML.
+  -h,--help                Show this help text

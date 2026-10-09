@@ -32,7 +32,7 @@ import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Transaction.Run
+import Cardano.CLI.EraBased.Transaction.Internal.Common (partitionSomeWitnesses)
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
