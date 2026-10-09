@@ -79,6 +79,12 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | -- | The same sub-transaction was given more than once.
+    TxCmdDuplicateSubTransaction !TxId
+  | TxCmdNonCanonicalSubTransaction !TxId
+  | TxCmdSubTxCborError !DecoderError
+  | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
+  | TxCmdSubTxByronWitnessUnsupported
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -185,6 +191,20 @@ renderTxCmdError = \case
   TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
   TxCmdDeprecatedEra e -> pretty e
+  TxCmdDuplicateSubTransaction subTxId ->
+    "The sub-transaction with id "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " was provided more than once."
+  TxCmdNonCanonicalSubTransaction subTxId ->
+    "Cannot write the top-level transaction with --out-canonical-cbor: embedded sub-transaction "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " has a non-canonical CBOR body. Canonicalising that body would invalidate its signatures. Rebuild it with sub-transaction build-raw --out-canonical-cbor and sign it again."
+  TxCmdSubTxCborError err ->
+    "Error canonicalising sub-transaction CBOR: " <> prettyError err
+  TxCmdSubTxUnsupportedPlutusLanguage language ->
+    "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
+  TxCmdSubTxByronWitnessUnsupported ->
+    "Byron (bootstrap) witnesses are not supported for sub-transactions."
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->

@@ -34,6 +34,7 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
@@ -55,6 +56,7 @@ data TransactionCmds era
   | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
+  | TransactionSubTransactionCmds !SubTransactionCmds
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
@@ -93,19 +95,12 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
+  , subTransactionFiles :: ![SignedSubTxFile In]
+  -- ^ Signed sub-transactions to embed. Dijkstra era onwards; always empty in Conway.
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
   deriving Show
-
--- | Whether output transaction is in CBOR canonical format according to RFC7049 section 3.9.
---
--- 1. https://datatracker.ietf.org/doc/html/rfc7049#section-3.9
--- 2. https://github.com/cardano-foundation/CIPs/blob/master/CIP-0021/README.md#canonical-cbor-serialization-format
-data TxCborFormat
-  = TxCborCanonical
-  | TxCborNotCanonical
-  deriving (Eq, Show)
 
 -- | Whether to include the current treasury value in the transaction body.
 --
@@ -347,3 +342,4 @@ renderTransactionCmds = \case
   TransactionCalculatePlutusScriptCostCmd{} -> "transaction calculate-plutus-script-cost"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"
+  TransactionSubTransactionCmds cmd -> renderSubTransactionCmds cmd

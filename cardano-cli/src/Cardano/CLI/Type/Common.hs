@@ -42,6 +42,7 @@ module Cardano.CLI.Type.Common
   , GenesisFile (..)
   , GenesisKeyFile (..)
   , IncludeStake (..)
+  , InputSubTxFile (..)
   , InputTxBodyOrTxFile (..)
   , MetadataFile (..)
   , MustCheckHash (..)
@@ -76,9 +77,12 @@ module Cardano.CLI.Type.Common
   , SupportedSchemes
   , TransferDirection (..)
   , TxBodyFile
+  , UnsignedSubTxFile
+  , SignedSubTxFile
   , TxBuildOutputOptions (..)
   , TxByronWitnessCount (..)
   , TxFile
+  , TxCborFormat (..)
   , TxSubmissionResult (..)
   , TxTreasuryDonation (..)
   , TxInCount (..)
@@ -521,6 +525,17 @@ type TxBodyFile = File TxBodyTag
 
 type TxFile = File (Tx ())
 
+data UnsignedSubTxTag
+
+-- | A Dijkstra sub-transaction without key witnesses.
+type UnsignedSubTxFile = File UnsignedSubTxTag
+
+data SignedSubTxTag
+
+-- | A Dijkstra sub-transaction carrying its key witnesses, ready to be
+-- embedded in a top-level transaction.
+type SignedSubTxFile = File SignedSubTxTag
+
 newtype TxTreasuryDonation = TxTreasuryDonation {unTxTreasuryDonation :: Lovelace}
   deriving Show
 
@@ -671,6 +686,11 @@ data WitnessSigningData
 data InputTxBodyOrTxFile = InputTxBodyFile (TxBodyFile In) | InputTxFile (TxFile In)
   deriving Show
 
+data InputSubTxFile
+  = InputUnsignedSubTxFile (UnsignedSubTxFile In)
+  | InputSignedSubTxFile (SignedSubTxFile In)
+  deriving Show
+
 data ParserFileDirection
   = Input
   | Output
@@ -703,3 +723,12 @@ newtype TxSubmissionResult = TxSubmissionResult {txhash :: TxId}
 instance FromJSON TxSubmissionResult
 
 instance ToJSON TxSubmissionResult
+
+-- | Whether output transaction is in CBOR canonical format according to RFC7049 section 3.9.
+--
+-- 1. https://datatracker.ietf.org/doc/html/rfc7049#section-3.9
+-- 2. https://github.com/cardano-foundation/CIPs/blob/master/CIP-0021/README.md#canonical-cbor-serialization-format
+data TxCborFormat
+  = TxCborCanonical
+  | TxCborNotCanonical
+  deriving (Eq, Show)

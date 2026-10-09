@@ -1,188 +1,158 @@
-Usage: cardano-cli dijkstra transaction build-raw 
-                                                    [ --script-valid
-                                                    | --script-invalid
-                                                    ]
-                                                    (--tx-in TX_IN
-                                                      [ --spending-tx-in-reference TX_IN
-                                                        ( --spending-plutus-script-v2
-                                                        | --spending-plutus-script-v3
-                                                        | --spending-plutus-script-v4
-                                                        )
-                                                        [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
-                                                        | --spending-reference-tx-in-datum-file JSON_FILE
-                                                        | --spending-reference-tx-in-datum-value JSON_VALUE
-                                                        | --spending-reference-tx-in-inline-datum-present
-                                                        ]
-                                                        ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --spending-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --spending-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --spending-reference-tx-in-execution-units (INT, INT)
-                                                      | --simple-script-tx-in-reference TX_IN
-                                                      | --tx-in-script-file FILEPATH
-                                                        [
-                                                          [ --tx-in-datum-cbor-file CBOR_FILE
-                                                          | --tx-in-datum-file JSON_FILE
-                                                          | --tx-in-datum-value JSON_VALUE
-                                                          | --tx-in-inline-datum-present
-                                                          ]
-                                                          ( --tx-in-redeemer-cbor-file CBOR_FILE
-                                                          | --tx-in-redeemer-file JSON_FILE
-                                                          | --tx-in-redeemer-value JSON_VALUE
-                                                          )
-                                                          --tx-in-execution-units (INT, INT)]
-                                                      ])
-                                                    [--read-only-tx-in-reference TX_IN]
-                                                    [--tx-in-collateral TX_IN]
-                                                    [--tx-out-return-collateral ADDRESS VALUE]
-                                                    [--tx-total-collateral INTEGER]
-                                                    [ --required-signer FILEPATH
-                                                    | --required-signer-hash HASH
-                                                    ]
-                                                    [--tx-out ADDRESS VALUE
-                                                      [ --tx-out-datum-hash HASH
-                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                      | --tx-out-datum-hash-file JSON_FILE
-                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                      | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                      | --tx-out-datum-embed-file JSON_FILE
-                                                      | --tx-out-datum-embed-value JSON_VALUE
-                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                      | --tx-out-inline-datum-file JSON_FILE
-                                                      | --tx-out-inline-datum-value JSON_VALUE
-                                                      ]
-                                                      [--tx-out-reference-script-file FILEPATH]]
-                                                    [--mint VALUE
-                                                      ( --mint-script-file FILEPATH
-                                                        [
-                                                          ( --mint-redeemer-cbor-file CBOR_FILE
-                                                          | --mint-redeemer-file JSON_FILE
-                                                          | --mint-redeemer-value JSON_VALUE
-                                                          )
-                                                          --mint-execution-units (INT, INT)]
-                                                      | --simple-minting-script-tx-in-reference TX_IN
-                                                        --policy-id HASH
-                                                      | --mint-tx-in-reference TX_IN
-                                                        ( --mint-plutus-script-v2
-                                                        | --mint-plutus-script-v3
-                                                        | --mint-plutus-script-v4
-                                                        )
-                                                        ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --mint-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --mint-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --mint-reference-tx-in-execution-units (INT, INT)
-                                                        --policy-id HASH
-                                                      )]
-                                                    [--invalid-before SLOT]
-                                                    [--invalid-hereafter SLOT]
-                                                    --fee LOVELACE
-                                                    [--certificate-file FILEPATH
-                                                      [ --certificate-script-file FILEPATH
-                                                        [
-                                                          ( --certificate-redeemer-cbor-file CBOR_FILE
-                                                          | --certificate-redeemer-file JSON_FILE
-                                                          | --certificate-redeemer-value JSON_VALUE
-                                                          )
-                                                          --certificate-execution-units (INT, INT)]
-                                                      | --certificate-tx-in-reference TX_IN
-                                                        ( --certificate-plutus-script-v2
-                                                        | --certificate-plutus-script-v3
-                                                        | --certificate-plutus-script-v4
-                                                        )
-                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --certificate-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --certificate-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --certificate-reference-tx-in-execution-units (INT, INT)
-                                                      ]]
-                                                    [--withdrawal WITHDRAWAL
-                                                      [ --withdrawal-script-file FILEPATH
-                                                        [
-                                                          ( --withdrawal-redeemer-cbor-file CBOR_FILE
-                                                          | --withdrawal-redeemer-file JSON_FILE
-                                                          | --withdrawal-redeemer-value JSON_VALUE
-                                                          )
-                                                          --withdrawal-execution-units (INT, INT)]
-                                                      | --withdrawal-tx-in-reference TX_IN
-                                                        ( --withdrawal-plutus-script-v2
-                                                        | --withdrawal-plutus-script-v3
-                                                        | --withdrawal-plutus-script-v4
-                                                        )
-                                                        ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --withdrawal-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --withdrawal-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --withdrawal-reference-tx-in-execution-units (INT, INT)
-                                                      ]]
-                                                    [ --json-metadata-no-schema
-                                                    | --json-metadata-detailed-schema
-                                                    ]
-                                                    [--auxiliary-script-file FILEPATH]
-                                                    [ --metadata-json-file FILEPATH
-                                                    | --metadata-cbor-file FILEPATH
-                                                    ]
-                                                    [--protocol-params-file FILEPATH]
-                                                    [--vote-file FILEPATH
-                                                      [ --vote-script-file FILEPATH
-                                                        [
-                                                          ( --vote-redeemer-cbor-file CBOR_FILE
-                                                          | --vote-redeemer-file JSON_FILE
-                                                          | --vote-redeemer-value JSON_VALUE
-                                                          )
-                                                          --vote-execution-units (INT, INT)]
-                                                      | --vote-tx-in-reference TX_IN
-                                                        ( --vote-plutus-script-v3
-                                                        | --vote-plutus-script-v4
-                                                        )
-                                                        ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --vote-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --vote-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --vote-reference-tx-in-execution-units (INT, INT)
-                                                      ]]
-                                                    [--proposal-file FILEPATH
-                                                      [ --proposal-script-file FILEPATH
-                                                        [
-                                                          ( --proposal-redeemer-cbor-file CBOR_FILE
-                                                          | --proposal-redeemer-file JSON_FILE
-                                                          | --proposal-redeemer-value JSON_VALUE
-                                                          )
-                                                          --proposal-execution-units (INT, INT)]
-                                                      | --proposal-tx-in-reference TX_IN
-                                                        ( --proposal-plutus-script-v3
-                                                        | --proposal-plutus-script-v4
-                                                        )
-                                                        ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                        | --proposal-reference-tx-in-redeemer-file JSON_FILE
-                                                        | --proposal-reference-tx-in-redeemer-value JSON_VALUE
-                                                        )
-                                                        --proposal-reference-tx-in-execution-units (INT, INT)
-                                                      ]]
-                                                    [--current-treasury-value LOVELACE]
-                                                    [--treasury-donation LOVELACE]
-                                                    [--signed-sub-tx-file FILEPATH]
-                                                    [--out-canonical-cbor]
-                                                    --out-file FILEPATH
-                                                    
+Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
+                                                                      [ --spending-tx-in-reference TX_IN
+                                                                        --spending-plutus-script-v4
+                                                                        [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                                        | --spending-reference-tx-in-datum-file JSON_FILE
+                                                                        | --spending-reference-tx-in-datum-value JSON_VALUE
+                                                                        | --spending-reference-tx-in-inline-datum-present
+                                                                        ]
+                                                                        ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --spending-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --spending-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --spending-reference-tx-in-execution-units (INT, INT)
+                                                                      | --simple-script-tx-in-reference TX_IN
+                                                                      | --tx-in-script-file FILEPATH
+                                                                        [
+                                                                          [ --tx-in-datum-cbor-file CBOR_FILE
+                                                                          | --tx-in-datum-file JSON_FILE
+                                                                          | --tx-in-datum-value JSON_VALUE
+                                                                          | --tx-in-inline-datum-present
+                                                                          ]
+                                                                          ( --tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --tx-in-redeemer-file JSON_FILE
+                                                                          | --tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --tx-in-execution-units (INT, INT)]
+                                                                      ])
+                                                                    [--read-only-tx-in-reference TX_IN]
+                                                                    [--tx-out ADDRESS VALUE
+                                                                      [ --tx-out-datum-hash HASH
+                                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                      | --tx-out-datum-hash-file JSON_FILE
+                                                                      | --tx-out-datum-hash-value JSON_VALUE
+                                                                      | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                      | --tx-out-datum-embed-file JSON_FILE
+                                                                      | --tx-out-datum-embed-value JSON_VALUE
+                                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
+                                                                      | --tx-out-inline-datum-file JSON_FILE
+                                                                      | --tx-out-inline-datum-value JSON_VALUE
+                                                                      ]
+                                                                      [--tx-out-reference-script-file FILEPATH]]
+                                                                    [--mint VALUE
+                                                                      ( --mint-script-file FILEPATH
+                                                                        [
+                                                                          ( --mint-redeemer-cbor-file CBOR_FILE
+                                                                          | --mint-redeemer-file JSON_FILE
+                                                                          | --mint-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --mint-execution-units (INT, INT)]
+                                                                      | --simple-minting-script-tx-in-reference TX_IN
+                                                                        --policy-id HASH
+                                                                      | --mint-tx-in-reference TX_IN
+                                                                        --mint-plutus-script-v4
+                                                                        ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --mint-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --mint-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --mint-reference-tx-in-execution-units (INT, INT)
+                                                                        --policy-id HASH
+                                                                      )]
+                                                                    [--invalid-before SLOT]
+                                                                    [--invalid-hereafter SLOT]
+                                                                    [
+                                                                      --certificate-file FILEPATH
+                                                                      [ --certificate-script-file FILEPATH
+                                                                        [
+                                                                          ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                          | --certificate-redeemer-file JSON_FILE
+                                                                          | --certificate-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --certificate-execution-units (INT, INT)]
+                                                                      | --certificate-tx-in-reference TX_IN
+                                                                        --certificate-plutus-script-v4
+                                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                      ]]
+                                                                    [--withdrawal WITHDRAWAL
+                                                                      [ --withdrawal-script-file FILEPATH
+                                                                        [
+                                                                          ( --withdrawal-redeemer-cbor-file CBOR_FILE
+                                                                          | --withdrawal-redeemer-file JSON_FILE
+                                                                          | --withdrawal-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --withdrawal-execution-units (INT, INT)]
+                                                                      | --withdrawal-tx-in-reference TX_IN
+                                                                        --withdrawal-plutus-script-v4
+                                                                        ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --withdrawal-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --withdrawal-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --withdrawal-reference-tx-in-execution-units (INT, INT)
+                                                                      ]]
+                                                                    [ --json-metadata-no-schema
+                                                                    | --json-metadata-detailed-schema
+                                                                    ]
+                                                                    [--auxiliary-script-file FILEPATH]
+                                                                    [ --metadata-json-file FILEPATH
+                                                                    | --metadata-cbor-file FILEPATH
+                                                                    ]
+                                                                    [--protocol-params-file FILEPATH]
+                                                                    [--vote-file FILEPATH
+                                                                      [ --vote-script-file FILEPATH
+                                                                        [
+                                                                          ( --vote-redeemer-cbor-file CBOR_FILE
+                                                                          | --vote-redeemer-file JSON_FILE
+                                                                          | --vote-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --vote-execution-units (INT, INT)]
+                                                                      | --vote-tx-in-reference TX_IN
+                                                                        --vote-plutus-script-v4
+                                                                        ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --vote-reference-tx-in-execution-units (INT, INT)
+                                                                      ]]
+                                                                    [--proposal-file FILEPATH
+                                                                      [ --proposal-script-file FILEPATH
+                                                                        [
+                                                                          ( --proposal-redeemer-cbor-file CBOR_FILE
+                                                                          | --proposal-redeemer-file JSON_FILE
+                                                                          | --proposal-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --proposal-execution-units (INT, INT)]
+                                                                      | --proposal-tx-in-reference TX_IN
+                                                                        --proposal-plutus-script-v4
+                                                                        ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --proposal-reference-tx-in-execution-units (INT, INT)
+                                                                      ]]
+                                                                    [--current-treasury-value LOVELACE]
+                                                                    [--treasury-donation LOVELACE]
+                                                                    [ --guard-verification-key STRING
+                                                                    | --guard-verification-key-file FILEPATH
+                                                                    | --guard-key-hash HASH
+                                                                    | --guard-script-hash HASH
+                                                                    ]
+                                                                    [--out-canonical-cbor]
+                                                                    --out-file FILEPATH
+                                                                    
 
-  Build a transaction (low-level, inconvenient)
+  Build an unsigned sub-transaction (low-level, inconvenient)
 
-  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
+  Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired sub-transaction body. See nested [] notation above for details.[0;22;23;24m
 
 Available options:
-  --script-valid           Assertion that the script is valid. (default)
-  --script-invalid         Assertion that the script is invalid. If a
-                           transaction is submitted with such a script, the
-                           script will fail and the collateral will be taken.
   --tx-in TX_IN            TxId#TxIx
   --spending-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --spending-plutus-script-v2
-                           Specify a plutus script v2 reference script.
-  --spending-plutus-script-v3
-                           Specify a plutus script v3 reference script.
   --spending-plutus-script-v4
                            Specify a plutus script v4 reference script.
   --spending-reference-tx-in-datum-cbor-file CBOR_FILE
@@ -243,25 +213,6 @@ Available options:
                            Specify a read only reference input. This reference
                            input is not witnessing anything it is simply
                            provided in the plutus script context.
-  --tx-in-collateral TX_IN TxId#TxIx
-  --tx-out-return-collateral ADDRESS VALUE
-                           The transaction output as ADDRESS VALUE where ADDRESS
-                           is the Bech32-encoded address followed by the value
-                           in Lovelace. In the situation where your collateral
-                           txin over collateralizes the transaction, you can
-                           optionally specify a tx out of your choosing to
-                           return the excess Lovelace.
-  --tx-total-collateral INTEGER
-                           The total amount of collateral that will be collected
-                           as fees in the event of a Plutus script failure. Must
-                           be used in conjuction with
-                           "--tx-out-return-collateral".
-  --required-signer FILEPATH
-                           Input filepath of the signing key (zero or more)
-                           whose signature is required.
-  --required-signer-hash HASH
-                           Hash of the verification key (zero or more) whose
-                           signature is required.
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
                            in the multi-asset syntax (including simply
@@ -332,8 +283,6 @@ Available options:
   --mint-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --mint-plutus-script-v2  Specify a plutus script v2 reference script.
-  --mint-plutus-script-v3  Specify a plutus script v3 reference script.
   --mint-plutus-script-v4  Specify a plutus script v4 reference script.
   --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
@@ -350,7 +299,6 @@ Available options:
   --policy-id HASH         Policy id of minting script.
   --invalid-before SLOT    Time that transaction is valid from (in slots).
   --invalid-hereafter SLOT Time that transaction is valid until (in slots).
-  --fee LOVELACE           The fee amount in Lovelace.
   --certificate-file FILEPATH
                            Filepath of the certificate. This encompasses all
                            types of certificates (stake pool certificates, stake
@@ -374,10 +322,6 @@ Available options:
   --certificate-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --certificate-plutus-script-v2
-                           Specify a plutus script v2 reference script.
-  --certificate-plutus-script-v3
-                           Specify a plutus script v3 reference script.
   --certificate-plutus-script-v4
                            Specify a plutus script v4 reference script.
   --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
@@ -414,10 +358,6 @@ Available options:
   --withdrawal-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --withdrawal-plutus-script-v2
-                           Specify a plutus script v2 reference script.
-  --withdrawal-plutus-script-v3
-                           Specify a plutus script v3 reference script.
   --withdrawal-plutus-script-v4
                            Specify a plutus script v4 reference script.
   --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
@@ -464,7 +404,6 @@ Available options:
   --vote-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --vote-plutus-script-v3  Specify a plutus script v3 reference script.
   --vote-plutus-script-v4  Specify a plutus script v4 reference script.
   --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
@@ -496,8 +435,6 @@ Available options:
   --proposal-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
-  --proposal-plutus-script-v3
-                           Specify a plutus script v3 reference script.
   --proposal-plutus-script-v4
                            Specify a plutus script v4 reference script.
   --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
@@ -516,10 +453,18 @@ Available options:
                            The current treasury value.
   --treasury-donation LOVELACE
                            The donation to the treasury to perform.
-  --signed-sub-tx-file FILEPATH
-                           Filepath of a signed sub-transaction to embed in this
-                           transaction (zero or more).
+  --guard-verification-key STRING
+                           Payment verification key whose signature the
+                           sub-transaction requires (hex-encoded).
+  --guard-verification-key-file FILEPATH
+                           Filepath of a payment verification key whose
+                           signature the sub-transaction requires.
+  --guard-key-hash HASH    Hash of a payment verification key whose signature
+                           the sub-transaction requires.
+  --guard-script-hash HASH Hash of a native or Plutus guard script
+                           (hex-encoded). Obtain it with "cardano-cli hash
+                           script ...".
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
                            RFC7049. Only this part of CIP-21 is implemented.
-  --out-file FILEPATH      Output filepath of the JSON TxBody.
+  --out-file FILEPATH      Output filepath of the JSON unsigned sub-transaction.
   -h,--help                Show this help text

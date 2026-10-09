@@ -1,0 +1,15 @@
+Usage: cardano-cli dijkstra transaction sub-transaction sign --sub-tx-file FILEPATH
+                                                               [--signing-key-file FILEPATH
+                                                                 [--address STRING]]
+                                                               --out-file FILEPATH
+                                                               
+
+  Sign a sub-transaction
+
+Available options:
+  --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key (one or more).
+  --address STRING         Byron address (Base58-encoded).
+  --out-file FILEPATH      Output filepath of the JSON signed sub-transaction.
+  -h,--help                Show this help text
