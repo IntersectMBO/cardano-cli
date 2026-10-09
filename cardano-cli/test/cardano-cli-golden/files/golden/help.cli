@@ -8645,6 +8645,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
 
 Usage: cardano-cli compatible shelley transaction signed-transaction 
                                                                        [--tx-in TX_IN]
+                                                                       [--tx-in-collateral TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
                                                                        [--signing-key-file FILEPATH
@@ -8672,6 +8673,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
                                                                            )
                                                                            --certificate-reference-tx-in-execution-units (INT, INT)
                                                                          ]]
+                                                                       [--protocol-params-file FILEPATH]
                                                                        --out-file FILEPATH
                                                                        
 
@@ -8871,6 +8873,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
 
 Usage: cardano-cli compatible allegra transaction signed-transaction 
                                                                        [--tx-in TX_IN]
+                                                                       [--tx-in-collateral TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
                                                                        [--signing-key-file FILEPATH
@@ -8898,6 +8901,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
                                                                            )
                                                                            --certificate-reference-tx-in-execution-units (INT, INT)
                                                                          ]]
+                                                                       [--protocol-params-file FILEPATH]
                                                                        --out-file FILEPATH
                                                                        
 
@@ -9097,6 +9101,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
 
 Usage: cardano-cli compatible mary transaction signed-transaction 
                                                                     [--tx-in TX_IN]
+                                                                    [--tx-in-collateral TX_IN]
                                                                     [--tx-out ADDRESS VALUE]
                                                                     [--update-proposal-file FILEPATH]
                                                                     [--signing-key-file FILEPATH
@@ -9124,6 +9129,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
                                                                         )
                                                                         --certificate-reference-tx-in-execution-units (INT, INT)
                                                                       ]]
+                                                                    [--protocol-params-file FILEPATH]
                                                                     --out-file FILEPATH
                                                                     
 
@@ -9323,6 +9329,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
 
 Usage: cardano-cli compatible alonzo transaction signed-transaction 
                                                                       [--tx-in TX_IN]
+                                                                      [--tx-in-collateral TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -9358,6 +9365,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
                                                                           )
                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
                                                                         ]]
+                                                                      [--protocol-params-file FILEPATH]
                                                                       --out-file FILEPATH
                                                                       
 
@@ -9564,6 +9572,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
 
 Usage: cardano-cli compatible babbage transaction signed-transaction 
                                                                        [--tx-in TX_IN]
+                                                                       [--tx-in-collateral TX_IN]
                                                                        [--tx-out ADDRESS VALUE
                                                                          [ --tx-out-datum-hash HASH
                                                                          | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -9602,6 +9611,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                            )
                                                                            --certificate-reference-tx-in-execution-units (INT, INT)
                                                                          ]]
+                                                                       [--protocol-params-file FILEPATH]
                                                                        --out-file FILEPATH
                                                                        
 
@@ -9805,6 +9815,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
 
 Usage: cardano-cli compatible conway transaction signed-transaction 
                                                                       [--tx-in TX_IN]
+                                                                      [--tx-in-collateral TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -9875,6 +9886,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                           )
                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
                                                                         ]]
+                                                                      [--protocol-params-file FILEPATH]
                                                                       --out-file FILEPATH
                                                                       
 

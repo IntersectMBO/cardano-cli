@@ -33,6 +33,8 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes =
     let args =
           [ "--tx-in"
           , "6e8c947816e82627aeccb55300074f2894a2051332f62a1c8954e7b588a18be7#0"
+          , "--tx-in-collateral"
+          , "6e8c947816e82627aeccb55300074f2894a2051332f62a1c8954e7b588a18be7#1"
           , "--tx-out"
           , "addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc+24910487859"
           , "--fee"
@@ -45,6 +47,8 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes =
           , "0"
           , "--certificate-execution-units"
           , "(0,0)"
+          , "--protocol-params-file"
+          , inputDir <> "calculate-min-fee/offline-protocol-params-preview.json"
           ]
 
     -- reference transaction
