@@ -3653,3 +3653,12 @@ pFeatured peon p = do
   case mw of
     Nothing -> pure Nothing
     Just eon' -> Just . Featured eon' <$> p
+
+pIsCborOutCanonical :: Parser TxCborFormat
+pIsCborOutCanonical =
+  Opt.flag TxCborNotCanonical TxCborCanonical $
+    mconcat
+      [ Opt.long "out-canonical-cbor"
+      , Opt.help
+          "Produce transaction in canonical CBOR according to RFC7049. Only this part of CIP-21 is implemented."
+      ]

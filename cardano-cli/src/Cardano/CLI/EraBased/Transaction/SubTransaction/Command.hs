@@ -58,6 +58,7 @@ data SubTransactionBuildRawCmdArgs = SubTransactionBuildRawCmdArgs
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , guards :: ![VerificationKeyOrHashOrFileOrScriptHash PaymentKey]
   -- ^ Credentials whose authorisation the sub-transaction requires
+  , isCborOutCanonical :: !TxCborFormat
   , outFile :: !(UnsignedSubTxFile Out)
   }
   deriving Show

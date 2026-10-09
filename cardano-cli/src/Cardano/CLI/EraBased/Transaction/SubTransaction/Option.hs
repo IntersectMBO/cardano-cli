@@ -101,6 +101,7 @@ pSubTransactionBuildRaw =
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
       <*> many pGuard
+      <*> pIsCborOutCanonical
       <*> pUnsignedSubTxFileOut
 
 pSubTransactionSign :: Parser SubTransactionCmds

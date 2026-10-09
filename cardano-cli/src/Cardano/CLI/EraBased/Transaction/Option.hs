@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -26,7 +25,6 @@ import Cardano.CLI.Type.Common
 import Control.Monad
 import Data.Foldable
 import Data.Function ((&))
-import Data.Functor
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Universe (Some)
 import Options.Applicative hiding (help, str)
@@ -552,16 +550,3 @@ pTransactionId =
         , flagFormatText
         , flagFormatYaml
         ]
-
-pIsCborOutCanonical :: Parser TxCborFormat
-pIsCborOutCanonical =
-  ( Opt.switch $
-      mconcat
-        [ Opt.long "out-canonical-cbor"
-        , Opt.help
-            "Produce transaction in canonical CBOR according to RFC7049. Only this part of CIP-21 is implemented."
-        ]
-  )
-    <&> \case
-      True -> TxCborCanonical
-      False -> TxCborNotCanonical

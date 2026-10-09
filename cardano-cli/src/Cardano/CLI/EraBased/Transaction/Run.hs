@@ -361,12 +361,13 @@ runTransactionBuildCmd
               scriptHashes
               scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
-      OutputTxBodyOnly fpath -> fromEitherIOCli $ do
+      OutputTxBodyOnly fpath -> do
         let noWitTx = ShelleyTx (convert eon) $ obtainCommonConstraints (Exp.useEra @era) tx
-
-        if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonical eon fpath noWitTx
-          else writeTxFileTextEnvelope eon fpath noWitTx
+        fromEitherCli $ validateCanonicalSubTransactions isCborOutCanonical eon noWitTx
+        fromEitherIOCli $
+          if isCborOutCanonical == TxCborCanonical
+            then writeTxFileTextEnvelopeCanonical eon fpath noWitTx
+            else writeTxFileTextEnvelope eon fpath noWitTx
 
 runTransactionBuildEstimateCmd
   :: forall era e
@@ -530,6 +531,11 @@ runTransactionBuildEstimateCmd -- TODO change type
       fromEitherCli $
         first TxCmdMakeUnsignedTxError $
           Exp.makeUnsignedTx currentEra balancedTxBody
+    fromEitherCli $
+      validateCanonicalSubTransactions
+        isCborOutCanonical
+        (convert currentEra)
+        (unsignedToToApiTx unsignedTx)
     fromEitherIOCli
       $ ( if isCborOutCanonical == TxCborCanonical
             then writeTxFileTextEnvelopeCanonical
@@ -694,6 +700,7 @@ runTransactionBuildRawCmd
           supplementalDatums
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
+    fromEitherCli $ validateCanonicalSubTransactions isCborOutCanonical (convert Exp.useEra) noWitTx
     fromEitherIOCli $
       if isCborOutCanonical == TxCborCanonical
         then writeTxFileTextEnvelopeCanonical (convert Exp.useEra) txBodyOutFile noWitTx
@@ -1162,6 +1169,7 @@ runTransactionSignCmd
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
             signedTx = addWitnesses allKeyWits tx
 
+        liftEither $ validateCanonicalSubTransactions isCborOutCanonical sbe signedTx
         modifyError TxCmdWriteFileError $
           hoistIOEither $
             if isCborOutCanonical == TxCborCanonical
@@ -1188,6 +1196,7 @@ runTransactionSignCmd
             let shelleyKeyWitnesses = map (makeShelleyKeyWitness' sbe ledgerTxBody) sksShelley
                 tx = addWitnesses (byronWitnesses ++ shelleyKeyWitnesses) unsignedTxAsTx
 
+            liftEither $ validateCanonicalSubTransactions isCborOutCanonical sbe tx
             modifyError TxCmdWriteFileError $
               hoistIOEither $
                 if isCborOutCanonical == TxCborCanonical
@@ -1648,6 +1657,7 @@ runTransactionSignWitnessCmd
 
     let unsignedTxAsTx = ShelleyTx era ledgerTx
         tx = addWitnesses witnesses unsignedTxAsTx
+    liftEither $ validateCanonicalSubTransactions isCborOutCanonical era tx
     modifyError TxCmdWriteFileError $
       hoistIOEither $
         if isCborOutCanonical == TxCborCanonical
