@@ -102,15 +102,6 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   }
   deriving Show
 
--- | Whether output transaction is in CBOR canonical format according to RFC7049 section 3.9.
---
--- 1. https://datatracker.ietf.org/doc/html/rfc7049#section-3.9
--- 2. https://github.com/cardano-foundation/CIPs/blob/master/CIP-0021/README.md#canonical-cbor-serialization-format
-data TxCborFormat
-  = TxCborCanonical
-  | TxCborNotCanonical
-  deriving (Eq, Show)
-
 -- | Whether to include the current treasury value in the transaction body.
 --
 -- If included, the current treasury value will be obtained from the node.

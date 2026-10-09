@@ -81,6 +81,8 @@ data TxCmdError
   | TxCmdGenesisDataError GenesisDataError
   | -- | The same sub-transaction was given more than once.
     TxCmdDuplicateSubTransaction !TxId
+  | TxCmdNonCanonicalSubTransaction !TxId
+  | TxCmdSubTxCborError !DecoderError
   | TxCmdSubTxByronWitnessUnsupported
 
 instance Show TxCmdError where
@@ -192,6 +194,12 @@ renderTxCmdError = \case
     "The sub-transaction with id "
       <> pretty (serialiseToRawBytesHexText subTxId)
       <> " was provided more than once."
+  TxCmdNonCanonicalSubTransaction subTxId ->
+    "Cannot write the top-level transaction with --out-canonical-cbor: embedded sub-transaction "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " has a non-canonical CBOR body. Canonicalising that body would invalidate its signatures. Rebuild it with sub-transaction build-raw --out-canonical-cbor and sign it again."
+  TxCmdSubTxCborError err ->
+    "Error canonicalising sub-transaction CBOR: " <> prettyError err
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
   TxCmdUtxoJsonError e ->
