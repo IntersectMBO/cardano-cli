@@ -5942,6 +5942,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                     | --guard-key-hash HASH
                                                                     | --guard-script-hash HASH
                                                                     ]
+                                                                    [--out-canonical-cbor]
                                                                     --out-file FILEPATH
                                                                     
 
