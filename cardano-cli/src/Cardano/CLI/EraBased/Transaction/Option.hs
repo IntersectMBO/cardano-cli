@@ -17,6 +17,7 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Transaction.Command
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Option
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
@@ -65,6 +66,7 @@ pTransactionCmds envCli =
                     ]
     , pTransactionBuildCmd envCli
     , pTransactionBuildEstimateCmd envCli
+    , pTransactionSubTransactionCmds
     , Just $
         Opt.hsubparser $
           commandWithMetavar "sign" $
@@ -326,6 +328,7 @@ pTransactionBuildRaw =
       <*> pProposalFiles ManualBalance
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
+      <*> pSubTransactionFiles @era
       <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 
