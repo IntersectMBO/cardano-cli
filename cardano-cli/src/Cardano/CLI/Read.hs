@@ -30,6 +30,10 @@ module Cardano.CLI.Read
   , readFileTxBody
   , readTx -- For testing purposes
 
+    -- * Sub-transactions
+  , readFileUnsignedSubTx
+  , readFileSignedSubTx
+
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
   , renderReadWitnessSigningDataError
@@ -333,6 +337,18 @@ fromSomeShelleyTx =
  where
   makeTxProxy :: HasTypeProxy era => ShelleyBasedEra era -> AsType (Tx era)
   makeTxProxy _ = AsTx (proxyToAsType (Proxy :: Proxy era))
+
+-- Sub-transactions
+
+-- Sub-transactions only exist in Dijkstra, so the envelope type fixes the era.
+
+readFileUnsignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.UnsignedSubTx)
+readFileUnsignedSubTx =
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsUnsignedSubTx id]
+
+readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.SignedSubTx)
+readFileSignedSubTx =
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
 
 -- Tx witnesses
 
