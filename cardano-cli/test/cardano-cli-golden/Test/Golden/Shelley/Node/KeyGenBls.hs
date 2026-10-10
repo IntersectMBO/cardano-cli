@@ -29,12 +29,12 @@ hprop_golden_shelleyNodeKeyGenBls =
         ]
 
     assertHasMappings
-      [ ("type", "BlsVerificationKey_bls12-381-BLS-Signature-Mininimal-Signature-Size")
+      [ ("type", "BlsVerificationKey_bls12-381-BLS-Signature-Minimal-Signature-Size")
       , ("description", "BLS12-381 verification key")
       ]
       verificationKey
     assertHasMappings
-      [ ("type", "BlsSigningKey_bls12-381-BLS-Signature-Mininimal-Signature-Size")
+      [ ("type", "BlsSigningKey_bls12-381-BLS-Signature-Minimal-Signature-Size")
       , ("description", "BLS12-381 signing key")
       ]
       signingKey
@@ -62,12 +62,12 @@ hprop_golden_shelleyNodeKeyGenBls_te =
         ]
 
     assertHasMappings
-      [ ("type", "BlsVerificationKey_bls12-381-BLS-Signature-Mininimal-Signature-Size")
+      [ ("type", "BlsVerificationKey_bls12-381-BLS-Signature-Minimal-Signature-Size")
       , ("description", "BLS12-381 verification key")
       ]
       verificationKey
     assertHasMappings
-      [ ("type", "BlsSigningKey_bls12-381-BLS-Signature-Mininimal-Signature-Size")
+      [ ("type", "BlsSigningKey_bls12-381-BLS-Signature-Minimal-Signature-Size")
       , ("description", "BLS12-381 signing key")
       ]
       signingKey
