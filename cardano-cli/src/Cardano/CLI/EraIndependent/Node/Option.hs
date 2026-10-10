@@ -11,12 +11,14 @@ module Cardano.CLI.EraIndependent.Node.Option
   )
 where
 
+import Cardano.Api (File (..), FileDirection (In))
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Parser
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Data.Foldable
 import Data.Maybe (catMaybes)

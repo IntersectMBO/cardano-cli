@@ -129,6 +129,7 @@ library
     Cardano.CLI.EraBased.StakeAddress.Run
     Cardano.CLI.EraBased.StakePool.Command
     Cardano.CLI.EraBased.StakePool.Internal.Metadata
+    Cardano.CLI.EraBased.StakePool.Internal.Relay
     Cardano.CLI.EraBased.StakePool.Option
     Cardano.CLI.EraBased.StakePool.Run
     Cardano.CLI.EraBased.TextView.Command
@@ -278,7 +279,6 @@ library
     http-client,
     http-client-tls,
     http-types,
-    io-classes,
     iproute,
     microlens,
     mmorph,
@@ -367,6 +367,7 @@ test-suite cardano-cli-test
     cardano-api:{cardano-api, gen},
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
+    cardano-diffusion:ping,
     cardano-slotting,
     containers,
     directory,
@@ -378,6 +379,7 @@ test-suite cardano-cli-test
     microlens-aeson,
     mmorph,
     monad-control,
+    optparse-applicative-fork,
     regex-tdfa,
     resourcet,
     tasty,
@@ -411,6 +413,7 @@ test-suite cardano-cli-test
     Test.Cli.Json
     Test.Cli.MonadWarning
     Test.Cli.Parser
+    Test.Cli.Ping
     Test.Cli.Pioneers.Exercise1
     Test.Cli.Pioneers.Exercise2
     Test.Cli.Pioneers.Exercise3
@@ -511,6 +514,7 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Node.KeyGenBls
     Test.Golden.Shelley.Node.KeyGenKes
     Test.Golden.Shelley.Node.KeyGenVrf
+    Test.Golden.Shelley.Node.KeyHashBls
     Test.Golden.Shelley.StakeAddress.Build
     Test.Golden.Shelley.StakeAddress.DeregistrationCertificate
     Test.Golden.Shelley.StakeAddress.KeyGen
