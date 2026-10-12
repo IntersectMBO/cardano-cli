@@ -5794,9 +5794,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction
 
 Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                       [ --spending-tx-in-reference TX_IN
-                                                                        ( --spending-plutus-script-v2
-                                                                        | --spending-plutus-script-v3
-                                                                        )
+                                                                        --spending-plutus-script-v4
                                                                         [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                                         | --spending-reference-tx-in-datum-file JSON_FILE
                                                                         | --spending-reference-tx-in-datum-value JSON_VALUE
@@ -5846,9 +5844,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                       | --simple-minting-script-tx-in-reference TX_IN
                                                                         --policy-id HASH
                                                                       | --mint-tx-in-reference TX_IN
-                                                                        ( --mint-plutus-script-v2
-                                                                        | --mint-plutus-script-v3
-                                                                        )
+                                                                        --mint-plutus-script-v4
                                                                         ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                         | --mint-reference-tx-in-redeemer-file JSON_FILE
                                                                         | --mint-reference-tx-in-redeemer-value JSON_VALUE
@@ -5868,9 +5864,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                           )
                                                                           --certificate-execution-units (INT, INT)]
                                                                       | --certificate-tx-in-reference TX_IN
-                                                                        ( --certificate-plutus-script-v2
-                                                                        | --certificate-plutus-script-v3
-                                                                        )
+                                                                        --certificate-plutus-script-v4
                                                                         ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                         | --certificate-reference-tx-in-redeemer-file JSON_FILE
                                                                         | --certificate-reference-tx-in-redeemer-value JSON_VALUE
@@ -5886,9 +5880,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                           )
                                                                           --withdrawal-execution-units (INT, INT)]
                                                                       | --withdrawal-tx-in-reference TX_IN
-                                                                        ( --withdrawal-plutus-script-v2
-                                                                        | --withdrawal-plutus-script-v3
-                                                                        )
+                                                                        --withdrawal-plutus-script-v4
                                                                         ( --withdrawal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                         | --withdrawal-reference-tx-in-redeemer-file JSON_FILE
                                                                         | --withdrawal-reference-tx-in-redeemer-value JSON_VALUE
@@ -5912,7 +5904,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                           )
                                                                           --vote-execution-units (INT, INT)]
                                                                       | --vote-tx-in-reference TX_IN
-                                                                        --vote-plutus-script-v3
+                                                                        --vote-plutus-script-v4
                                                                         ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                         | --vote-reference-tx-in-redeemer-file JSON_FILE
                                                                         | --vote-reference-tx-in-redeemer-value JSON_VALUE
@@ -5928,7 +5920,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                           )
                                                                           --proposal-execution-units (INT, INT)]
                                                                       | --proposal-tx-in-reference TX_IN
-                                                                        --proposal-plutus-script-v3
+                                                                        --proposal-plutus-script-v4
                                                                         ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                         | --proposal-reference-tx-in-redeemer-file JSON_FILE
                                                                         | --proposal-reference-tx-in-redeemer-value JSON_VALUE

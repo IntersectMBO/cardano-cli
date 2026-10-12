@@ -15,7 +15,7 @@ import Cardano.Api
 
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Environment
-import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum, pVoteFiles)
+import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum)
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
