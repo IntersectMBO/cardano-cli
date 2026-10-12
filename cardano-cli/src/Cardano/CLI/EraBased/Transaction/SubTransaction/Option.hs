@@ -84,20 +84,44 @@ pSubTransactionBuildRaw :: Parser SubTransactionCmds
 pSubTransactionBuildRaw =
   fmap SubTransactionBuildRawCmd $
     SubTransactionBuildRawCmdArgs
-      <$> some (pTxIn ManualBalance)
+      <$> some
+        ( pTxInWithPlutusReferenceLanguage
+            (pPlutusV4ReferenceLanguage Exp.DijkstraEra "spending-")
+            ManualBalance
+        )
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxOut
-      <*> (fmap join . optional $ pMintMultiAsset @Exp.DijkstraEra ManualBalance)
+      <*> ( fmap join . optional $
+              pMintMultiAssetWithPlutusReferenceLanguage @Exp.DijkstraEra
+                (pPlutusV4ReferenceLanguage Exp.DijkstraEra "mint-")
+                ManualBalance
+          )
       <*> optional pInvalidBefore
       <*> optional pInvalidHereafterSlot
-      <*> many (pCertificateFile ManualBalance)
-      <*> many (pWithdrawal ManualBalance)
+      <*> many
+        ( pCertificateFileWithPlutusReferenceLanguage
+            (pPlutusV4ReferenceLanguage Exp.DijkstraEra "certificate-")
+            ManualBalance
+        )
+      <*> many
+        ( pWithdrawalWithPlutusReferenceLanguage
+            (pPlutusV4ReferenceLanguage Exp.DijkstraEra "withdrawal-")
+            ManualBalance
+        )
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pVoteFiles ManualBalance
-      <*> pProposalFiles ManualBalance
+      <*> many
+        ( pVoteFileWithPlutusReferenceLanguage
+            (pPlutusV4ReferenceLanguage Exp.DijkstraEra "vote-")
+            ManualBalance
+        )
+      <*> many
+        ( pProposalFileWithPlutusReferenceLanguage
+            (pPlutusV4ReferenceLanguage Exp.DijkstraEra "proposal-")
+            ManualBalance
+        )
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
       <*> many pGuard
