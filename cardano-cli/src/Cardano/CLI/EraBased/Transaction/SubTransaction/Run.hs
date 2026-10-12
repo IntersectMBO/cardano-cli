@@ -47,6 +47,7 @@ import Cardano.CLI.Type.Key (readVerificationKeyOrHashOrFileOrScriptHash)
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
 import Cardano.Ledger.Hashes (DataHash, originalBytes)
 import Cardano.Ledger.Keys (coerceKeyRole)
+import Cardano.Ledger.Plutus.Language qualified as L
 
 import RIO hiding (toList)
 
@@ -237,6 +238,24 @@ constructSubTx
   suppDatums
   guards =
     do
+      -- Only executed Plutus witnesses are restricted. Auxiliary scripts and
+      -- reference scripts stored in outputs are not executed by this body.
+      let witnesses =
+            map snd inputsAndMaybeScriptWits
+              ++ map snd certsAndMaybeScriptWits
+              ++ map (\(_, _, witness) -> witness) withdrawals
+              ++ map snd votingProcedures
+              ++ map snd proposals
+          languages =
+            mapMaybe Exp.getAnyWitnessPlutusLanguage witnesses
+              ++ [ Exp.getAnyPlutusScriptWitnessLanguage witness
+                 | (_, Exp.AnyScriptWitnessPlutus witness) <- snd valuesWithScriptWits
+                 ]
+      forM_ languages $ \language ->
+        unless (language == L.PlutusV4) $
+          Left $
+            TxCmdSubTxUnsupportedPlutusLanguage language
+
       let allReferenceInputs =
             getAllReferenceInputs
               (map snd inputsAndMaybeScriptWits)

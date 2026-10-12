@@ -168,7 +168,7 @@ pTarget =
     pTargetFromConway
     (forShelleyBasedEraMaybeEon $ convert (useEra @era))
  where
-  pTargetFromConway :: Era era -> Parser (Consensus.Target ChainPoint)
+  pTargetFromConway :: Exp.Era era -> Parser (Consensus.Target ChainPoint)
   pTargetFromConway _ =
     asum $
       mconcat
@@ -1090,15 +1090,29 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
    where
     liftWith f = either (fail . f) pure
 
-pVoteFiles
-  :: BalanceTxExecUnits
+pVoteFilesForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
   -> Parser [(VoteFile In, Maybe AnyNonAssetScript)]
-pVoteFiles bExUnits = many $ pVoteFile bExUnits
+pVoteFilesForEra era bExUnits = many $ pVoteFileForEra era bExUnits
 
 pVoteFile
   :: BalanceTxExecUnits
   -> Parser (VoteFile In, Maybe AnyNonAssetScript)
-pVoteFile balExUnits =
+pVoteFile = pVoteFileForEra Exp.ConwayEra
+
+pVoteFileForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
+  -> Parser (VoteFile In, Maybe AnyNonAssetScript)
+pVoteFileForEra era =
+  pVoteFileWithPlutusReferenceLanguage (pGovernancePlutusSLanguageForEra era "vote-")
+
+pVoteFileWithPlutusReferenceLanguage
+  :: Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (VoteFile In, Maybe AnyNonAssetScript)
+pVoteFileWithPlutusReferenceLanguage pLanguage balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
@@ -1111,7 +1125,7 @@ pVoteFile balExUnits =
       "vote"
       Nothing
       "a vote"
-      <|> pVoteReferencePlutusScriptWitness "vote" balExUnits
+      <|> pVoteReferencePlutusScriptWitness pLanguage balExUnits
 
 pVoteScriptWitness
   :: BalanceTxExecUnits
@@ -1135,28 +1149,41 @@ pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
       )
 
 pVoteReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser AnyNonAssetScript
-pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  let appendedPrefix = prefix ++ "-"
-   in Voting.createPlutusReferenceScriptFromCliArgs
-        <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
-        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
-            )
+  :: Parser AnySLanguage -> BalanceTxExecUnits -> Parser AnyNonAssetScript
+pVoteReferencePlutusScriptWitness pLanguage autoBalanceExecUnits =
+  Voting.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn "vote-" "plutus"
+    <*> pLanguage
+    <*> pScriptRedeemerOrFile "vote-reference-tx-in"
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits "vote-reference-tx-in"
+        )
 
-pProposalFiles
-  :: BalanceTxExecUnits
+pProposalFilesForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
   -> Parser [(ProposalFile In, Maybe AnyNonAssetScript)]
-pProposalFiles balExUnits =
-  many (pProposalFile balExUnits)
+pProposalFilesForEra era balExUnits =
+  many (pProposalFileForEra era balExUnits)
 
 pProposalFile
   :: BalanceTxExecUnits
   -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
-pProposalFile balExUnits =
+pProposalFile = pProposalFileForEra Exp.ConwayEra
+
+pProposalFileForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
+  -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
+pProposalFileForEra era =
+  pProposalFileWithPlutusReferenceLanguage (pGovernancePlutusSLanguageForEra era "proposal-")
+
+pProposalFileWithPlutusReferenceLanguage
+  :: Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
+pProposalFileWithPlutusReferenceLanguage pLanguage balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
@@ -1169,7 +1196,7 @@ pProposalFile balExUnits =
       "proposal"
       Nothing
       "a proposal"
-      <|> pProposalReferencePlutusScriptWitness "proposal" balExUnits
+      <|> pProposalReferencePlutusScriptWitness pLanguage balExUnits
 
 pProposalScriptWitness
   :: BalanceTxExecUnits
@@ -1193,17 +1220,16 @@ pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated he
       )
 
 pProposalReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser AnyNonAssetScript
-pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  let appendedPrefix = prefix ++ "-"
-   in Proposing.createPlutusReferenceScriptFromCliArgs
-        <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
-        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
-            )
+  :: Parser AnySLanguage -> BalanceTxExecUnits -> Parser AnyNonAssetScript
+pProposalReferencePlutusScriptWitness pLanguage autoBalanceExecUnits =
+  Proposing.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn "proposal-" "plutus"
+    <*> pLanguage
+    <*> pScriptRedeemerOrFile "proposal-reference-tx-in"
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits "proposal-reference-tx-in"
+        )
 
 pCurrentTreasuryValue :: Parser (Maybe TxCurrentTreasuryValue)
 pCurrentTreasuryValue =
@@ -1357,7 +1383,20 @@ pTxBuildOutputOptions =
 pCertificateFile
   :: BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe AnyNonAssetScript)
-pCertificateFile balanceExecUnits =
+pCertificateFile = pCertificateFileForEra Exp.ConwayEra
+
+pCertificateFileForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
+  -> Parser (CertificateFile, Maybe AnyNonAssetScript)
+pCertificateFileForEra era =
+  pCertificateFileWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "certificate-")
+
+pCertificateFileWithPlutusReferenceLanguage
+  :: Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (CertificateFile, Maybe AnyNonAssetScript)
+pCertificateFileWithPlutusReferenceLanguage pLanguage balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
@@ -1375,7 +1414,7 @@ pCertificateFile balanceExecUnits =
       "certificate"
       Nothing
       "the use of the certificate."
-      <|> pCertificateReferencePlutusScriptWitness "certificate" bExecUnits
+      <|> pCertificateReferencePlutusScriptWitness pLanguage bExecUnits
 
   helpText =
     mconcat
@@ -1402,17 +1441,16 @@ pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDepr
       )
 
 pCertificateReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser AnyNonAssetScript
-pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  let appendedPrefix = prefix ++ "-"
-   in Certifying.createPlutusReferenceScriptFromCliArgs
-        <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> pAnyPlutusSLanguage appendedPrefix
-        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
-            )
+  :: Parser AnySLanguage -> BalanceTxExecUnits -> Parser AnyNonAssetScript
+pCertificateReferencePlutusScriptWitness pLanguage autoBalanceExecUnits =
+  Certifying.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn "certificate-" "plutus"
+    <*> pLanguage
+    <*> pScriptRedeemerOrFile "certificate-reference-tx-in"
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits "certificate-reference-tx-in"
+        )
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
@@ -1467,14 +1505,22 @@ pMetadataFile =
         File <$> parseFilePath "metadata-cbor-file" "Filepath of the metadata, in raw CBOR format."
     ]
 
-pWithdrawal
-  :: BalanceTxExecUnits
+pWithdrawalForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
   -> Parser
        ( StakeAddress
        , Lovelace
        , Maybe AnyNonAssetScript
        )
-pWithdrawal balance =
+pWithdrawalForEra era =
+  pWithdrawalWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "withdrawal-")
+
+pWithdrawalWithPlutusReferenceLanguage
+  :: Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (StakeAddress, Lovelace, Maybe AnyNonAssetScript)
+pWithdrawalWithPlutusReferenceLanguage pLanguage balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
       (readerFromParsecParser parseWithdrawal)
@@ -1491,7 +1537,7 @@ pWithdrawal balance =
       "withdrawal"
       Nothing
       "the withdrawal of rewards."
-      <|> pWithdrawalReferencePlutusScriptWitness "withdrawal" balance
+      <|> pWithdrawalReferencePlutusScriptWitness pLanguage balance
 
   helpText =
     mconcat
@@ -1527,24 +1573,35 @@ pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated 
       )
 
 pWithdrawalReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser AnyNonAssetScript
-pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  let appendedPrefix = prefix ++ "-"
-   in Withdrawal.createPlutusReferenceScriptFromCliArgs
-        <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> pAnyPlutusSLanguage appendedPrefix
-        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
-            )
-
-pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
-pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
+  :: Parser AnySLanguage -> BalanceTxExecUnits -> Parser AnyNonAssetScript
+pWithdrawalReferencePlutusScriptWitness pLanguage autoBalanceExecUnits =
+  Withdrawal.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn "withdrawal-" "plutus"
+    <*> pLanguage
+    <*> pScriptRedeemerOrFile "withdrawal-reference-tx-in"
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits "withdrawal-reference-tx-in"
+        )
 
 pAnyPlutusSLanguage :: String -> Parser AnySLanguage
 pAnyPlutusSLanguage prefix =
   plutusSLanguageP prefix L.SPlutusV2 "v2" <|> plutusSLanguageP prefix L.SPlutusV3 "v3"
+
+-- | V4 reference scripts are available from Dijkstra onwards. Keep earlier
+-- eras' reference-language options unchanged.
+pAnyPlutusSLanguageForEra :: Exp.Era era -> String -> Parser AnySLanguage
+pAnyPlutusSLanguageForEra era prefix =
+  pAnyPlutusSLanguage prefix <|> pPlutusV4ReferenceLanguage era prefix
+
+pGovernancePlutusSLanguageForEra :: Exp.Era era -> String -> Parser AnySLanguage
+pGovernancePlutusSLanguageForEra era prefix =
+  plutusSLanguageP prefix L.SPlutusV3 "v3" <|> pPlutusV4ReferenceLanguage era prefix
+
+pPlutusV4ReferenceLanguage :: Exp.Era era -> String -> Parser AnySLanguage
+pPlutusV4ReferenceLanguage era prefix = case era of
+  Exp.DijkstraEra -> plutusSLanguageP prefix L.SPlutusV4 "v4"
+  Exp.ConwayEra -> empty
 
 plutusSLanguageP
   :: L.PlutusLanguage lang
@@ -1552,16 +1609,6 @@ plutusSLanguageP
 plutusSLanguageP prefix plutusVersion versionString =
   Opt.flag'
     (AnySLanguage plutusVersion)
-    ( Opt.long (prefix <> "plutus-script-" <> versionString)
-        <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
-    )
-
-plutusP
-  :: IsPlutusScriptLanguage lang
-  => String -> PlutusScriptVersion lang -> String -> Parser AnyPlutusScriptVersion
-plutusP prefix plutusVersion versionString =
-  Opt.flag'
-    (AnyPlutusScriptVersion plutusVersion)
     ( Opt.long (prefix <> "plutus-script-" <> versionString)
         <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
     )
@@ -1977,10 +2024,18 @@ pKesVerificationKeyFile =
 pTxSubmitFile :: Parser FilePath
 pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
 
-pTxIn
-  :: BalanceTxExecUnits
+pTxInForEra
+  :: Exp.Era era
+  -> BalanceTxExecUnits
   -> Parser (TxIn, Maybe AnySpendScript)
-pTxIn balance =
+pTxInForEra era =
+  pTxInWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "spending-")
+
+pTxInWithPlutusReferenceLanguage
+  :: Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (TxIn, Maybe AnySpendScript)
+pTxInWithPlutusReferenceLanguage pLanguage balance =
   (,)
     <$> Opt.option
       (readerFromParsecParser parseTxIn)
@@ -2004,7 +2059,7 @@ pTxIn balance =
   pPlutusReferenceSpendScriptWitness autoBalanceExecUnits =
     PlutusSpend.createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "spending-" "plutus"
-      <*> pAnyPlutusSLanguage "spending-"
+      <*> pLanguage
       <*> pScriptDatumOrFileSpendingCip69 "spending-reference-tx-in"
       <*> pScriptRedeemerOrFile "spending-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
@@ -2182,7 +2237,16 @@ pMintMultiAsset
    . IsEra era
   => BalanceTxExecUnits
   -> Parser (Maybe (L.MultiAsset, [AnyMintScript]))
-pMintMultiAsset balanceExecUnits =
+pMintMultiAsset =
+  pMintMultiAssetWithPlutusReferenceLanguage @era (pAnyPlutusSLanguageForEra (useEra @era) "mint-")
+
+pMintMultiAssetWithPlutusReferenceLanguage
+  :: forall era
+   . IsEra era
+  => Parser AnySLanguage
+  -> BalanceTxExecUnits
+  -> Parser (Maybe (L.MultiAsset, [AnyMintScript]))
+pMintMultiAssetWithPlutusReferenceLanguage pLanguage balanceExecUnits =
   let mintAssets =
         Opt.option
           -- TODO: parseMintingMultiAssetValue should not be parameterized on era
@@ -2216,7 +2280,7 @@ pMintMultiAsset balanceExecUnits =
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
     createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "mint-" "plutus"
-      <*> pAnyPlutusSLanguage "mint-"
+      <*> pLanguage
       <*> pScriptRedeemerOrFile "mint-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
               AutoBalance -> pure (ExecutionUnits 0 0)
