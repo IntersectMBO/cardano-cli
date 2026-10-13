@@ -12,6 +12,7 @@ import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
 import Cardano.Ledger.Shelley.Genesis (ShelleyExtraConfig (..))
 
 import Control.Monad
+import Data.Aeson qualified as Aeson
 import Data.List (intercalate, sort)
 import Data.Sequence.Strict qualified as Seq
 import Data.Word (Word32)
@@ -241,3 +242,28 @@ hprop_golden_create_testnet_data_shelley_genesis_output =
     H.diffFileVsGoldenFile
       redactedOutputGenesisFp
       "test/cardano-cli-golden/files/golden/conway/custom-lovelace-supply-shelley-genesis.json"
+
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data dijkstra genesis output/"'@
+--
+-- This test checks that the file given with --spec-dijkstra is used for dijkstra-genesis.json.
+-- Every value in the input file differs from the default.
+hprop_golden_create_testnet_data_dijkstra_genesis_output :: Property
+hprop_golden_create_testnet_data_dijkstra_genesis_output =
+  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+    let dijkstraSpecFp = "test/cardano-cli-golden/files/input/dijkstra/genesis.dijkstra.spec.json"
+        outputDir = tempDir </> "out"
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "genesis"
+        , "create-testnet-data"
+        , "--spec-dijkstra"
+        , dijkstraSpecFp
+        , "--out-dir"
+        , outputDir
+        ]
+
+    dijkstraSpec :: Aeson.Value <- H.readJsonFileOk dijkstraSpecFp
+    dijkstraGenesis :: Aeson.Value <- H.readJsonFileOk $ outputDir </> "dijkstra-genesis.json"
+    dijkstraGenesis H.=== dijkstraSpec
