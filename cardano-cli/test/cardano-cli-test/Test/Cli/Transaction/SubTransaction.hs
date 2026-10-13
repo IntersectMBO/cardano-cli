@@ -128,21 +128,12 @@ hprop_dijkstra_build_raw_rejects_duplicate_sub_transaction =
         ["address", "key-gen", "--signing-key-file", secondKey, "--verification-key-file", secondVKey]
     void $ execCardanoCLI $ subTransactionArgs ++ ["--out-file", unsignedFile]
     forM_ [(firstFile, signingKey), (secondFile, secondKey)] $ \(path, key) ->
-      void $
-        execCardanoCLI
-          [ "dijkstra"
-          , "sub-transaction"
-          , "sign"
-          , "--sub-tx-file"
-          , unsignedFile
-          , "--signing-key-file"
-          , key
-          , "--out-file"
-          , path
-          ]
+      signSubTransaction unsignedFile key path
     first <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File firstFile))
     second <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File secondFile))
-    Exp.getSignedSubTxId first H.=== Exp.getSignedSubTxId second
+    let subTxId = Exp.getSignedSubTxId first
+        expectedId = BSC.unpack $ serialiseToRawBytesHex subTxId
+    subTxId H.=== Exp.getSignedSubTxId second
     H.assert $ serialiseToCBOR first /= serialiseToCBOR second
     forM_ [firstFile, secondFile] $ \duplicateFile -> do
       (exitCode, _, stderr) <-
@@ -151,7 +142,7 @@ hprop_dijkstra_build_raw_rejects_duplicate_sub_transaction =
             ++ ["--signed-sub-tx-file", firstFile, "--signed-sub-tx-file", duplicateFile, "--out-file", outFile]
       exitCode H.=== ExitFailure 1
       H.assertWith stderr ("was provided more than once" `isInfixOf`)
-      H.assertWith stderr (BSC.unpack (serialiseToRawBytesHex (Exp.getSignedSubTxId first)) `isInfixOf`)
+      H.assertWith stderr (expectedId `isInfixOf`)
       H.evalIO (doesFileExist outFile) >>= (H.=== False)
 
 -- | Embedding two different sub-transactions preserves their order, bodies and witnesses.
@@ -174,18 +165,7 @@ hprop_dijkstra_build_raw_embeds_two_sub_transactions =
           , "--out-file"
           , unsignedFile
           ]
-      void $
-        execCardanoCLI
-          [ "dijkstra"
-          , "sub-transaction"
-          , "sign"
-          , "--sub-tx-file"
-          , unsignedFile
-          , "--signing-key-file"
-          , signingKey
-          , "--out-file"
-          , signedFile
-          ]
+      signSubTransaction unsignedFile signingKey signedFile
       pure signedFile
     expected <- forM subFiles $ \path -> H.evalEither =<< H.evalIO (readFileTextEnvelope (File path))
     length (Set.fromList $ map Exp.getSignedSubTxId expected) H.=== 2
@@ -195,9 +175,7 @@ hprop_dijkstra_build_raw_embeds_two_sub_transactions =
           ++ concatMap (\path -> ["--signed-sub-tx-file", path]) subFiles
           ++ ["--out-file", outFile]
     ShelleyTx _ tx <-
-      H.evalEither
-        =<< H.evalIO
-          (readFileTextEnvelope (File outFile) :: IO (Either (FileError TextEnvelopeError) (Tx DijkstraEra)))
+      readDijkstraTransaction outFile
     let actual = map Exp.SignedSubTx $ toList (tx ^. L.bodyTxL . L.subTransactionsTxBodyL)
     map serialiseToCBOR actual H.=== map serialiseToCBOR expected
 
@@ -732,19 +710,16 @@ hprop_dijkstra_sub_transaction_accepts_v4_script =
     H.evalIO $ writeDijkstraProtocolParams paramsFile
     script <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File (plutusScriptFile 4)))
     let expectedScript = toShelleyScript $ ScriptInEra PlutusScriptV4InDijkstra (PlutusScript PlutusScriptV4 script)
-    forM_
-      ( scriptFileCases
-          (plutusScriptFile 4)
-          (BSC.unpack $ serialiseToRawBytesHex $ fromShelleyScriptHash $ L.hashScript expectedScript)
-      )
-      $ \(purpose, witnessArgs) -> do
-        H.note_ purpose
-        void $
-          execCardanoCLI $
-            subTransactionArgs ++ witnessArgs ++ ["--protocol-params-file", paramsFile, "--out-file", outFile]
-        Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
-        tx ^. L.witsTxL . L.scriptTxWitsL H.=== Map.singleton (L.hashScript expectedScript) expectedScript
-        assertV4Redeemer purpose tx
+        scriptHash = L.hashScript expectedScript
+        policyId = BSC.unpack $ serialiseToRawBytesHex $ fromShelleyScriptHash scriptHash
+    forM_ (scriptFileCases (plutusScriptFile 4) policyId) $ \(purpose, witnessArgs) -> do
+      H.note_ purpose
+      void $
+        execCardanoCLI $
+          subTransactionArgs ++ witnessArgs ++ ["--protocol-params-file", paramsFile, "--out-file", outFile]
+      Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
+      tx ^. L.witsTxL . L.scriptTxWitsL H.=== Map.singleton scriptHash expectedScript
+      assertV4Redeemer purpose tx
 
 -- | A sub-transaction accepts a native script as its spending witness.
 hprop_dijkstra_sub_transaction_accepts_native_script :: Property
@@ -785,6 +760,7 @@ hprop_dijkstra_sub_transaction_key_guard_forms =
     key <- getVerificationKey <$> H.evalIO (generateSigningKey AsPaymentKey)
     H.evalEither =<< H.evalIO (writeFileTextEnvelope (File keyFile) Nothing key)
     let keyHash@(PaymentKeyHash ledgerHash) = verificationKeyHash key
+        expectedGuard = L.KeyHashObj $ L.coerceKeyRole ledgerHash
     forM_
       [ ["--guard-key-hash", BSC.unpack $ serialiseToRawBytesHex keyHash]
       , ["--guard-verification-key", BSC.unpack $ serialiseToRawBytesHex key]
@@ -794,9 +770,9 @@ hprop_dijkstra_sub_transaction_key_guard_forms =
         H.noteShow_ guardArgs
         void $ execCardanoCLI $ subTransactionArgs ++ guardArgs ++ ["--out-file", outFile]
         Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
-        toList (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== [L.KeyHashObj $ L.coerceKeyRole ledgerHash]
+        toList (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== [expectedGuard]
 
--- | A script-hash guard records the supplied credential without inventing a witness or redeemer.
+-- | A script-hash guard records its credential without adding a script or redeemer.
 hprop_dijkstra_sub_transaction_script_hash_guard :: Property
 hprop_dijkstra_sub_transaction_script_hash_guard =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -947,7 +923,7 @@ hprop_dijkstra_sub_transaction_rejects_duplicate_guards =
     H.assertWith stderr ("Duplicate guards:" `isInfixOf`)
     H.assertWith stderr (scriptHash `isInfixOf`)
 
--- | Both builders retain reference inputs and redeemers for all six purposes, using V4 in the integrity hash.
+-- | Both builders retain V4 reference witnesses for all six script purposes.
 hprop_dijkstra_v4_reference_script_flags :: Property
 hprop_dijkstra_v4_reference_script_flags =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -962,9 +938,7 @@ hprop_dijkstra_v4_reference_script_flags =
       assertV4ReferenceWitness purpose subTx
       void $ execCardanoCLI $ transactionArgs "dijkstra" ++ args
       ShelleyTx _ tx <-
-        H.evalEither
-          =<< H.evalIO
-            (readFileTextEnvelope (File outFile) :: IO (Either (FileError TextEnvelopeError) (Tx DijkstraEra)))
+        readDijkstraTransaction outFile
       assertV4ReferenceWitness purpose tx
 
 -- | Top-level Dijkstra transactions still accept V2/V3 reference scripts,
@@ -1004,6 +978,27 @@ hprop_conway_rejects_v4_reference_script_flags =
         H.assertWith stderr (("Invalid option `" ++ flag ++ "'") `isInfixOf`)
         exists <- H.evalIO $ doesFileExist outFile
         exists H.=== False
+
+-- | Sign a sub-transaction with the supplied key.
+signSubTransaction :: FilePath -> FilePath -> FilePath -> H.PropertyT (ResourceT IO) ()
+signSubTransaction unsignedFile key signedFile =
+  void $
+    execCardanoCLI
+      [ "dijkstra"
+      , "sub-transaction"
+      , "sign"
+      , "--sub-tx-file"
+      , unsignedFile
+      , "--signing-key-file"
+      , key
+      , "--out-file"
+      , signedFile
+      ]
+
+-- | Decode a top-level Dijkstra transaction for assertions on its contents.
+readDijkstraTransaction :: FilePath -> H.PropertyT (ResourceT IO) (Tx DijkstraEra)
+readDijkstraTransaction path =
+  H.evalEither =<< H.evalIO (readFileTextEnvelope (File path))
 
 subTransactionArgs :: [String]
 subTransactionArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
@@ -1135,12 +1130,13 @@ assertV4Redeemer purpose tx = do
         , ("guard", L.DijkstraGuarding (L.AsIx 0))
         ]
   let redeemers = tx ^. L.witsTxL . L.rdmrsTxWitsL
-      datum = toAlonzoData $ unsafeHashableScriptData $ ScriptDataNumber 42
+      redeemer = toAlonzoData $ unsafeHashableScriptData $ ScriptDataNumber 42
+      executionUnits = toAlonzoExUnits $ ExecutionUnits 7 11
       integrityHash language =
         getScriptIntegrityHash
           (BuildTxWith $ Just $ LedgerProtocolParameters $ L.PParams L.emptyPParamsIdentity)
           (Set.singleton language)
           (TxBodyScriptData AlonzoEraOnwardsDijkstra (tx ^. L.witsTxL . L.datsTxWitsL) redeemers)
-  L.unRedeemers redeemers H.=== Map.singleton pointer (datum, toAlonzoExUnits $ ExecutionUnits 7 11)
+  L.unRedeemers redeemers H.=== Map.singleton pointer (redeemer, executionUnits)
   tx ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL H.=== integrityHash L.PlutusV4
   H.assert $ integrityHash L.PlutusV4 /= integrityHash L.PlutusV3
