@@ -176,7 +176,8 @@ pGuardVerificationKey =
     mconcat
       [ Opt.long "guard-verification-key"
       , Opt.metavar "STRING"
-      , Opt.help "Payment verification key whose signature the sub-transaction requires (hex-encoded)."
+      , Opt.help
+          "Payment verification key whose signature the sub-transaction requires (hex-encoded). For other signing-key roles, hash the verification key first and use --guard-key-hash."
       ]
 
 pGuardVerificationKeyFile :: Parser (VerificationKeyFile In)
@@ -184,7 +185,7 @@ pGuardVerificationKeyFile =
   File
     <$> parseFilePath
       "guard-verification-key-file"
-      "Filepath of a payment verification key whose signature the sub-transaction requires."
+      "Filepath of a payment verification key whose signature the sub-transaction requires. For other signing-key roles, hash the verification key first and use --guard-key-hash."
 
 pGuardKeyHash :: Parser (Hash PaymentKey)
 pGuardKeyHash =
@@ -192,7 +193,8 @@ pGuardKeyHash =
     mconcat
       [ Opt.long "guard-key-hash"
       , Opt.metavar "HASH"
-      , Opt.help "Hash of a payment verification key whose signature the sub-transaction requires."
+      , Opt.help
+          "Hash of a verification key whose signature the sub-transaction requires (hex-encoded). Accepts hashes from any Shelley signing-key role, including stake, DRep and committee keys."
       ]
 
 -- | Like 'pInvalidHereafter' without the deprecated aliases and without the

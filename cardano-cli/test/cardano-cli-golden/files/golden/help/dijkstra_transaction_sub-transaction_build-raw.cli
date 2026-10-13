@@ -455,12 +455,18 @@ Available options:
                            The donation to the treasury to perform.
   --guard-verification-key STRING
                            Payment verification key whose signature the
-                           sub-transaction requires (hex-encoded).
+                           sub-transaction requires (hex-encoded). For other
+                           signing-key roles, hash the verification key first
+                           and use --guard-key-hash.
   --guard-verification-key-file FILEPATH
                            Filepath of a payment verification key whose
-                           signature the sub-transaction requires.
-  --guard-key-hash HASH    Hash of a payment verification key whose signature
-                           the sub-transaction requires.
+                           signature the sub-transaction requires. For other
+                           signing-key roles, hash the verification key first
+                           and use --guard-key-hash.
+  --guard-key-hash HASH    Hash of a verification key whose signature the
+                           sub-transaction requires (hex-encoded). Accepts
+                           hashes from any Shelley signing-key role, including
+                           stake, DRep and committee keys.
   --guard-script-hash HASH Hash of a native or Plutus guard script
                            (hex-encoded). Obtain it with "cardano-cli hash
                            script ...".
