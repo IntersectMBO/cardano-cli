@@ -35,10 +35,14 @@ import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Transaction.Internal.Common (partitionSomeWitnesses)
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.ProtocolParamsError
 
 import Control.Monad
+import Data.Aeson qualified as Aeson
+import Data.Bifunctor (first)
 import Data.Map.Ordered.Strict qualified as OMap
 import Data.Map.Strict qualified as Map
+import Data.Text qualified as Text
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -57,6 +61,7 @@ runCompatibleTransactionCmd
       mNetworkId
       fee
       certificates
+      mProtocolParamsFile
       outputFp
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
@@ -106,9 +111,23 @@ runCompatibleTransactionCmd
 
     let txCerts = mkTxCertificatesSbe sbe certsAndMaybeScriptWits
 
+    pparams <- forM mProtocolParamsFile $ \(ProtocolParamsFile path) -> do
+      bytes <- readFileCli path
+      fromEitherCli $ first (ProtocolParamsErrorJSON path . Text.pack) $ Aeson.eitherDecodeStrict' bytes
+
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
-        createCompatibleTx sbe ins allOuts extraDatums fee protocolUpdates votes txCerts
+        createCompatibleTx sbe $
+          (defaultCompatibleTxBodyContent sbe)
+            { compatibleTxIns = [(txIn, Exp.AnyKeyWitnessPlaceholder) | txIn <- ins]
+            , compatibleTxOuts = allOuts
+            , compatibleTxSupplementalDatums = extraDatums
+            , compatibleTxFee = fee
+            , compatibleTxProtocolUpdate = protocolUpdates
+            , compatibleTxVotingProcedures = votes
+            , compatibleTxCertificates = txCerts
+            , compatibleTxProtocolParams = pparams
+            }
 
     let txBody = ledgerTx ^. L.bodyTxL
 

@@ -121,7 +121,6 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
-import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 
 import RIO (readFileBinary)
 import Prelude
@@ -221,7 +220,7 @@ readAnyScript anyScriptFp = do
         Right script ->
           case Exp.useEra @era of
             Exp.DijkstraEra ->
-              pure . Exp.AnySimpleScript . Exp.SimpleScript $ Dijkstra.upgradeTimelock $ toAllegraTimelock script
+              pure . Exp.AnySimpleScript . Exp.SimpleScript $ toDijkstraNativeScript script
             era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
               let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
               return . Exp.AnySimpleScript $ Exp.SimpleScript s
