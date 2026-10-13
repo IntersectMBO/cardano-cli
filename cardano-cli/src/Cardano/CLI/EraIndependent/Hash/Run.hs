@@ -91,7 +91,7 @@ runHashScriptCmd
 runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} =
   do
     script <-
-      readAnyScript @_ @ConwayEra toHash
+      readAnyScript @_ @DijkstraEra toHash
     let hash = Exp.hashAnyScript script
     fromEitherIOCli @(FileError ()) $
       writeTextOutput mOutFile $

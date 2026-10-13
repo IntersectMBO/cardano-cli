@@ -45,6 +45,8 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes =
           , "0"
           , "--certificate-execution-units"
           , "(0,0)"
+          , "--protocol-params-file"
+          , inputDir <> "calculate-min-fee/offline-protocol-params-preview.json"
           ]
 
     -- reference transaction

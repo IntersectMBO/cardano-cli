@@ -37,6 +37,7 @@ data CompatibleTransactionCmds era
       -- ^ Tx fee
       ![(CertificateFile, Maybe AnyNonAssetScript)]
       -- ^ stake registering certs
+      !(Maybe ProtocolParamsFile)
       !(File () Out)
 
 renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text

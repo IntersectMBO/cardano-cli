@@ -59,6 +59,7 @@ pCompatibleSignedTransaction env sbe =
     <*> optional (pNetworkId env)
     <*> pTxFee
     <*> many (pCertificateFile ManualBalance)
+    <*> optional pProtocolParamsFile
     <*> pOutputFile
 
 pTxInOnly :: Parser TxIn
