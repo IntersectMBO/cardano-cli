@@ -38,6 +38,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                            )
                                                                            --certificate-reference-tx-in-execution-units (INT, INT)
                                                                          ]]
+                                                                       [--protocol-params-file FILEPATH]
                                                                        --out-file FILEPATH
                                                                        
 
@@ -138,5 +139,7 @@ Available options:
                            top-level strings and numbers.
   --certificate-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
+  --protocol-params-file FILEPATH
+                           Filepath of the JSON-encoded protocol parameters file
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text
