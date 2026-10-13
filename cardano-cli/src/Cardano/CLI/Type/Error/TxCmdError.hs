@@ -85,6 +85,9 @@ data TxCmdError
   | TxCmdSubTxCborError !DecoderError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
+  | TxCmdDuplicateGuards ![L.Credential L.Guard]
+  | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
+  | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -205,6 +208,16 @@ renderTxCmdError = \case
     "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
+  TxCmdDuplicateGuards credentials ->
+    "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
+  TxCmdPlutusGuardMissingRedeemer credential ->
+    "Plutus guard "
+      <> pretty (L.credToText credential)
+      <> " requires --guard-redeemer-* and --guard-execution-units."
+  TxCmdNativeGuardWithRedeemer credential ->
+    "Native script guard "
+      <> pretty (L.credToText credential)
+      <> " does not accept a redeemer or execution units."
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->

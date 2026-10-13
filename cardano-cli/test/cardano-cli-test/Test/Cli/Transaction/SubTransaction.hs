@@ -7,10 +7,14 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Ledger.Dijkstra.TxBody qualified as L
+
 import Control.Monad (forM_, void)
 import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
+import Data.Foldable (toList)
 import Data.List (isInfixOf)
+import Data.Map.Strict qualified as Map
 import Lens.Micro ((^.))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
@@ -23,6 +27,9 @@ import Hedgehog.Extras qualified as H
 
 signingKey :: FilePath
 signingKey = "test/cardano-cli-test/files/input/sub-transaction/payment.skey"
+
+nativeScriptFile :: FilePath
+nativeScriptFile = "test/cardano-cli-test/files/input/shelley/multisig/scripts/all"
 
 txIn :: String
 txIn = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
@@ -591,6 +598,142 @@ hprop_dijkstra_sub_transaction_can_store_v3_reference_script =
              , outFile
              ]
 
+-- | A native guard includes its script without requiring a Plutus redeemer or protocol parameters.
+hprop_dijkstra_sub_transaction_native_guard :: Property
+hprop_dijkstra_sub_transaction_native_guard =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    void $
+      execCardanoCLI $
+        subTransactionArgs ++ ["--guard-script-file", nativeScriptFile, "--out-file", outFile]
+    Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
+    let scripts = tx ^. L.witsTxL . L.scriptTxWitsL
+    length scripts H.=== 1
+    toList (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== map L.ScriptHashObj (Map.keys scripts)
+    L.unRedeemers (tx ^. L.witsTxL . L.rdmrsTxWitsL) H.=== mempty
+
+-- | A Plutus guard requires both a redeemer and execution units; an incomplete pair fails too.
+hprop_dijkstra_sub_transaction_guard_requires_redeemer_and_units :: Property
+hprop_dijkstra_sub_transaction_guard_requires_redeemer_and_units =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_ [[], ["--guard-redeemer-value", "0"], ["--guard-execution-units", "(0,0)"]] $ \args -> do
+      (exitCode, _, stderr) <-
+        execDetailCardanoCLI $
+          subTransactionArgs ++ ["--guard-script-file", plutusScriptFile 4] ++ args ++ ["--out-file", outFile]
+      exitCode H.=== ExitFailure 1
+      H.assertWith stderr ("--guard-" `isInfixOf`)
+      H.evalIO (doesFileExist outFile) >>= (H.=== False)
+
+-- | Native scripts reject Plutus witness data, and key guards do not parse it.
+hprop_dijkstra_sub_transaction_non_plutus_guard_rejects_redeemer :: Property
+hprop_dijkstra_sub_transaction_non_plutus_guard_rejects_redeemer =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_ [["--guard-script-file", nativeScriptFile], ["--guard-key-hash", replicate 56 '0']] $ \guard -> do
+      (exitCode, _, _) <-
+        execDetailCardanoCLI $
+          subTransactionArgs
+            ++ guard
+            ++ ["--guard-redeemer-value", "0", "--guard-execution-units", "(0,0)", "--out-file", outFile]
+      exitCode H.=== ExitFailure 1
+      H.evalIO (doesFileExist outFile) >>= (H.=== False)
+
+-- | Guard redeemers count key/native guards in their index and coexist with spending redeemers.
+-- Changing the guarding redeemer must also change the body hash before signing.
+hprop_dijkstra_sub_transaction_guard_redeemer_index :: Property
+hprop_dijkstra_sub_transaction_guard_redeemer_index =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    firstFile <- H.noteTempFile tempDir "first.unsigned"
+    secondFile <- H.noteTempFile tempDir "second.unsigned"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    forM_ [(firstFile, "42"), (secondFile, "43")] $ \(outFile, redeemer) ->
+      void $
+        execCardanoCLI $
+          subTransactionArgs
+            ++ [ "--tx-in-script-file"
+               , plutusScriptFile 4
+               , "--tx-in-redeemer-value"
+               , "0"
+               , "--tx-in-execution-units"
+               , "(1,2)"
+               , "--guard-key-hash"
+               , replicate 56 '0'
+               , "--guard-script-file"
+               , nativeScriptFile
+               , "--guard-script-file"
+               , plutusScriptFile 4
+               , "--guard-redeemer-value"
+               , redeemer
+               , "--guard-execution-units"
+               , "(3,4)"
+               , "--protocol-params-file"
+               , paramsFile
+               , "--out-file"
+               , outFile
+               ]
+    first@(Exp.UnsignedSubTx tx) <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File firstFile))
+    second <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File secondFile))
+    let redeemers = L.unRedeemers $ tx ^. L.witsTxL . L.rdmrsTxWitsL
+        datum = toAlonzoData . unsafeHashableScriptData . ScriptDataNumber
+    Map.lookup (L.DijkstraSpending (L.AsIx 0)) redeemers
+      H.=== Just (datum 0, toAlonzoExUnits $ ExecutionUnits 1 2)
+    Map.lookup (L.DijkstraGuarding (L.AsIx 2)) redeemers
+      H.=== Just (datum 42, toAlonzoExUnits $ ExecutionUnits 3 4)
+    Map.size redeemers H.=== 2
+    length (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== 3
+    Map.size (tx ^. L.witsTxL . L.scriptTxWitsL) H.=== 2
+    H.assert $ Exp.getUnsignedSubTxId first /= Exp.getUnsignedSubTxId second
+
+-- | A hash guard referring to an already supplied Plutus script still needs its own redeemer.
+hprop_dijkstra_sub_transaction_hash_guard_requires_own_redeemer :: Property
+hprop_dijkstra_sub_transaction_hash_guard_requires_own_redeemer =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    scriptHash <- execCardanoCLI ["hash", "script", "--script-file", plutusScriptFile 4]
+    (exitCode, _, stderr) <-
+      execDetailCardanoCLI $
+        subTransactionArgs
+          ++ [ "--tx-in-script-file"
+             , plutusScriptFile 4
+             , "--tx-in-redeemer-value"
+             , "0"
+             , "--tx-in-execution-units"
+             , "(0,0)"
+             , "--guard-script-hash"
+             , filter (/= '\n') scriptHash
+             , "--protocol-params-file"
+             , paramsFile
+             , "--out-file"
+             , outFile
+             ]
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("requires --guard-redeemer-* and --guard-execution-units" `isInfixOf`)
+
+-- | A script file and its hash must not create two guards that collapse to one OSet entry.
+hprop_dijkstra_sub_transaction_rejects_duplicate_guards :: Property
+hprop_dijkstra_sub_transaction_rejects_duplicate_guards =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    scriptHash <-
+      filter (/= '\n') <$> execCardanoCLI ["hash", "script", "--script-file", nativeScriptFile]
+    (exitCode, _, stderr) <-
+      execDetailCardanoCLI $
+        subTransactionArgs
+          ++ [ "--guard-script-file"
+             , nativeScriptFile
+             , "--guard-script-hash"
+             , scriptHash
+             , "--out-file"
+             , outFile
+             ]
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Duplicate guards:" `isInfixOf`)
+    H.assertWith stderr (scriptHash `isInfixOf`)
+
 -- | Both Dijkstra builders accept V4 reference scripts for all six script purposes.
 hprop_dijkstra_v4_reference_script_flags :: Property
 hprop_dijkstra_v4_reference_script_flags =
@@ -660,6 +803,7 @@ writeDijkstraProtocolParams path =
 scriptFileCases :: FilePath -> [(String, [String])]
 scriptFileCases scriptFile =
   [ ("spending", witness "tx-in" ++ ["--tx-in-datum-value", "0"])
+  , ("guard", witness "guard")
   , ("mint", ["--mint", "1 " ++ replicate 56 '0'] ++ witness "mint")
   ,
     ( "certificate"

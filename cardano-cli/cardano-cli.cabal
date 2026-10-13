@@ -372,6 +372,7 @@ test-suite cardano-cli-test
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-diffusion:ping,
+    cardano-ledger-dijkstra,
     cardano-slotting,
     containers,
     directory,
