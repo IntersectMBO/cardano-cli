@@ -153,6 +153,7 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                     
 
   Build an unsigned sub-transaction (low-level, inconvenient)
+  Canonical output fails if it would change sub-transaction data covered by an existing hash.
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired sub-transaction body. See nested [] notation above for details.[0;22;23;24m
 

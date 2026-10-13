@@ -82,6 +82,7 @@ data TxCmdError
   | -- | The same sub-transaction was given more than once.
     TxCmdDuplicateSubTransaction !TxId
   | TxCmdNonCanonicalSubTransaction !TxId
+  | TxCmdNonCanonicalSubTxComponent !TxId !Text
   | TxCmdSubTxCborError !DecoderError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
@@ -204,6 +205,12 @@ renderTxCmdError = \case
       <> " has a non-canonical CBOR body. Canonicalising that body would invalidate its signatures. Rebuild it with sub-transaction build-raw --out-canonical-cbor and sign it again."
   TxCmdSubTxCborError err ->
     "Error canonicalising sub-transaction CBOR: " <> prettyError err
+  TxCmdNonCanonicalSubTxComponent subTxId component ->
+    "Cannot write --out-canonical-cbor: canonicalisation would change "
+      <> pretty component
+      <> " bytes in sub-transaction "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " and invalidate an existing hash. Omit --out-canonical-cbor to preserve those bytes."
   TxCmdSubTxUnsupportedPlutusLanguage language ->
     "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
