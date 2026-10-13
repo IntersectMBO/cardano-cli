@@ -152,16 +152,36 @@ pSubTransactionTxId =
 
 -- | A guard credential: the sub-transaction requires this key's signature or
 -- this script's approval. Guards replace required signers in Dijkstra.
-pGuard :: Parser (VerificationKeyOrHashOrFileOrScriptHash PaymentKey)
+pGuard :: Parser Guard
 pGuard =
   asum
-    [ VkhfshKeyHashFile . VerificationKeyOrFile <$> pGuardVerificationKeyOrFile
-    , VkhfshKeyHashFile . VerificationKeyHash <$> pGuardKeyHash
-    , VkhfshScriptHash
+    [ KeyGuard . VerificationKeyOrFile <$> pGuardVerificationKeyOrFile
+    , KeyGuard . VerificationKeyHash <$> pGuardKeyHash
+    , ScriptGuard <$> pGuardScript <*> optional pGuardRedeemer
+    ]
+
+pGuardScript :: Parser GuardScript
+pGuardScript =
+  asum
+    [ GuardScriptHash
         <$> pScriptHash
           "guard-script-hash"
-          "Hash of a native or Plutus guard script (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
+          "Hash of a native or Plutus V4 guard script (hex-encoded). Supply the script through another witness or a reference input. When supplying only a hash, you must provide --guard-redeemer-* and --guard-execution-units if the script is Plutus; the CLI cannot determine the script type from its hash."
+    , GuardScriptFile
+        <$> pScriptFor
+          "guard-script-file"
+          Nothing
+          "Filepath of a native or Plutus V4 script whose approval the sub-transaction requires. Plutus scripts require --guard-redeemer-* and --guard-execution-units; native scripts accept neither."
     ]
+
+pGuardRedeemer :: Parser (ScriptDataOrFile, ExecutionUnits)
+pGuardRedeemer =
+  (,)
+    <$> pScriptDataOrFile
+      "guard-redeemer"
+      "Redeemer for the preceding script guard. Required only for Plutus V4 scripts, together with --guard-execution-units."
+      "Redeemer file for the preceding script guard. Required only for Plutus V4 scripts, together with --guard-execution-units."
+    <*> pExecutionUnits "guard"
 
 pGuardVerificationKeyOrFile :: Parser (VerificationKeyOrFile PaymentKey)
 pGuardVerificationKeyOrFile =
