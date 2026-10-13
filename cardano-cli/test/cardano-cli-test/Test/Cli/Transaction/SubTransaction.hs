@@ -7,14 +7,18 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
+import Cardano.Ledger.Plutus.Language qualified as L
 
 import Control.Monad (forM_, void)
+import Control.Monad.Trans.Resource (ResourceT)
 import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
 import Data.Foldable (toList)
 import Data.List (isInfixOf)
 import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Lens.Micro ((^.))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
@@ -512,6 +516,157 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
         , outFile
         ]
     checkEmbeddedBody outFile
+
+-- | Canonical output must not reorder metadata after its auxiliary-data hash is calculated.
+hprop_dijkstra_canonical_sub_transaction_rejects_metadata_rewrite :: Property
+hprop_dijkstra_canonical_sub_transaction_rejects_metadata_rewrite =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    metadataFile <- H.noteTempFile tempDir "metadata.json"
+    H.evalIO $ writeFile metadataFile $ "{\"0\":" ++ nonCanonicalDataMap ++ "}"
+    assertCanonicalSubTxRejected
+      tempDir
+      "auxiliary data"
+      ["--json-metadata-detailed-schema", "--metadata-json-file", metadataFile]
+
+-- | Canonical output must preserve redeemer/datum bytes covered by script-integrity and datum hashes.
+hprop_dijkstra_canonical_sub_transaction_rejects_script_data_rewrite :: Property
+hprop_dijkstra_canonical_sub_transaction_rejects_script_data_rewrite =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    dataFile <- H.noteTempFile tempDir "data.json"
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    H.evalIO $ writeFile dataFile nonCanonicalDataMap
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    forM_
+      [ ("redeemers", ["--tx-in-redeemer-file", dataFile])
+      , ("datums", ["--tx-in-datum-file", dataFile, "--tx-in-redeemer-value", "0"])
+      ]
+      $ \(component, dataArgs) ->
+        assertCanonicalSubTxRejected tempDir component $
+          ["--tx-in-script-file", plutusScriptFile 4]
+            ++ dataArgs
+            ++ ["--tx-in-execution-units", "(0,0)", "--protocol-params-file", paramsFile]
+
+-- | A native script's hash must not change when canonicalising its nested lists.
+hprop_dijkstra_canonical_sub_transaction_rejects_native_script_rewrite :: Property
+hprop_dijkstra_canonical_sub_transaction_rejects_native_script_rewrite =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    scriptFile <- H.noteTempFile tempDir "native.json"
+    let signature = Aeson.object ["type" Aeson..= ("sig" :: String), "keyHash" Aeson..= replicate 56 '0']
+    H.evalIO $
+      Aeson.encodeFile scriptFile $
+        Aeson.object ["type" Aeson..= ("all" :: String), "scripts" Aeson..= replicate 24 signature]
+    assertCanonicalSubTxRejected tempDir "native script" ["--tx-in-script-file", scriptFile]
+
+-- | Already canonical metadata and script data remain usable, with both stored hashes intact.
+hprop_dijkstra_canonical_sub_transaction_preserves_payload_hashes :: Property
+hprop_dijkstra_canonical_sub_transaction_preserves_payload_hashes =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    metadataFile <- H.noteTempFile tempDir "metadata.json"
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    H.evalIO $ writeFile metadataFile "{\"0\":42}"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    void $
+      execCardanoCLI $
+        subTransactionArgs
+          ++ [ "--tx-in-script-file"
+             , plutusScriptFile 4
+             , "--tx-in-datum-value"
+             , "0"
+             , "--tx-in-redeemer-value"
+             , "0"
+             , "--tx-in-execution-units"
+             , "(0,0)"
+             , "--metadata-json-file"
+             , metadataFile
+             , "--protocol-params-file"
+             , paramsFile
+             , "--out-canonical-cbor"
+             , "--out-file"
+             , outFile
+             ]
+    unsigned@(Exp.UnsignedSubTx tx) <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
+    canonical <- H.evalEither $ canonicaliseCborBs $ serialiseToCBOR unsigned
+    canonical H.=== serialiseToCBOR unsigned
+    L.SJust aux <- pure $ tx ^. L.auxDataTxL
+    tx ^. L.bodyTxL . L.auxDataHashTxBodyL H.=== L.SJust (L.hashTxAuxData aux)
+    let expectedIntegrity =
+          getScriptIntegrityHash
+            (BuildTxWith $ Just $ LedgerProtocolParameters $ L.PParams L.emptyPParamsIdentity)
+            (Set.singleton L.PlutusV4)
+            ( TxBodyScriptData
+                AlonzoEraOnwardsDijkstra
+                (tx ^. L.witsTxL . L.datsTxWitsL)
+                (tx ^. L.witsTxL . L.rdmrsTxWitsL)
+            )
+    tx ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL H.=== expectedIntegrity
+
+-- Metadata and Plutus data both support this detailed-schema map. Its key order
+-- changes under canonicalisation, so it exposes hashing-before-rewriting bugs.
+nonCanonicalDataMap :: String
+nonCanonicalDataMap = "{\"map\":[{\"k\":{\"int\":24},\"v\":{\"int\":0}},{\"k\":{\"int\":1},\"v\":{\"int\":0}}]}"
+
+-- Check the unsigned builder and all outer canonical-output paths. The default
+-- output must still work, and the sub-body must already be canonical so that
+-- the rejection specifically exercises payload protection, not the body check.
+assertCanonicalSubTxRejected :: FilePath -> String -> [String] -> H.PropertyT (ResourceT IO) ()
+assertCanonicalSubTxRejected tempDir component extraArgs = do
+  unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+  signedFile <- H.noteTempFile tempDir "sub.signed"
+  bodyFile <- H.noteTempFile tempDir "tx.body"
+  txFile <- H.noteTempFile tempDir "tx.signed"
+  witnessFile <- H.noteTempFile tempDir "tx.witness"
+  outFile <- H.noteTempFile tempDir "canonical.out"
+  let buildSub = subTransactionArgs ++ extraArgs
+      reject args = do
+        (exitCode, _, stderr) <-
+          execDetailCardanoCLI $ args ++ ["--out-canonical-cbor", "--out-file", outFile]
+        exitCode H.=== ExitFailure 1
+        H.assertWith stderr (component `isInfixOf`)
+        H.assertWith stderr ("invalidate an existing hash" `isInfixOf`)
+        H.evalIO (doesFileExist outFile) >>= (H.=== False)
+  void $ execCardanoCLI $ buildSub ++ ["--out-file", unsignedFile]
+  reject buildSub
+  Exp.UnsignedSubTx subTx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File unsignedFile))
+  let bodyBytes = L.originalBytes (subTx ^. L.bodyTxL)
+  canonicalBody <- H.evalEither $ canonicaliseCborBs bodyBytes
+  bodyBytes H.=== canonicalBody
+  void $
+    execCardanoCLI
+      [ "dijkstra"
+      , "transaction"
+      , "sub-transaction"
+      , "sign"
+      , "--sub-tx-file"
+      , unsignedFile
+      , "--signing-key-file"
+      , signingKey
+      , "--out-file"
+      , signedFile
+      ]
+  let buildOuter = transactionArgs "dijkstra" ++ ["--signed-sub-tx-file", signedFile]
+  void $ execCardanoCLI $ buildOuter ++ ["--out-file", bodyFile]
+  let signBody = ["dijkstra", "transaction", "sign", "--tx-body-file", bodyFile, "--signing-key-file", signingKey]
+  void $ execCardanoCLI $ signBody ++ ["--out-file", txFile]
+  void $
+    execCardanoCLI
+      [ "dijkstra"
+      , "transaction"
+      , "witness"
+      , "--tx-body-file"
+      , bodyFile
+      , "--signing-key-file"
+      , signingKey
+      , "--out-file"
+      , witnessFile
+      ]
+  forM_
+    [ buildOuter
+    , signBody
+    , ["dijkstra", "transaction", "sign", "--tx-file", txFile, "--signing-key-file", signingKey]
+    , ["dijkstra", "transaction", "assemble", "--tx-body-file", bodyFile, "--witness-file", witnessFile]
+    ]
+    reject
 
 -- | Sub-transactions reject Plutus V1-V3 script files for every script purpose,
 -- before requiring protocol parameters or writing a body.
