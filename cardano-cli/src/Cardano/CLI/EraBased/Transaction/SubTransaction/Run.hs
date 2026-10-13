@@ -8,7 +8,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 
--- | Runners for Dijkstra sub-transactions: the @transaction sub-transaction@
+-- | Runners for Dijkstra sub-transactions: the @sub-transaction@
 -- command group, and reading signed sub-transactions for embedding in a
 -- top-level transaction.
 module Cardano.CLI.EraBased.Transaction.SubTransaction.Run

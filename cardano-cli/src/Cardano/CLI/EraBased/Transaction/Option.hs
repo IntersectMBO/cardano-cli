@@ -64,7 +64,6 @@ pTransactionCmds envCli =
                     ]
     , pTransactionBuildCmd envCli
     , pTransactionBuildEstimateCmd envCli
-    , pTransactionSubTransactionCmds
     , Just $
         Opt.hsubparser $
           commandWithMetavar "sign" $

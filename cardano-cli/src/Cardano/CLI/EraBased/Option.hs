@@ -18,6 +18,7 @@ import Cardano.CLI.EraBased.StakeAddress.Option
 import Cardano.CLI.EraBased.StakePool.Option
 import Cardano.CLI.EraBased.TextView.Option
 import Cardano.CLI.EraBased.Transaction.Option
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Option (pSubTransactionCmds)
 import Cardano.CLI.EraIndependent.Address.Option
 import Cardano.CLI.EraIndependent.Key.Option
 import Cardano.CLI.EraIndependent.Node.Option
@@ -40,6 +41,7 @@ pCmds envCli = do
       , fmap QueryCmds <$> pQueryCmds envCli
       , fmap StakeAddressCmds <$> pStakeAddressCmds envCli
       , fmap StakePoolCmds <$> pStakePoolCmds envCli
+      , fmap SubTransactionCmds <$> pSubTransactionCmds @era
       , fmap TextViewCmds <$> pTextViewCmds
       , fmap TransactionCmds <$> pTransactionCmds envCli
       ]
