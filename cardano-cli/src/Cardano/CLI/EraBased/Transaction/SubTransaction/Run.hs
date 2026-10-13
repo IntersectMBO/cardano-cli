@@ -185,6 +185,7 @@ runSubTransactionBuildRawCmd
     outputSubTx <-
       if isCborOutCanonical == TxCborCanonical
         then fromEitherCli $ do
+          validateCanonicalSubTx unsignedSubTx
           cbor <- first TxCmdSubTxCborError $ canonicaliseCborBs (serialiseToCBOR unsignedSubTx)
           first TxCmdSubTxCborError $ deserialiseFromCBOR Exp.AsUnsignedSubTx cbor
         else pure unsignedSubTx
@@ -456,8 +457,28 @@ runSubTransactionTxIdCmd
               $ Vary.exhaustiveCase
           )
 
--- | Canonicalising an outer transaction must preserve the body bytes signed by
--- each embedded sub-transaction. Witness encoding is not part of this check.
+-- | Canonicalisation must preserve the bytes behind hashes already stored in
+-- the sub-transaction body. Datums may also be referenced by existing UTxOs.
+validateCanonicalSubTx :: Exp.UnsignedSubTx -> Either TxCmdError ()
+validateCanonicalSubTx unsigned@(Exp.UnsignedSubTx tx) = do
+  forM_ (tx ^. L.auxDataTxL) $ \aux ->
+    check "auxiliary data (metadata and auxiliary scripts)" (originalBytes aux)
+  check "redeemers" $ originalBytes (tx ^. L.witsTxL . L.rdmrsTxWitsL)
+  check "datums" $ originalBytes (tx ^. L.witsTxL . L.datsTxWitsL)
+  forM_ (tx ^. L.witsTxL . L.scriptTxWitsL) $ \script ->
+    -- Plutus scripts are opaque byte strings; native script structures can
+    -- be rewritten, changing the script hashes used by credentials/policies.
+    when (isJust $ L.getNativeScript script) $
+      check "native script" (originalBytes script)
+ where
+  check component bytes = do
+    canonical <- first TxCmdSubTxCborError $ canonicaliseCborBs bytes
+    unless (bytes == canonical) $
+      Left $
+        TxCmdNonCanonicalSubTxComponent (Exp.getUnsignedSubTxId unsigned) component
+
+-- | Canonicalising an outer transaction must preserve both the signed body and
+-- the hashed payloads of every embedded sub-transaction.
 validateCanonicalSubTransactions
   :: TxCborFormat
   -> ShelleyBasedEra era
@@ -473,4 +494,5 @@ validateCanonicalSubTransactions TxCborCanonical sbe (ShelleyTx _ tx) =
         unless (bodyBytes == canonicalBytes) $
           Left $
             TxCmdNonCanonicalSubTransaction (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
+        validateCanonicalSubTx $ Exp.UnsignedSubTx subTx
     _ -> Right ()

@@ -59,6 +59,8 @@ pTransactionSubTransactionCmds =
                         mconcat
                           [ pretty @String "Build an unsigned sub-transaction (low-level, inconvenient)"
                           , line
+                          , "Canonical output fails if it would change sub-transaction data covered by an existing hash."
+                          , line
                           , line
                           , H.yellow $
                               mconcat
