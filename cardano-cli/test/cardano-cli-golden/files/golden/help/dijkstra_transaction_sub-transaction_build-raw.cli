@@ -138,7 +138,15 @@ Usage: cardano-cli dijkstra transaction sub-transaction build-raw (--tx-in TX_IN
                                                                     [ --guard-verification-key STRING
                                                                     | --guard-verification-key-file FILEPATH
                                                                     | --guard-key-hash HASH
-                                                                    | --guard-script-hash HASH
+                                                                    | ( --guard-script-hash HASH
+                                                                      | --guard-script-file FILEPATH
+                                                                      )
+                                                                      [
+                                                                        ( --guard-redeemer-cbor-file CBOR_FILE
+                                                                        | --guard-redeemer-file JSON_FILE
+                                                                        | --guard-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --guard-execution-units (INT, INT)]
                                                                     ]
                                                                     [--out-canonical-cbor]
                                                                     --out-file FILEPATH
@@ -467,9 +475,36 @@ Available options:
                            sub-transaction requires (hex-encoded). Accepts
                            hashes from any Shelley signing-key role, including
                            stake, DRep and committee keys.
-  --guard-script-hash HASH Hash of a native or Plutus guard script
-                           (hex-encoded). Obtain it with "cardano-cli hash
-                           script ...".
+  --guard-script-hash HASH Hash of a native or Plutus V4 guard script
+                           (hex-encoded). Supply the script through another
+                           witness or a reference input. When supplying only a
+                           hash, you must provide --guard-redeemer-* and
+                           --guard-execution-units if the script is Plutus; the
+                           CLI cannot determine the script type from its hash.
+  --guard-script-file FILEPATH
+                           Filepath of a native or Plutus V4 script whose
+                           approval the sub-transaction requires. Plutus scripts
+                           require --guard-redeemer-* and
+                           --guard-execution-units; native scripts accept
+                           neither.
+  --guard-redeemer-cbor-file CBOR_FILE
+                           Redeemer file for the preceding script guard.
+                           Required only for Plutus V4 scripts, together with
+                           --guard-execution-units. The file has to be in CBOR
+                           format.
+  --guard-redeemer-file JSON_FILE
+                           Redeemer file for the preceding script guard.
+                           Required only for Plutus V4 scripts, together with
+                           --guard-execution-units. The file must follow the
+                           detailed JSON schema for script data.
+  --guard-redeemer-value JSON_VALUE
+                           Redeemer for the preceding script guard. Required
+                           only for Plutus V4 scripts, together with
+                           --guard-execution-units. There is no schema: (almost)
+                           any JSON value is supported, including top-level
+                           strings and numbers.
+  --guard-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
                            RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON unsigned sub-transaction.

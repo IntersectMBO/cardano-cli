@@ -25,6 +25,7 @@ import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -33,6 +34,7 @@ import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Proposal.Read
+import Cardano.CLI.EraBased.Script.Read.Common (readScriptDataOrFile)
 import Cardano.CLI.EraBased.Script.Spend.Read
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
@@ -43,7 +45,9 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
-import Cardano.CLI.Type.Key (readVerificationKeyOrHashOrFileOrScriptHash)
+import Cardano.CLI.Type.Key (readVerificationKeyOrHashOrTextEnvFile)
+import Cardano.Ledger.Core qualified as L (fromNativeScript)
+import Cardano.Ledger.Dijkstra.Scripts qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
 import Cardano.Ledger.Hashes (DataHash, originalBytes)
 import Cardano.Ledger.Keys (coerceKeyRole)
@@ -148,8 +152,10 @@ runSubTransactionBuildRawCmd
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
 
-    guardCredentials <-
-      mapM (readVerificationKeyOrHashOrFileOrScriptHash (\(PaymentKeyHash kh) -> coerceKeyRole kh)) guards
+    guardWitnesses <- mapM readGuard guards
+    let guardCredentials = [credential | (credential, _, _) <- guardWitnesses]
+        duplicates = [credential | credential : _ : _ <- List.group (List.sort guardCredentials)]
+    unless (null duplicates) $ throwCliError $ TxCmdDuplicateGuards duplicates
 
     subTx :: Exp.SubTxBodyContent (Exp.LedgerEra Exp.DijkstraEra) <-
       fromEitherCli $
@@ -172,8 +178,9 @@ runSubTransactionBuildRawCmd
           supplementalDatums
           (OSet.fromList guardCredentials)
 
-    unsignedSubTx <-
+    unsigned <-
       fromEitherCli $ first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedSubTx subTx
+    unsignedSubTx <- fromEitherCli $ addGuardWitnesses pparams guardWitnesses unsigned
 
     outputSubTx <-
       if isCborOutCanonical == TxCborCanonical
@@ -185,6 +192,98 @@ runSubTransactionBuildRawCmd
    where
     eon :: Exp.Era Exp.DijkstraEra
     eon = Exp.DijkstraEra
+
+type GuardWitness =
+  ( L.Credential L.Guard
+  , Maybe (L.Script (Exp.LedgerEra Exp.DijkstraEra))
+  , Maybe (L.Data (Exp.LedgerEra Exp.DijkstraEra), L.ExUnits)
+  )
+
+-- | A file identifies the script language; a bare hash may refer to a script
+-- supplied elsewhere, whose language cannot always be checked offline.
+readGuard :: Cmd.Guard -> CIO e GuardWitness
+readGuard = \case
+  Cmd.KeyGuard key -> do
+    PaymentKeyHash keyHash <- readVerificationKeyOrHashOrTextEnvFile key
+    pure (L.KeyHashObj (coerceKeyRole keyHash), Nothing, Nothing)
+  Cmd.ScriptGuard source mRedeemer -> do
+    (credential, script) <- case source of
+      Cmd.GuardScriptHash (ScriptHash scriptHash) -> pure (L.ScriptHashObj scriptHash, Nothing)
+      Cmd.GuardScriptFile (File path) -> do
+        script <- readAnyScript @_ @Exp.DijkstraEra path
+        ledgerScript <- case script of
+          Exp.AnySimpleScript (Exp.SimpleScript native) -> pure $ L.fromNativeScript native
+          Exp.AnyPlutusScript plutus -> do
+            let language = Exp.Plutus.plutusScriptInEraLanguage plutus
+            unless (language == L.PlutusV4) $
+              throwCliError $
+                TxCmdSubTxUnsupportedPlutusLanguage language
+            pure $ Exp.Plutus.plutusScriptInEraToScript plutus
+        pure (L.ScriptHashObj (L.hashScript ledgerScript), Just ledgerScript)
+    forM_ script $ \s -> fromEitherCli $ validateGuardRedeemer credential s (isJust mRedeemer)
+    redeemer <- forM mRedeemer $ \(redeemerData, units) -> do
+      value <- fromExceptTCli $ readScriptDataOrFile redeemerData
+      pure (toAlonzoData value, toAlonzoExUnits units)
+    pure (credential, script, redeemer)
+
+validateGuardRedeemer
+  :: L.Credential L.Guard
+  -> L.Script (Exp.LedgerEra Exp.DijkstraEra)
+  -> Bool
+  -> Either TxCmdError ()
+validateGuardRedeemer credential script hasRedeemer
+  | isJust (L.getNativeScript script) =
+      when hasRedeemer $ Left $ TxCmdNativeGuardWithRedeemer credential
+  | otherwise =
+      unless hasRedeemer $ Left $ TxCmdPlutusGuardMissingRedeemer credential
+
+-- | The API currently collects witnesses for the six pre-Dijkstra purposes.
+-- Add guarding witnesses before canonicalisation/signing and update the script
+-- integrity hash to cover the complete redeemer set. Guard indices include key
+-- and native-script guards, and preserve the body's OSet order.
+addGuardWitnesses
+  :: Maybe (L.PParams (Exp.LedgerEra Exp.DijkstraEra))
+  -> [GuardWitness]
+  -> Exp.UnsignedSubTx
+  -> Either TxCmdError Exp.UnsignedSubTx
+addGuardWitnesses pparams guards (Exp.UnsignedSubTx tx) = do
+  let scripts =
+        Map.fromList [(L.hashScript script, script) | (_, Just script, _) <- guards]
+          <> tx ^. L.witsTxL . L.scriptTxWitsL
+      guardRedeemers =
+        Map.fromList
+          [ (L.GuardingPurpose (L.AsIx index), redeemer)
+          | (index, (_, _, Just redeemer)) <- zip [0 ..] guards
+          ]
+  forM_ guards $ \(credential, _, redeemer) -> case credential of
+    L.KeyHashObj _ -> pure ()
+    L.ScriptHashObj scriptHash ->
+      forM_ (Map.lookup scriptHash scripts) $ \script ->
+        validateGuardRedeemer credential script (isJust redeemer)
+  let redeemers = tx ^. L.witsTxL . L.rdmrsTxWitsL <> L.Redeemers guardRedeemers
+      witnesses =
+        tx
+          ^. L.witsTxL
+            & L.scriptTxWitsL
+          .~ scripts
+            & L.rdmrsTxWitsL
+          .~ redeemers
+      witnessed = tx & L.witsTxL .~ witnesses
+  if Map.null guardRedeemers
+    then pure $ Exp.UnsignedSubTx witnessed
+    else do
+      pp <- maybe (Left $ TxCmdMakeUnsignedTxError Exp.MakeUnsignedTxMissingProtocolParams) Right pparams
+      -- All executed Plutus scripts in a sub-transaction must be V4.
+      let integrity =
+            getScriptIntegrityHash
+              (BuildTxWith $ Just $ LedgerProtocolParameters pp)
+              (Set.singleton L.PlutusV4)
+              ( TxBodyScriptData
+                  AlonzoEraOnwardsDijkstra
+                  (witnessed ^. L.witsTxL . L.datsTxWitsL)
+                  (witnessed ^. L.witsTxL . L.rdmrsTxWitsL)
+              )
+      pure $ Exp.UnsignedSubTx $ witnessed & L.bodyTxL . L.scriptIntegrityHashTxBodyL .~ integrity
 
 -- | The sub-transaction analogue of 'constructTxBodyContent'. It shares the
 -- value preparation but builds a 'Exp.SubTxBodyContent', which has no fee,

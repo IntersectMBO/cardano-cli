@@ -7,6 +7,8 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Command
   , SubTransactionBuildRawCmdArgs (..)
   , SubTransactionSignCmdArgs (..)
   , SubTransactionTxIdCmdArgs (..)
+  , Guard (..)
+  , GuardScript (..)
   , renderSubTransactionCmds
   )
 where
@@ -17,7 +19,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
-import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFileOrScriptHash)
+import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFile)
 
 import Vary (Vary)
 
@@ -56,11 +58,23 @@ data SubTransactionBuildRawCmdArgs = SubTransactionBuildRawCmdArgs
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
-  , guards :: ![VerificationKeyOrHashOrFileOrScriptHash PaymentKey]
+  , guards :: ![Guard]
   -- ^ Credentials whose authorisation the sub-transaction requires
   , isCborOutCanonical :: !TxCborFormat
   , outFile :: !(UnsignedSubTxFile Out)
   }
+  deriving Show
+
+-- | A script guard may carry its guarding redeemer and execution budget.
+-- They are required for Plutus scripts and forbidden for native scripts.
+data Guard
+  = KeyGuard (VerificationKeyOrHashOrFile PaymentKey)
+  | ScriptGuard GuardScript (Maybe (ScriptDataOrFile, ExecutionUnits))
+  deriving Show
+
+data GuardScript
+  = GuardScriptHash ScriptHash
+  | GuardScriptFile ScriptFile
   deriving Show
 
 data SubTransactionSignCmdArgs = SubTransactionSignCmdArgs
