@@ -18,12 +18,7 @@ signingKeyHash = "944b17df58cf59ca727d08746addbc5cb55cd87151ba69decd35bbbc"
 goldenDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden/dijkstra/transaction/sub-transaction"
 
--- | Build, sign and identify a sub-transaction, then embed it in a top-level
--- transaction and sign that. Pins the envelope formats of every file in the
--- pipeline.
---
--- Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden dijkstra transaction sub transaction pipeline/"'@
+-- | Compare every transaction file and ID in the build/sign/embed pipeline with its golden output.
 hprop_golden_dijkstra_transaction_sub_transaction_pipeline :: Property
 hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -107,7 +102,7 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
         ]
     H.diffFileVsGoldenFile txBodyFile (goldenDir <> "/tx_body_with_sub_tx_out")
 
-    -- Pin the final signed transaction and its identifier too.
+    -- Check the final signed transaction and its identifier too.
     signedTxFile <- noteTempFile tempDir "tx.signed"
     void $
       execCardanoCLI
