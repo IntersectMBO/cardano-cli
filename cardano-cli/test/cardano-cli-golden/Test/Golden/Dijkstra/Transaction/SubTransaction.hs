@@ -107,7 +107,7 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
         ]
     H.diffFileVsGoldenFile txBodyFile (goldenDir <> "/tx_body_with_sub_tx_out")
 
-    -- The top-level transaction still signs and identifies as usual
+    -- Pin the final signed transaction and its identifier too.
     signedTxFile <- noteTempFile tempDir "tx.signed"
     void $
       execCardanoCLI
@@ -123,7 +123,8 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
         , "--out-file"
         , signedTxFile
         ]
-    void $
+    H.diffFileVsGoldenFile signedTxFile (goldenDir <> "/tx_signed_with_sub_tx_out")
+    txId <-
       execCardanoCLI
         [ "dijkstra"
         , "transaction"
@@ -132,3 +133,4 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
         , signedTxFile
         , "--output-text"
         ]
+    H.diffVsGoldenFile txId (goldenDir <> "/tx_signed_with_sub_tx_id_out")
