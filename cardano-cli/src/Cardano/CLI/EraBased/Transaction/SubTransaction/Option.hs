@@ -87,6 +87,7 @@ pSubTransactionBuildRaw =
       <$> some
         ( pTxInWithPlutusReferenceLanguage
             (pPlutusV4ReferenceLanguage Exp.DijkstraEra "spending-")
+            "the spending of the transaction input. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
       <*> many pReadOnlyReferenceTxIn
@@ -94,6 +95,7 @@ pSubTransactionBuildRaw =
       <*> ( fmap join . optional $
               pMintMultiAssetWithPlutusReferenceLanguage @Exp.DijkstraEra
                 (pPlutusV4ReferenceLanguage Exp.DijkstraEra "mint-")
+                "the minting of assets for a particular policy Id. Only native scripts or Plutus V4 scripts are supported."
                 ManualBalance
           )
       <*> optional pInvalidBefore
@@ -101,11 +103,13 @@ pSubTransactionBuildRaw =
       <*> many
         ( pCertificateFileWithPlutusReferenceLanguage
             (pPlutusV4ReferenceLanguage Exp.DijkstraEra "certificate-")
+            "the use of the certificate. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
       <*> many
         ( pWithdrawalWithPlutusReferenceLanguage
             (pPlutusV4ReferenceLanguage Exp.DijkstraEra "withdrawal-")
+            "the withdrawal of rewards. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
       <*> pTxMetadataJsonSchema
@@ -115,11 +119,13 @@ pSubTransactionBuildRaw =
       <*> many
         ( pVoteFileWithPlutusReferenceLanguage
             (pPlutusV4ReferenceLanguage Exp.DijkstraEra "vote-")
+            "a vote. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
       <*> many
         ( pProposalFileWithPlutusReferenceLanguage
             (pPlutusV4ReferenceLanguage Exp.DijkstraEra "proposal-")
+            "a proposal. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
       <*> pCurrentTreasuryValue

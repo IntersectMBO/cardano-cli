@@ -938,12 +938,12 @@ pCBORInFile =
 
 --------------------------------------------------------------------------------
 
-pMintScriptFile :: Parser (File ScriptInAnyLang In)
-pMintScriptFile =
+pMintScriptFile :: String -> Parser (File ScriptInAnyLang In)
+pMintScriptFile help =
   pScriptFor
     "mint-script-file"
     (Just "minting-script-file")
-    "The file containing the script to witness the minting of assets for a particular policy Id."
+    ("The file containing the script to witness " ++ help)
 
 pPlutusMintScriptWitnessData
   :: WitCtx witctx
@@ -1106,13 +1106,15 @@ pVoteFileForEra
   -> BalanceTxExecUnits
   -> Parser (VoteFile In, Maybe AnyNonAssetScript)
 pVoteFileForEra era =
-  pVoteFileWithPlutusReferenceLanguage (pGovernancePlutusSLanguageForEra era "vote-")
+  pVoteFileWithPlutusReferenceLanguage (pGovernancePlutusSLanguageForEra era "vote-") "a vote"
 
 pVoteFileWithPlutusReferenceLanguage
   :: Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (VoteFile In, Maybe AnyNonAssetScript)
-pVoteFileWithPlutusReferenceLanguage pLanguage balExUnits =
+pVoteFileWithPlutusReferenceLanguage pLanguage scriptFileHelp balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
@@ -1124,7 +1126,7 @@ pVoteFileWithPlutusReferenceLanguage pLanguage balExUnits =
       bExUnits
       "vote"
       Nothing
-      "a vote"
+      scriptFileHelp
       <|> pVoteReferencePlutusScriptWitness pLanguage balExUnits
 
 pVoteScriptWitness
@@ -1177,13 +1179,17 @@ pProposalFileForEra
   -> BalanceTxExecUnits
   -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
 pProposalFileForEra era =
-  pProposalFileWithPlutusReferenceLanguage (pGovernancePlutusSLanguageForEra era "proposal-")
+  pProposalFileWithPlutusReferenceLanguage
+    (pGovernancePlutusSLanguageForEra era "proposal-")
+    "a proposal"
 
 pProposalFileWithPlutusReferenceLanguage
   :: Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
-pProposalFileWithPlutusReferenceLanguage pLanguage balExUnits =
+pProposalFileWithPlutusReferenceLanguage pLanguage scriptFileHelp balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
@@ -1195,7 +1201,7 @@ pProposalFileWithPlutusReferenceLanguage pLanguage balExUnits =
       bExUnits
       "proposal"
       Nothing
-      "a proposal"
+      scriptFileHelp
       <|> pProposalReferencePlutusScriptWitness pLanguage balExUnits
 
 pProposalScriptWitness
@@ -1390,13 +1396,17 @@ pCertificateFileForEra
   -> BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe AnyNonAssetScript)
 pCertificateFileForEra era =
-  pCertificateFileWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "certificate-")
+  pCertificateFileWithPlutusReferenceLanguage
+    (pAnyPlutusSLanguageForEra era "certificate-")
+    "the use of the certificate."
 
 pCertificateFileWithPlutusReferenceLanguage
   :: Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe AnyNonAssetScript)
-pCertificateFileWithPlutusReferenceLanguage pLanguage balanceExecUnits =
+pCertificateFileWithPlutusReferenceLanguage pLanguage scriptFileHelp balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
@@ -1413,7 +1423,7 @@ pCertificateFileWithPlutusReferenceLanguage pLanguage balanceExecUnits =
       balanceExecUnits
       "certificate"
       Nothing
-      "the use of the certificate."
+      scriptFileHelp
       <|> pCertificateReferencePlutusScriptWitness pLanguage bExecUnits
 
   helpText =
@@ -1514,13 +1524,17 @@ pWithdrawalForEra
        , Maybe AnyNonAssetScript
        )
 pWithdrawalForEra era =
-  pWithdrawalWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "withdrawal-")
+  pWithdrawalWithPlutusReferenceLanguage
+    (pAnyPlutusSLanguageForEra era "withdrawal-")
+    "the withdrawal of rewards."
 
 pWithdrawalWithPlutusReferenceLanguage
   :: Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (StakeAddress, Lovelace, Maybe AnyNonAssetScript)
-pWithdrawalWithPlutusReferenceLanguage pLanguage balance =
+pWithdrawalWithPlutusReferenceLanguage pLanguage scriptFileHelp balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
       (readerFromParsecParser parseWithdrawal)
@@ -1536,7 +1550,7 @@ pWithdrawalWithPlutusReferenceLanguage pLanguage balance =
       balance
       "withdrawal"
       Nothing
-      "the withdrawal of rewards."
+      scriptFileHelp
       <|> pWithdrawalReferencePlutusScriptWitness pLanguage balance
 
   helpText =
@@ -2029,13 +2043,17 @@ pTxInForEra
   -> BalanceTxExecUnits
   -> Parser (TxIn, Maybe AnySpendScript)
 pTxInForEra era =
-  pTxInWithPlutusReferenceLanguage (pAnyPlutusSLanguageForEra era "spending-")
+  pTxInWithPlutusReferenceLanguage
+    (pAnyPlutusSLanguageForEra era "spending-")
+    "the spending of the transaction input."
 
 pTxInWithPlutusReferenceLanguage
   :: Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (TxIn, Maybe AnySpendScript)
-pTxInWithPlutusReferenceLanguage pLanguage balance =
+pTxInWithPlutusReferenceLanguage pLanguage scriptFileHelp balance =
   (,)
     <$> Opt.option
       (readerFromParsecParser parseTxIn)
@@ -2073,7 +2091,7 @@ pTxInWithPlutusReferenceLanguage pLanguage balance =
       balance
       "tx-in"
       (Just "txin")
-      "the spending of the transaction input."
+      scriptFileHelp
 
 pTxInCollateral :: Parser TxIn
 pTxInCollateral =
@@ -2238,15 +2256,19 @@ pMintMultiAsset
   => BalanceTxExecUnits
   -> Parser (Maybe (L.MultiAsset, [AnyMintScript]))
 pMintMultiAsset =
-  pMintMultiAssetWithPlutusReferenceLanguage @era (pAnyPlutusSLanguageForEra (useEra @era) "mint-")
+  pMintMultiAssetWithPlutusReferenceLanguage @era
+    (pAnyPlutusSLanguageForEra (useEra @era) "mint-")
+    "the minting of assets for a particular policy Id."
 
 pMintMultiAssetWithPlutusReferenceLanguage
   :: forall era
    . IsEra era
   => Parser AnySLanguage
+  -> String
+  -- ^ Script-file witness description
   -> BalanceTxExecUnits
   -> Parser (Maybe (L.MultiAsset, [AnyMintScript]))
-pMintMultiAssetWithPlutusReferenceLanguage pLanguage balanceExecUnits =
+pMintMultiAssetWithPlutusReferenceLanguage pLanguage scriptFileHelp balanceExecUnits =
   let mintAssets =
         Opt.option
           -- TODO: parseMintingMultiAssetValue should not be parameterized on era
@@ -2266,7 +2288,7 @@ pMintMultiAssetWithPlutusReferenceLanguage pLanguage balanceExecUnits =
   pMintingScript :: Parser AnyMintScript
   pMintingScript =
     createSimpleOrPlutusScriptFromCliArgs
-      <$> pMintScriptFile
+      <$> pMintScriptFile scriptFileHelp
       <*> optional (pPlutusMintScriptWitnessData WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser AnyMintScript

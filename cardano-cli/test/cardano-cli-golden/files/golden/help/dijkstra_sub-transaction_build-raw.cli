@@ -193,7 +193,8 @@ Available options:
                            input must have a simple reference script attached.
   --tx-in-script-file FILEPATH
                            The file containing the script to witness the
-                           spending of the transaction input.
+                           spending of the transaction input. Only native
+                           scripts or Plutus V4 scripts are supported.
   --tx-in-datum-cbor-file CBOR_FILE
                            The script datum file. The file has to be in CBOR
                            format.
@@ -272,7 +273,8 @@ Available options:
                            syntax. You must specify a script witness.
   --mint-script-file FILEPATH
                            The file containing the script to witness the minting
-                           of assets for a particular policy Id.
+                           of assets for a particular policy Id. Only native
+                           scripts or Plutus V4 scripts are supported.
   --mint-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -315,7 +317,8 @@ Available options:
                            witness.
   --certificate-script-file FILEPATH
                            The file containing the script to witness the use of
-                           the certificate.
+                           the certificate. Only native scripts or Plutus V4
+                           scripts are supported.
   --certificate-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -351,7 +354,8 @@ Available options:
                            specify a script witness.
   --withdrawal-script-file FILEPATH
                            The file containing the script to witness the
-                           withdrawal of rewards.
+                           withdrawal of rewards. Only native scripts or Plutus
+                           V4 scripts are supported.
   --withdrawal-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -397,7 +401,9 @@ Available options:
                            Filepath of the JSON-encoded protocol parameters file
   --vote-file FILEPATH     Filepath of the vote.
   --vote-script-file FILEPATH
-                           The file containing the script to witness a vote
+                           The file containing the script to witness a vote.
+                           Only native scripts or Plutus V4 scripts are
+                           supported.
   --vote-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
@@ -428,7 +434,9 @@ Available options:
                            The time and space units needed by the script.
   --proposal-file FILEPATH Filepath of the proposal.
   --proposal-script-file FILEPATH
-                           The file containing the script to witness a proposal
+                           The file containing the script to witness a proposal.
+                           Only native scripts or Plutus V4 scripts are
+                           supported.
   --proposal-redeemer-cbor-file CBOR_FILE
                            The script redeemer file. The file has to be in CBOR
                            format.
