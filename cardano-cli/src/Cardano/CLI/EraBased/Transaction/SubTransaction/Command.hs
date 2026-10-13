@@ -92,6 +92,6 @@ data SubTransactionTxIdCmdArgs = SubTransactionTxIdCmdArgs
 
 renderSubTransactionCmds :: SubTransactionCmds -> Text
 renderSubTransactionCmds = \case
-  SubTransactionBuildRawCmd{} -> "transaction sub-transaction build-raw"
-  SubTransactionSignCmd{} -> "transaction sub-transaction sign"
-  SubTransactionTxIdCmd{} -> "transaction sub-transaction txid"
+  SubTransactionBuildRawCmd{} -> "sub-transaction build-raw"
+  SubTransactionSignCmd{} -> "sub-transaction sign"
+  SubTransactionTxIdCmd{} -> "sub-transaction txid"

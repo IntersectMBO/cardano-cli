@@ -34,7 +34,6 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "build-raw"
         , "--tx-in"
@@ -55,7 +54,6 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "sign"
         , "--sub-tx-file"
@@ -71,7 +69,6 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
     unsignedId <-
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "txid"
         , "--sub-tx-file"
@@ -81,7 +78,6 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
     signedId <-
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "txid"
         , "--signed-sub-tx-file"

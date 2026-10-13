@@ -4,11 +4,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
--- | Parsers for Dijkstra sub-transactions: the @transaction sub-transaction@
+-- | Parsers for Dijkstra sub-transactions: the @sub-transaction@
 -- command group and the @--signed-sub-tx-file@ option with which a top-level
 -- transaction embeds signed sub-transactions.
 module Cardano.CLI.EraBased.Transaction.SubTransaction.Option
-  ( pTransactionSubTransactionCmds
+  ( pSubTransactionCmds
   , pSubTransactionFiles
   )
 where
@@ -17,7 +17,6 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
-import Cardano.CLI.EraBased.Transaction.Command (TransactionCmds (..))
 import Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
@@ -35,52 +34,51 @@ import Prettyprinter (line)
 
 -- | The @sub-transaction@ command group. Sub-transactions exist from Dijkstra
 -- onwards, so the group is absent in Conway.
-pTransactionSubTransactionCmds
-  :: forall era. Exp.IsEra era => Maybe (Parser (TransactionCmds era))
-pTransactionSubTransactionCmds =
+pSubTransactionCmds
+  :: forall era. Exp.IsEra era => Maybe (Parser SubTransactionCmds)
+pSubTransactionCmds =
   case Exp.useEra @era of
     Exp.ConwayEra -> Nothing
     Exp.DijkstraEra ->
-      fmap TransactionSubTransactionCmds
-        <$> subInfoParser
-          "sub-transaction"
-          ( Opt.progDesc $
-              mconcat
-                [ "Sub-transaction commands. A sub-transaction is built and signed on its own, "
-                , "then embedded in a top-level transaction."
-                ]
-          )
-          [ Just $
-              Opt.hsubparser $
-                commandWithMetavar "build-raw" $
-                  Opt.info pSubTransactionBuildRaw $
-                    Opt.progDescDoc $
-                      Just $
-                        mconcat
-                          [ pretty @String "Build an unsigned sub-transaction (low-level, inconvenient)"
-                          , line
-                          , "Canonical output fails if it would change sub-transaction data covered by an existing hash."
-                          , line
-                          , line
-                          , H.yellow $
-                              mconcat
-                                [ "Please note "
-                                , H.underline "the order"
-                                , " of some cmd options is crucial. If used incorrectly may produce "
-                                , "undesired sub-transaction body. See nested [] notation above for details."
-                                ]
-                          ]
-          , Just $
-              Opt.hsubparser $
-                commandWithMetavar "sign" $
-                  Opt.info pSubTransactionSign $
-                    Opt.progDesc "Sign a sub-transaction"
-          , Just $
-              Opt.hsubparser $
-                commandWithMetavar "txid" $
-                  Opt.info pSubTransactionTxId $
-                    Opt.progDesc "Print a sub-transaction identifier."
-          ]
+      subInfoParser
+        "sub-transaction"
+        ( Opt.progDesc $
+            mconcat
+              [ "Sub-transaction commands. A sub-transaction is built and signed on its own, "
+              , "then embedded in a top-level transaction."
+              ]
+        )
+        [ Just $
+            Opt.hsubparser $
+              commandWithMetavar "build-raw" $
+                Opt.info pSubTransactionBuildRaw $
+                  Opt.progDescDoc $
+                    Just $
+                      mconcat
+                        [ pretty @String "Build an unsigned sub-transaction (low-level, inconvenient)"
+                        , line
+                        , "Canonical output fails if it would change sub-transaction data covered by an existing hash."
+                        , line
+                        , line
+                        , H.yellow $
+                            mconcat
+                              [ "Please note "
+                              , H.underline "the order"
+                              , " of some cmd options is crucial. If used incorrectly may produce "
+                              , "undesired sub-transaction body. See nested [] notation above for details."
+                              ]
+                        ]
+        , Just $
+            Opt.hsubparser $
+              commandWithMetavar "sign" $
+                Opt.info pSubTransactionSign $
+                  Opt.progDesc "Sign a sub-transaction"
+        , Just $
+            Opt.hsubparser $
+              commandWithMetavar "txid" $
+                Opt.info pSubTransactionTxId $
+                  Opt.progDesc "Print a sub-transaction identifier."
+        ]
 
 pSubTransactionBuildRaw :: Parser SubTransactionCmds
 pSubTransactionBuildRaw =

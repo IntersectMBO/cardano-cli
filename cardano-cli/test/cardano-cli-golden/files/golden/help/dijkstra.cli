@@ -7,6 +7,7 @@ Usage: cardano-cli dijkstra
                               | query
                               | stake-address
                               | stake-pool
+                              | sub-transaction
                               | text-view
                               | transaction
                               )
@@ -28,6 +29,9 @@ Available commands:
                            CARDANO_NODE_SOCKET_PATH environment variable.
   stake-address            Stake address commands.
   stake-pool               Stake pool commands.
+  sub-transaction          Sub-transaction commands. A sub-transaction is built
+                           and signed on its own, then embedded in a top-level
+                           transaction.
   text-view                Commands for dealing with Shelley TextView files.
                            Transactions, addresses etc are stored on disk as
                            TextView files.

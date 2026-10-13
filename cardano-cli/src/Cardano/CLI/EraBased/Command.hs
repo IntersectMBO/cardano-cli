@@ -18,6 +18,7 @@ import Cardano.CLI.EraBased.StakeAddress.Command
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.TextView.Command
 import Cardano.CLI.EraBased.Transaction.Command
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Node.Command
@@ -41,6 +42,7 @@ data Cmds era
   | QueryCmds (QueryCmds era)
   | StakeAddressCmds (StakeAddressCmds era)
   | StakePoolCmds (StakePoolCmds era)
+  | SubTransactionCmds SubTransactionCmds
   | TextViewCmds (TextViewCmds era)
   | TransactionCmds (TransactionCmds era)
 
@@ -62,6 +64,8 @@ renderCmds = \case
     renderStakeAddressCmds cmd
   StakePoolCmds cmd ->
     renderStakePoolCmds cmd
+  SubTransactionCmds cmd ->
+    renderSubTransactionCmds cmd
   TextViewCmds cmd ->
     renderTextViewCmds cmd
   TransactionCmds cmd ->

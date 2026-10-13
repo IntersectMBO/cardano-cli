@@ -116,7 +116,6 @@ runTransactionCmds = \case
     runTransactionPolicyIdCmd args
   Cmd.TransactionWitnessCmd args -> fromExceptTCli $ runTransactionWitnessCmd args
   Cmd.TransactionSignWitnessCmd args -> fromExceptTCli $ runTransactionSignWitnessCmd args
-  Cmd.TransactionSubTransactionCmds cmd -> runSubTransactionCmds cmd
 
 -- ----------------------------------------------------------------------------
 -- Building transactions

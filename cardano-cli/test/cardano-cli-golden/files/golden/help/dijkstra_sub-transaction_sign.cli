@@ -1,7 +1,7 @@
-Usage: cardano-cli dijkstra transaction sub-transaction sign --sub-tx-file FILEPATH
-                                                               [--signing-key-file FILEPATH]
-                                                               --out-file FILEPATH
-                                                               
+Usage: cardano-cli dijkstra sub-transaction sign --sub-tx-file FILEPATH
+                                                   [--signing-key-file FILEPATH]
+                                                   --out-file FILEPATH
+                                                   
 
   Sign a sub-transaction
 

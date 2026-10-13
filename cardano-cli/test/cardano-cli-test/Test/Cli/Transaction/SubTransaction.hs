@@ -48,7 +48,6 @@ hprop_dijkstra_sub_transaction_sign_rejects_address =
     (exitCode, _, stderr) <-
       execDetailCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "sign"
         , "--sub-tx-file"
@@ -74,7 +73,6 @@ hprop_conway_has_no_sub_transaction_commands =
       H.noteShowM $
         execDetailCardanoCLI
           [ "conway"
-          , "transaction"
           , "sub-transaction"
           , "build-raw"
           , "--tx-in"
@@ -126,7 +124,6 @@ hprop_dijkstra_build_raw_rejects_duplicate_sub_transaction =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "build-raw"
         , "--tx-in"
@@ -139,7 +136,6 @@ hprop_dijkstra_build_raw_rejects_duplicate_sub_transaction =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "sign"
         , "--sub-tx-file"
@@ -182,7 +178,6 @@ hprop_dijkstra_build_raw_rejects_unsigned_sub_transaction =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "build-raw"
         , "--tx-in"
@@ -225,7 +220,6 @@ hprop_dijkstra_sub_transaction_sign_rejects_byron_key =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "build-raw"
         , "--tx-in"
@@ -258,7 +252,6 @@ hprop_dijkstra_sub_transaction_sign_rejects_byron_key =
       H.noteShowM $
         execDetailCardanoCLI
           [ "dijkstra"
-          , "transaction"
           , "sub-transaction"
           , "sign"
           , "--sub-tx-file"
@@ -289,7 +282,7 @@ hprop_dijkstra_canonical_output_rejects_noncanonical_sub_transaction =
     -- this sub-transaction's body bytes rather than leaving them unchanged.
     void $
       execCardanoCLI $
-        ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+        ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
           ++ concat (replicate 24 ["--tx-out", txOut])
           ++ ["--out-file", unsignedFile]
     -- Sign those non-canonical body bytes. Re-encoding the body afterwards
@@ -297,7 +290,6 @@ hprop_dijkstra_canonical_output_rejects_noncanonical_sub_transaction =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "sign"
         , "--sub-tx-file"
@@ -386,7 +378,7 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
     -- it now, before any sub-transaction signature is created.
     void $
       execCardanoCLI $
-        ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+        ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
           ++ concat (replicate 24 ["--tx-out", txOut])
           ++ ["--out-canonical-cbor", "--out-file", unsignedFile]
     -- Sign the canonical sub-transaction body. Later top-level output must
@@ -394,7 +386,6 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
     void $
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "sign"
         , "--sub-tx-file"
@@ -408,7 +399,6 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
     unsignedId <-
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "txid"
         , "--sub-tx-file"
@@ -418,7 +408,6 @@ hprop_dijkstra_canonical_sub_transaction_pipeline =
     signedId <-
       execCardanoCLI
         [ "dijkstra"
-        , "transaction"
         , "sub-transaction"
         , "txid"
         , "--signed-sub-tx-file"
@@ -634,7 +623,6 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
   void $
     execCardanoCLI
       [ "dijkstra"
-      , "transaction"
       , "sub-transaction"
       , "sign"
       , "--sub-tx-file"
@@ -941,7 +929,7 @@ hprop_conway_rejects_v4_reference_script_flags =
         exists H.=== False
 
 subTransactionArgs :: [String]
-subTransactionArgs = ["dijkstra", "transaction", "sub-transaction", "build-raw", "--tx-in", txIn]
+subTransactionArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
 
 transactionArgs :: String -> [String]
 transactionArgs era = [era, "transaction", "build-raw", "--tx-in", txIn, "--fee", "200000"]
