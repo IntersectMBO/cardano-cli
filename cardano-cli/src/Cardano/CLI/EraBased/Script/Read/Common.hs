@@ -20,8 +20,6 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Read (readFileCli)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.ScriptDataError
-import Cardano.Ledger.Core qualified as L
-import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 
 import Prelude
 
@@ -43,12 +41,11 @@ readFileSimpleScript file era = do
       -- In addition to the TextEnvelope format, we also try to
       -- deserialize the JSON representation of SimpleScripts.
       script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
-      let conwayTimelock :: L.NativeScript (Exp.LedgerEra Exp.ConwayEra)
-          conwayTimelock = toAllegraTimelock script
+      -- RequireGuard has no Conway representation; convert directly for the target era.
       Exp.obtainCommonConstraints era $
         pure . Exp.SimpleScript $ case era of
-          Exp.DijkstraEra -> Dijkstra.upgradeTimelock conwayTimelock
-          Exp.ConwayEra -> conwayTimelock
+          Exp.DijkstraEra -> toDijkstraNativeScript script
+          Exp.ConwayEra -> toAllegraTimelock script
     Right te -> do
       let scriptBs = teRawCBOR te
       obtainCommonConstraints era $

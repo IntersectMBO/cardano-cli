@@ -1,0 +1,11 @@
+project: cardano-cli
+
+pr: 1453
+
+kind:
+  - feature
+
+description: |
+  Add repeatable `--top-level-guard-key-hash`, `--top-level-guard-verification-key`, `--top-level-guard-verification-key-file`, `--top-level-guard-script-hash` and `--top-level-guard-script-file` options to `dijkstra sub-transaction build-raw` to specify credentials required as guards in the enclosing top-level transaction.
+  Script guards accept an optional datum as an inline value, a JSON file, or a CBOR file. For script files, require Plutus V4 and a datum for Plutus scripts, and reject datums for native scripts. Key guards do not accept datums. For script hashes, leave script-language validation to the ledger.
+  Reject repeated top-level guard credentials and list the duplicates, including keys and scripts supplied in different forms.

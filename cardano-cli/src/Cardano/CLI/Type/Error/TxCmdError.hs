@@ -79,6 +79,20 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | -- | The same sub-transaction was given more than once.
+    TxCmdDuplicateSubTransaction !TxId
+  | TxCmdNonCanonicalSubTransaction !TxId
+  | TxCmdNonCanonicalSubTxComponent !TxId !Text
+  | TxCmdSubTxCborError !DecoderError
+  | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
+  | TxCmdSubTxByronWitnessUnsupported
+  | TxCmdDuplicateGuards ![L.Credential L.Guard]
+  | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
+  | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
+  | TxCmdTopLevelGuardMissingDatum !FilePath
+  | TxCmdTopLevelGuardUnexpectedDatum !FilePath
+  | TxCmdTopLevelGuardUnsupportedPlutusLanguage !FilePath !L.Language
+  | TxCmdDuplicateTopLevelGuards ![L.Credential L.Guard]
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -185,6 +199,45 @@ renderTxCmdError = \case
   TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
   TxCmdDeprecatedEra e -> pretty e
+  TxCmdDuplicateSubTransaction subTxId ->
+    "The sub-transaction with id "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " was provided more than once."
+  TxCmdNonCanonicalSubTransaction subTxId ->
+    "Cannot write the top-level transaction with --out-canonical-cbor: embedded sub-transaction "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " has a non-canonical CBOR body. Canonicalising that body would invalidate its signatures. Rebuild it with sub-transaction build-raw --out-canonical-cbor and sign it again."
+  TxCmdSubTxCborError err ->
+    "Error canonicalising sub-transaction CBOR: " <> prettyError err
+  TxCmdNonCanonicalSubTxComponent subTxId component ->
+    "Cannot write --out-canonical-cbor: canonicalisation would change "
+      <> pretty component
+      <> " bytes in sub-transaction "
+      <> pretty (serialiseToRawBytesHexText subTxId)
+      <> " and invalidate an existing hash. Omit --out-canonical-cbor to preserve those bytes."
+  TxCmdSubTxUnsupportedPlutusLanguage language ->
+    "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
+  TxCmdSubTxByronWitnessUnsupported ->
+    "Byron (bootstrap) witnesses are not supported for sub-transactions."
+  TxCmdDuplicateGuards credentials ->
+    "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
+  TxCmdPlutusGuardMissingRedeemer credential ->
+    "Plutus guard "
+      <> pretty (L.credToText credential)
+      <> " requires --guard-redeemer-* and --guard-execution-units."
+  TxCmdNativeGuardWithRedeemer credential ->
+    "Native script guard "
+      <> pretty (L.credToText credential)
+      <> " does not accept a redeemer or execution units."
+  TxCmdTopLevelGuardMissingDatum path ->
+    "Plutus top-level guard " <> pretty path <> " requires a datum."
+  TxCmdTopLevelGuardUnexpectedDatum path ->
+    "Native script top-level guard " <> pretty path <> " must not have a datum."
+  TxCmdTopLevelGuardUnsupportedPlutusLanguage path language ->
+    "Top-level guard script " <> pretty path <> " must be Plutus V4; found " <> pshow language <> "."
+  TxCmdDuplicateTopLevelGuards credentials ->
+    "Duplicate top-level guards: "
+      <> mconcat (List.intersperse ", " (map (pretty . L.credToText) credentials))
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->

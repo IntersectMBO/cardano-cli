@@ -66,7 +66,8 @@ hprop_create_testnet_data_create_nonegative_supply = do
         ]
           :: [(Int, Int, ExitCode)]
 
-  watchdogProp . propertyOnce $ forM_ supplyValues $ \(totalSupply, delegatedSupply, expectedExitCode) ->
+  -- Seven CLI invocations can exceed the usual 20-second budget under QEMU.
+  propertyOnce $ H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 60} $ forM_ supplyValues $ \(totalSupply, delegatedSupply, expectedExitCode) ->
     moduleWorkspace "tmp" $ \tempDir -> do
       let outputDir = tempDir </> "out"
 

@@ -20,6 +20,7 @@ import Cardano.CLI.EraBased.StakeAddress.Run
 import Cardano.CLI.EraBased.StakePool.Run
 import Cardano.CLI.EraBased.TextView.Run
 import Cardano.CLI.EraBased.Transaction.Run (runTransactionCmds)
+import Cardano.CLI.EraBased.Transaction.SubTransaction.Run (runSubTransactionCmds)
 import Cardano.CLI.EraIndependent.Address.Run
 import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
@@ -55,6 +56,8 @@ runCmds = \case
     runStakeAddressCmds cmd
   StakePoolCmds cmd ->
     runStakePoolCmds cmd
+  SubTransactionCmds cmd ->
+    runSubTransactionCmds cmd
   TextViewCmds cmd ->
     runTextViewCmds cmd
   TransactionCmds cmd ->
