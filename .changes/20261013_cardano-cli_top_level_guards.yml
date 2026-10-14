@@ -1,6 +1,6 @@
 project: cardano-cli
 
-pr: 1460
+pr: 1453
 
 kind:
   - feature
