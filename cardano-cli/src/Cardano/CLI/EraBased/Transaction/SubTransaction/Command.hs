@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Command
   , SubTransactionTxIdCmdArgs (..)
   , Guard (..)
   , GuardScript (..)
+  , TopLevelGuard (..)
   , renderSubTransactionCmds
   )
 where
@@ -60,6 +61,8 @@ data SubTransactionBuildRawCmdArgs = SubTransactionBuildRawCmdArgs
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , guards :: ![Guard]
   -- ^ Credentials whose authorisation the sub-transaction requires
+  , topLevelGuards :: ![TopLevelGuard]
+  -- ^ Credentials required as guards in the enclosing transaction
   , isCborOutCanonical :: !TxCborFormat
   , outFile :: !(UnsignedSubTxFile Out)
   }
@@ -75,6 +78,12 @@ data Guard
 data GuardScript
   = GuardScriptHash ScriptHash
   | GuardScriptFile ScriptFile
+  deriving Show
+
+-- | Only script requirements can carry a datum; key requirements never do.
+data TopLevelGuard
+  = TopLevelKeyGuard (VerificationKeyOrHashOrFile PaymentKey)
+  | TopLevelScriptGuard GuardScript (Maybe ScriptDataOrFile)
   deriving Show
 
 data SubTransactionSignCmdArgs = SubTransactionSignCmdArgs

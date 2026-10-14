@@ -89,6 +89,9 @@ data TxCmdError
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
   | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
+  | TxCmdTopLevelGuardMissingDatum !FilePath
+  | TxCmdTopLevelGuardUnexpectedDatum !FilePath
+  | TxCmdDuplicateTopLevelGuards ![L.Credential L.Guard]
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -225,6 +228,13 @@ renderTxCmdError = \case
     "Native script guard "
       <> pretty (L.credToText credential)
       <> " does not accept a redeemer or execution units."
+  TxCmdTopLevelGuardMissingDatum path ->
+    "Plutus top-level guard " <> pretty path <> " requires a datum."
+  TxCmdTopLevelGuardUnexpectedDatum path ->
+    "Native script top-level guard " <> pretty path <> " must not have a datum."
+  TxCmdDuplicateTopLevelGuards credentials ->
+    "Duplicate top-level guards: "
+      <> mconcat (List.intersperse ", " (map (pretty . L.credToText) credentials))
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
