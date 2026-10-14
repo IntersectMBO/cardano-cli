@@ -739,6 +739,34 @@ hprop_dijkstra_sub_transaction_accepts_native_script =
              , outFile
              ]
 
+-- | Dijkstra JSON witnesses may contain RequireGuard, including inside timelocks.
+hprop_dijkstra_sub_transaction_accepts_require_guard_script :: Property
+hprop_dijkstra_sub_transaction_accepts_require_guard_script =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    scriptFile <- H.noteTempFile tempDir "guard.json"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    keyHash@(PaymentKeyHash ledgerHash) <-
+      H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
+    let guardScript = RequireGuard (L.KeyHashObj $ L.coerceKeyRole ledgerHash)
+    forM_ [guardScript, RequireAllOf [guardScript, RequireTimeAfter 0]] $ \script -> do
+      H.evalIO $ Aeson.encodeFile scriptFile script
+      let expectedScript = toShelleyScript $ ScriptInEra SimpleScriptInDijkstra (SimpleScript script)
+          scriptHash = L.hashScript expectedScript
+          policyId = BSC.unpack $ serialiseToRawBytesHex $ fromShelleyScriptHash scriptHash
+      forM_
+        [ ["--tx-in-script-file", scriptFile]
+        , ["--mint", "1 " ++ policyId, "--mint-script-file", scriptFile]
+        ]
+        $ \witnessArgs -> do
+          H.noteShow_ witnessArgs
+          void $
+            execCardanoCLI $
+              subTransactionArgs
+                ++ witnessArgs
+                ++ ["--guard-key-hash", BSC.unpack $ serialiseToRawBytesHex keyHash, "--out-file", outFile]
+          Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
+          tx ^. L.witsTxL . L.scriptTxWitsL H.=== Map.singleton scriptHash expectedScript
+
 -- | Storing an older reference script in an output does not execute it.
 hprop_dijkstra_sub_transaction_can_store_v3_reference_script :: Property
 hprop_dijkstra_sub_transaction_can_store_v3_reference_script =
