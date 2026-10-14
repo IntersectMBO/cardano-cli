@@ -1019,6 +1019,15 @@ writeDijkstraProtocolParams path =
     path
     (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra Exp.DijkstraEra))
 
+-- Arbitrary budget shared by the fixture arguments and output assertions.
+-- build-raw records these units without evaluating the script.
+fixtureExecutionUnits :: ExecutionUnits
+fixtureExecutionUnits = ExecutionUnits 7 11
+
+fixtureExecutionUnitsArg :: String
+fixtureExecutionUnitsArg = case fixtureExecutionUnits of
+  ExecutionUnits steps memory -> show (steps, memory)
+
 scriptFileCases :: FilePath -> String -> [(String, [String])]
 scriptFileCases scriptFile policy =
   [ ("spending", witness "tx-in" ++ ["--tx-in-datum-value", "0"])
@@ -1056,7 +1065,7 @@ scriptFileCases scriptFile policy =
     , "--" ++ prefix ++ "-redeemer-value"
     , "42"
     , "--" ++ prefix ++ "-execution-units"
-    , "(7,11)"
+    , fixtureExecutionUnitsArg
     ]
 
 referenceLanguageFlag :: String -> Int -> String
@@ -1102,7 +1111,7 @@ referenceScriptCases version =
     , "--" ++ purpose ++ "-reference-tx-in-redeemer-value"
     , "42"
     , "--" ++ purpose ++ "-reference-tx-in-execution-units"
-    , "(7,11)"
+    , fixtureExecutionUnitsArg
     ]
 
 -- Reference-script language is not stored in the witness set: it contributes
@@ -1135,8 +1144,7 @@ assertV4Redeemer purpose tx = do
         ]
   let redeemers = tx ^. L.witsTxL . L.rdmrsTxWitsL
       redeemer = toAlonzoData $ unsafeHashableScriptData $ ScriptDataNumber 42
-      -- Both fixture builders supply (7,11); build-raw preserves this budget without evaluating it.
-      executionUnits = toAlonzoExUnits $ ExecutionUnits 7 11
+      executionUnits = toAlonzoExUnits fixtureExecutionUnits
       integrityHash language =
         getScriptIntegrityHash
           (BuildTxWith $ Just $ LedgerProtocolParameters $ L.PParams L.emptyPParamsIdentity)
