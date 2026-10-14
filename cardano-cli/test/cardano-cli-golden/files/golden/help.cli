@@ -5416,6 +5416,17 @@ Usage: cardano-cli dijkstra sub-transaction build-raw (--tx-in TX_IN
                                                             )
                                                             --guard-execution-units (INT, INT)]
                                                         ]
+                                                        [ --top-level-guard-verification-key STRING
+                                                        | --top-level-guard-verification-key-file FILEPATH
+                                                        | --top-level-guard-key-hash HASH
+                                                        | ( --top-level-guard-script-hash HASH
+                                                          | --top-level-guard-script-file FILEPATH
+                                                          )
+                                                          [ --top-level-guard-datum-cbor-file CBOR_FILE
+                                                          | --top-level-guard-datum-file JSON_FILE
+                                                          | --top-level-guard-datum-value JSON_VALUE
+                                                          ]
+                                                        ]
                                                         [--out-canonical-cbor]
                                                         --out-file FILEPATH
                                                         

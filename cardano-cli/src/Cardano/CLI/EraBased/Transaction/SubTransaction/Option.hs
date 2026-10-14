@@ -131,6 +131,7 @@ pSubTransactionBuildRaw =
       <*> pCurrentTreasuryValue
       <*> pTreasuryDonation
       <*> many pGuard
+      <*> many pTopLevelGuard
       <*> pIsCborOutCanonical
       <*> pUnsignedSubTxFileOut
 
@@ -156,13 +157,43 @@ pSubTransactionTxId =
 
 -- Leaf parsers
 
+-- | A credential that the enclosing top-level transaction must include as a guard
+-- when it embeds this sub-transaction. File inputs allow datum requirements to
+-- be checked when reading the script; hashes leave that check to the ledger.
+pTopLevelGuard :: Parser TopLevelGuard
+pTopLevelGuard =
+  asum
+    [ TopLevelKeyGuard <$> pGuardKey "top-level-guard" "enclosing transaction"
+    , TopLevelScriptGuard <$> pTopLevelGuardScript <*> optional pTopLevelGuardDatum
+    ]
+
+pTopLevelGuardScript :: Parser GuardScript
+pTopLevelGuardScript =
+  asum
+    [ GuardScriptHash
+        <$> pScriptHash
+          "top-level-guard-script-hash"
+          "Hash of a script required as a guard in the enclosing transaction (hex-encoded). Supply its witness in the enclosing transaction."
+    , GuardScriptFile
+        <$> pScriptFor
+          "top-level-guard-script-file"
+          Nothing
+          "Script file whose hash is required as a guard in the enclosing transaction; no witness is added here. Plutus scripts must be V4 and require a datum; native scripts must not have one."
+    ]
+
+pTopLevelGuardDatum :: Parser ScriptDataOrFile
+pTopLevelGuardDatum =
+  pScriptDataOrFile
+    "top-level-guard-datum"
+    "Datum for the preceding script guard. Required only for Plutus scripts; must be omitted for key and native-script guards."
+    "Datum file for the preceding script guard. Required only for Plutus scripts; must be omitted for key and native-script guards."
+
 -- | A guard credential: the sub-transaction requires this key's signature or
 -- this script's approval. Guards replace required signers in Dijkstra.
 pGuard :: Parser Guard
 pGuard =
   asum
-    [ KeyGuard . VerificationKeyOrFile <$> pGuardVerificationKeyOrFile
-    , KeyGuard . VerificationKeyHash <$> pGuardKeyHash
+    [ KeyGuard <$> pGuardKey "guard" "sub-transaction"
     , ScriptGuard <$> pGuardScript <*> optional pGuardRedeemer
     ]
 
@@ -189,39 +220,47 @@ pGuardRedeemer =
       "Redeemer file for the preceding script guard. Required only for Plutus V4 scripts, together with --guard-execution-units."
     <*> pExecutionUnits "guard"
 
-pGuardVerificationKeyOrFile :: Parser (VerificationKeyOrFile PaymentKey)
-pGuardVerificationKeyOrFile =
+-- | Share key forms while keeping the required transaction explicit in help.
+pGuardKey :: String -> String -> Parser (VerificationKeyOrHashOrFile PaymentKey)
+pGuardKey prefix transaction =
   asum
-    [ VerificationKeyValue <$> pGuardVerificationKey
-    , VerificationKeyFilePath <$> pGuardVerificationKeyFile
+    [ VerificationKeyOrFile . VerificationKeyValue <$> key
+    , VerificationKeyOrFile . VerificationKeyFilePath <$> keyFile
+    , VerificationKeyHash <$> keyHash
     ]
-
-pGuardVerificationKey :: Parser (VerificationKey PaymentKey)
-pGuardVerificationKey =
-  Opt.option (rVerificationKey $ Just "Invalid guard verification key") $
-    mconcat
-      [ Opt.long "guard-verification-key"
-      , Opt.metavar "STRING"
-      , Opt.help
-          "Payment verification key whose signature the sub-transaction requires (hex-encoded). For other signing-key roles, hash the verification key first and use --guard-key-hash."
-      ]
-
-pGuardVerificationKeyFile :: Parser (VerificationKeyFile In)
-pGuardVerificationKeyFile =
-  File
-    <$> parseFilePath
-      "guard-verification-key-file"
-      "Filepath of a payment verification key whose signature the sub-transaction requires. For other signing-key roles, hash the verification key first and use --guard-key-hash."
-
-pGuardKeyHash :: Parser (Hash PaymentKey)
-pGuardKeyHash =
-  Opt.option (readerFromParsecParser parseHexHash) $
-    mconcat
-      [ Opt.long "guard-key-hash"
-      , Opt.metavar "HASH"
-      , Opt.help
-          "Hash of a verification key whose signature the sub-transaction requires (hex-encoded). Accepts hashes from any Shelley signing-key role, including stake, DRep and committee keys."
-      ]
+ where
+  otherRoles =
+    " For other signing-key roles, hash the verification key first and use --" ++ prefix ++ "-key-hash."
+  key =
+    Opt.option (rVerificationKey $ Just "Invalid guard verification key") $
+      mconcat
+        [ Opt.long (prefix ++ "-verification-key")
+        , Opt.metavar "STRING"
+        , Opt.help $
+            "Payment verification key whose signature the "
+              ++ transaction
+              ++ " requires (hex-encoded)."
+              ++ otherRoles
+        ]
+  keyFile =
+    File
+      <$> parseFilePath
+        (prefix ++ "-verification-key-file")
+        ( "Filepath of a payment verification key whose signature the "
+            ++ transaction
+            ++ " requires."
+            ++ otherRoles
+        )
+  keyHash =
+    Opt.option (readerFromParsecParser parseHexHash) $
+      mconcat
+        [ Opt.long (prefix ++ "-key-hash")
+        , Opt.metavar "HASH"
+        , Opt.help $
+            "Hash of a verification key whose signature the "
+              ++ transaction
+              ++ " requires (hex-encoded). Accepts hashes from any Shelley signing-key role, including stake, DRep and committee keys."
+        ]
 
 -- | Like 'pInvalidHereafter' without the deprecated aliases and without the
 -- era-indexed wrapper; sub-transactions carry a plain slot.
