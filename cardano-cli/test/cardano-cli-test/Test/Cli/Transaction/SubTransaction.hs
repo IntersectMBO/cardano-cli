@@ -607,9 +607,8 @@ hprop_dijkstra_canonical_sub_transaction_preserves_payload_hashes =
 nonCanonicalDataMap :: String
 nonCanonicalDataMap = "{\"map\":[{\"k\":{\"int\":24},\"v\":{\"int\":0}},{\"k\":{\"int\":1},\"v\":{\"int\":0}}]}"
 
--- Check the unsigned builder and all outer canonical-output paths. The default
--- output must still work, and the sub-body must already be canonical so that
--- the rejection specifically exercises payload protection, not the body check.
+-- Check that canonical output rejects payload rewrites that would invalidate
+-- hashes, both when building a sub-transaction and when embedding a signed one.
 assertCanonicalSubTxRejected :: FilePath -> String -> [String] -> H.PropertyT (ResourceT IO) ()
 assertCanonicalSubTxRejected tempDir component extraArgs = do
   unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
@@ -619,6 +618,7 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
   witnessFile <- H.noteTempFile tempDir "tx.witness"
   outFile <- H.noteTempFile tempDir "canonical.out"
   let buildSub = subTransactionArgs ++ extraArgs
+      -- Require the payload-hash error and leave no output file.
       reject args = do
         (exitCode, _, stderr) <-
           execDetailCardanoCLI $ args ++ ["--out-canonical-cbor", "--out-file", outFile]
@@ -626,12 +626,15 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
         H.assertWith stderr (component `isInfixOf`)
         H.assertWith stderr ("invalidate an existing hash" `isInfixOf`)
         H.evalIO (doesFileExist outFile) >>= (H.=== False)
+  -- Ordinary output succeeds; canonical output must reject the same payload.
   void $ execCardanoCLI $ buildSub ++ ["--out-file", unsignedFile]
   reject buildSub
+  -- Rule out body reordering as the reason for rejection.
   Exp.UnsignedSubTx subTx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File unsignedFile))
   let bodyBytes = L.originalBytes (subTx ^. L.bodyTxL)
   canonicalBody <- H.evalEither $ canonicaliseCborBs bodyBytes
   bodyBytes H.=== canonicalBody
+  -- Sign and embed the sub-transaction, then prepare each outer output path.
   void $
     execCardanoCLI
       [ "dijkstra"
@@ -660,6 +663,7 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
       , "--out-file"
       , witnessFile
       ]
+  -- Building, signing and assembling must all reject canonical payload rewrites.
   forM_
     [ buildOuter
     , signBody
@@ -1131,6 +1135,7 @@ assertV4Redeemer purpose tx = do
         ]
   let redeemers = tx ^. L.witsTxL . L.rdmrsTxWitsL
       redeemer = toAlonzoData $ unsafeHashableScriptData $ ScriptDataNumber 42
+      -- Both fixture builders supply (7,11); build-raw preserves this budget without evaluating it.
       executionUnits = toAlonzoExUnits $ ExecutionUnits 7 11
       integrityHash language =
         getScriptIntegrityHash
