@@ -676,7 +676,8 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
 -- before requiring protocol parameters or writing a body.
 hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts :: Property
 hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- Allow time for 21 CLI invocations under Wine.
+  propertyOnce . H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 90} $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     forM_ [1, 2, 3] $ \version ->
       forM_ (scriptFileCases (plutusScriptFile version) (replicate 56 '0')) $ \(purpose, witnessArgs) -> do
@@ -692,7 +693,8 @@ hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts =
 -- | Sub-transactions reject Plutus V1-V3 reference-script flags for every script purpose.
 hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts :: Property
 hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- Allow time for 18 CLI invocations under Wine.
+  propertyOnce . H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 90} $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     forM_ [1, 2, 3] $ \version ->
       forM_ (referenceScriptCases version) $ \(purpose, witnessArgs) -> do
@@ -708,7 +710,8 @@ hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts =
 -- | Every script purpose retains the V4 script, redeemer and execution units in its output.
 hprop_dijkstra_sub_transaction_accepts_v4_script :: Property
 hprop_dijkstra_sub_transaction_accepts_v4_script =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- Allow time to build and inspect all seven script purposes under Wine.
+  propertyOnce . H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 90} $ H.moduleWorkspace "tmp" $ \tempDir -> do
     paramsFile <- H.noteTempFile tempDir "protocol-params.json"
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     H.evalIO $ writeDijkstraProtocolParams paramsFile
@@ -958,7 +961,8 @@ hprop_dijkstra_sub_transaction_rejects_duplicate_guards =
 -- | Both builders retain V4 reference witnesses for all six script purposes.
 hprop_dijkstra_v4_reference_script_flags :: Property
 hprop_dijkstra_v4_reference_script_flags =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- Allow time for both builders across all six script purposes under Wine.
+  propertyOnce . H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 90} $ H.moduleWorkspace "tmp" $ \tempDir -> do
     paramsFile <- H.noteTempFile tempDir "protocol-params.json"
     outFile <- H.noteTempFile tempDir "tx.body"
     H.evalIO $ writeDijkstraProtocolParams paramsFile
