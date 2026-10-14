@@ -18,7 +18,7 @@ import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BSC
 import Data.Foldable (toList)
-import Data.List (isInfixOf)
+import Data.List (isInfixOf, isPrefixOf)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Lens.Micro ((^.))
@@ -1031,6 +1031,329 @@ signSubTransaction unsignedFile key signedFile =
 readDijkstraTransaction :: FilePath -> H.PropertyT (ResourceT IO) (Tx DijkstraEra)
 readDijkstraTransaction path =
   H.evalEither =<< H.evalIO (readFileTextEnvelope (File path))
+
+-- | All key forms produce a datum-free key credential. A script hash with the
+-- same bytes is a distinct credential and retains its own datum in either order.
+hprop_dijkstra_sub_transaction_top_level_key_guard_forms :: Property
+hprop_dijkstra_sub_transaction_top_level_key_guard_forms =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    (key, forms) <- topLevelKeyGuardFixture tempDir
+    let keyHash@(PaymentKeyHash ledgerHash) = verificationKeyHash key
+        hashHex = serialiseToRawBytesHex keyHash
+        scriptArgs = ["--top-level-guard-script-hash", BSC.unpack hashHex, "--top-level-guard-datum-value", "42"]
+    scriptHash <- H.evalEither $ deserialiseFromRawBytesHex hashHex
+    let expected =
+          Map.fromList
+            [ (L.KeyHashObj $ L.coerceKeyRole ledgerHash, L.SNothing)
+            , (L.ScriptHashObj $ toShelleyScriptHash scriptHash, L.SJust $ toAlonzoData guardDatum)
+            ]
+    forM_ forms $ \keyArgs ->
+      forM_ [keyArgs ++ scriptArgs, scriptArgs ++ keyArgs] $ \args -> do
+        H.noteShow_ args
+        Exp.UnsignedSubTx tx <- buildSubTransaction outFile args
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== expected
+        tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
+        tx ^. L.witsTxL H.=== mempty
+
+-- | Key requirements reject datums and duplicate credentials across all key forms.
+hprop_dijkstra_sub_transaction_rejects_invalid_top_level_key_guards :: Property
+hprop_dijkstra_sub_transaction_rejects_invalid_top_level_key_guards =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    (key, forms) <- topLevelKeyGuardFixture tempDir
+    let hashHex = BSC.unpack $ serialiseToRawBytesHex $ verificationKeyHash key
+    forM_ forms $ \args -> do
+      stderr <- expectSubTransactionFailure outFile $ args ++ ["--top-level-guard-datum-value", "42"]
+      H.assertWith stderr ("Missing:" `isInfixOf`)
+      forM_ forms $ \duplicate -> do
+        duplicateError <- expectSubTransactionFailure outFile $ args ++ duplicate
+        H.assertWith duplicateError ("Duplicate top-level guards:" `isInfixOf`)
+        H.assertWith duplicateError (hashHex `isInfixOf`)
+
+-- | Multiple distinct script-hash guards retain their own optional datum.
+-- A hash alone accepts either form because its script language is unknown.
+hprop_dijkstra_sub_transaction_top_level_guard_hashes :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_hashes =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    Exp.UnsignedSubTx tx <-
+      buildSubTransaction
+        outFile
+        (concatMap topLevelGuardHashArgs [('0', Nothing), ('1', Just 42), ('2', Nothing)])
+    let datum = toAlonzoData guardDatum
+    expected <- forM [('0', L.SNothing), ('1', L.SJust datum), ('2', L.SNothing)] $ \(digit, mDatum) -> do
+      ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex $ BSC.pack $ replicate 56 digit
+      pure (L.ScriptHashObj hash, mDatum)
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== Map.fromList expected
+
+-- | Inline, JSON-file and CBOR-file datums produce the same guard entry.
+hprop_dijkstra_sub_transaction_top_level_guard_datum_formats :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_datum_formats =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    jsonFile <- H.noteTempFile tempDir "datum.json"
+    cborFile <- H.noteTempFile tempDir "datum.cbor"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    H.evalIO $ Aeson.encodeFile jsonFile $ scriptDataToJson ScriptDataJsonDetailedSchema guardDatum
+    H.evalIO $ BS.writeFile cborFile $ serialiseToCBOR guardDatum
+    let build datumArgs =
+          buildSubTransaction outFile $
+            ["--top-level-guard-script-hash", replicate 56 '0'] ++ datumArgs
+    inline <- build ["--top-level-guard-datum-value", "42"]
+    json <- build ["--top-level-guard-datum-file", jsonFile]
+    cbor <- build ["--top-level-guard-datum-cbor-file", cborFile]
+    inline H.=== json
+    inline H.=== cbor
+    ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
+    let Exp.UnsignedSubTx tx = inline
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+      H.=== Map.singleton (L.ScriptHashObj hash) (L.SJust $ toAlonzoData guardDatum)
+
+-- | Script files resolve to the same guard entries as their hashes, for both
+-- native scripts without datums and Plutus scripts with datums.
+hprop_dijkstra_sub_transaction_top_level_guard_script_files :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_script_files =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_
+      [ (nativeScriptFile, [], L.SNothing)
+      , (plutusScriptFile 4, ["--top-level-guard-datum-value", "42"], L.SJust $ toAlonzoData guardDatum)
+      ]
+      $ \(scriptFile, datumArgs, expectedDatum) -> do
+        scriptHash <- filter (/= '\n') <$> execCardanoCLI ["hash", "script", "--script-file", scriptFile]
+        fromFile <- buildSubTransaction outFile $ ["--top-level-guard-script-file", scriptFile] ++ datumArgs
+        fromHash <- buildSubTransaction outFile $ ["--top-level-guard-script-hash", scriptHash] ++ datumArgs
+        fromFile H.=== fromHash
+        -- A top-level requirement contributes no local guard or witness data.
+        let Exp.UnsignedSubTx tx = fromFile
+        ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.pack scriptHash)
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+          H.=== Map.singleton (L.ScriptHashObj hash) expectedDatum
+        tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
+        tx ^. L.witsTxL H.=== mempty
+
+-- | The same script can guard both levels, with a local redeemer and a distinct
+-- datum for the enclosing transaction. Adding the requirement preserves witnesses.
+hprop_dijkstra_sub_transaction_top_level_guard_coexists_with_local_guard :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_coexists_with_local_guard =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    paramsFile <- H.noteTempFile tempDir "protocol-params.json"
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    let localGuardArgs =
+          [ "--guard-script-file"
+          , plutusScriptFile 4
+          , "--guard-redeemer-value"
+          , "43"
+          , "--guard-execution-units"
+          , fixtureExecutionUnitsArg
+          , "--protocol-params-file"
+          , paramsFile
+          ]
+    Exp.UnsignedSubTx local <- buildSubTransaction outFile localGuardArgs
+    Exp.UnsignedSubTx combined <-
+      buildSubTransaction outFile $
+        localGuardArgs
+          ++ [ "--top-level-guard-script-file"
+             , plutusScriptFile 4
+             , "--top-level-guard-datum-value"
+             , "42"
+             ]
+    [credential] <- pure $ toList (local ^. L.bodyTxL . L.guardsTxBodyL)
+    combined ^. L.bodyTxL . L.requiredTopLevelGuardsL
+      H.=== Map.singleton credential (L.SJust $ toAlonzoData guardDatum)
+    combined ^. L.bodyTxL . L.guardsTxBodyL H.=== local ^. L.bodyTxL . L.guardsTxBodyL
+    combined ^. L.witsTxL H.=== local ^. L.witsTxL
+    combined ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL
+      H.=== local ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL
+
+-- | Guard datums belong to the body: canonicalise them before signing, or
+-- reject canonical outer output that would change the signed body bytes.
+hprop_dijkstra_sub_transaction_top_level_guard_canonical_datum :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_canonical_datum =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    datumFile <- H.noteTempFile tempDir "datum.json"
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    bodyFile <- H.noteTempFile tempDir "tx.body"
+    canonicalFile <- H.noteTempFile tempDir "canonical.body"
+    H.evalIO $ writeFile datumFile nonCanonicalDataMap
+    forM_ [False, True] $ \canonical -> do
+      let canonicalArgs = ["--out-canonical-cbor" | canonical]
+      Exp.UnsignedSubTx unsigned <-
+        buildSubTransaction unsignedFile $
+          [ "--top-level-guard-script-file"
+          , plutusScriptFile 4
+          , "--top-level-guard-datum-file"
+          , datumFile
+          ]
+            ++ canonicalArgs
+      let bodyBytes = L.originalBytes (unsigned ^. L.bodyTxL)
+      canonicalBytes <- H.evalEither $ canonicaliseCborBs bodyBytes
+      (bodyBytes == canonicalBytes) H.=== canonical
+      signSubTransaction unsignedFile signingKey signedFile
+      Exp.SignedSubTx signed <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File signedFile))
+      L.originalBytes (signed ^. L.bodyTxL) H.=== bodyBytes
+
+      -- Ordinary embedding preserves either encoding, including the signature.
+      let buildOuter = transactionArgs "dijkstra" ++ ["--signed-sub-tx-file", signedFile]
+          checkEmbedded path = do
+            ShelleyTx _ outer <- readDijkstraTransaction path
+            [embedded] <- pure $ toList (outer ^. L.bodyTxL . L.subTransactionsTxBodyL)
+            serialiseToCBOR (Exp.SignedSubTx embedded) H.=== serialiseToCBOR (Exp.SignedSubTx signed)
+      void $ execCardanoCLI $ buildOuter ++ ["--out-file", bodyFile]
+      checkEmbedded bodyFile
+
+      -- Canonical top-level output must preserve the signed sub-transaction bytes.
+      let canonicalOuter = buildOuter ++ ["--out-canonical-cbor", "--out-file", canonicalFile]
+      if canonical
+        then do
+          void $ execCardanoCLI canonicalOuter
+          checkEmbedded canonicalFile
+        else do
+          (exitCode, _, stderr) <- execDetailCardanoCLI canonicalOuter
+          exitCode H.=== ExitFailure 1
+          H.assertWith stderr ("invalidate its signatures" `isInfixOf`)
+          H.evalIO (doesFileExist canonicalFile) >>= (H.=== False)
+
+-- | Plutus V1-V3 guard files are rejected even when a datum is supplied.
+hprop_dijkstra_sub_transaction_top_level_guard_rejects_older_plutus_scripts :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_rejects_older_plutus_scripts =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_ [1, 2, 3] $ \version -> do
+      stderr <-
+        expectSubTransactionFailure
+          outFile
+          [ "--top-level-guard-script-file"
+          , plutusScriptFile version
+          , "--top-level-guard-datum-value"
+          , "42"
+          ]
+      H.assertWith
+        stderr
+        (("Top-level guard script " ++ plutusScriptFile version ++ " must be Plutus V4") `isInfixOf`)
+      H.assertWith stderr (("PlutusV" ++ show version) `isInfixOf`)
+
+-- | Known Plutus guards require a datum, and known native guards reject one.
+hprop_dijkstra_sub_transaction_top_level_guard_invalid_datums :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_invalid_datums =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_
+      [ (plutusScriptFile 4, [], "requires a datum")
+      , (nativeScriptFile, ["--top-level-guard-datum-value", "42"], "must not have a datum")
+      ]
+      $ \(scriptFile, datumArgs, expectedError) -> do
+        stderr <-
+          expectSubTransactionFailure outFile $ ["--top-level-guard-script-file", scriptFile] ++ datumArgs
+        H.assertWith stderr (expectedError `isInfixOf`)
+
+-- | Malformed hashes and datums, and datums without a guard, fail to parse.
+hprop_dijkstra_sub_transaction_top_level_guard_parser_failures :: Property
+hprop_dijkstra_sub_transaction_top_level_guard_parser_failures =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_
+      [
+        ( ["--top-level-guard-script-hash", "invalid"]
+        , ["option --top-level-guard-script-hash:", "expecting hexadecimal digit"]
+        )
+      ,
+        ( ["--top-level-guard-key-hash", "invalid"]
+        , ["option --top-level-guard-key-hash:", "expecting hexadecimal digit"]
+        )
+      , (["--top-level-guard-verification-key", "invalid"], ["Invalid guard verification key"])
+      ,
+        ( ["--top-level-guard-datum-value", "42"]
+        , ["Missing:", "--top-level-guard-script-hash HASH | --top-level-guard-script-file FILEPATH"]
+        )
+      ,
+        ( ["--top-level-guard-script-hash", replicate 56 '0', "--top-level-guard-datum-value", "{"]
+        , ["option --top-level-guard-datum-value:", "Unexpected end-of-input"]
+        )
+      ]
+      $ \(args, expectedErrors) -> do
+        stderr <- expectSubTransactionFailure outFile args
+        -- Match the diagnostic, not option names repeated in the usage text.
+        let diagnostic = unlines $ takeWhile (not . isPrefixOf "Usage:") (lines stderr)
+        forM_ expectedErrors $ \message -> H.assertWith diagnostic (message `isInfixOf`)
+
+-- | Report every duplicate hash, including guards without datums and guards
+-- with conflicting datums, while excluding credentials given only once.
+hprop_dijkstra_sub_transaction_rejects_duplicate_top_level_guard_hashes :: Property
+hprop_dijkstra_sub_transaction_rejects_duplicate_top_level_guard_hashes =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    stderr <-
+      expectSubTransactionFailure
+        outFile
+        ( concatMap
+            topLevelGuardHashArgs
+            [('0', Nothing), ('1', Just 42), ('2', Nothing), ('0', Nothing), ('1', Just 43)]
+        )
+    H.assertWith stderr ("Duplicate top-level guards:" `isInfixOf`)
+    forM_ ['0', '1'] $ \digit -> H.assertWith stderr (replicate 56 digit `isInfixOf`)
+    H.assertWith stderr (not . isInfixOf (replicate 56 '2'))
+
+-- | Repeated files and file/hash aliases are duplicates, even with matching
+-- datums. A hash entry must not erase the datum checked for a Plutus file.
+hprop_dijkstra_sub_transaction_rejects_duplicate_top_level_guard_files :: Property
+hprop_dijkstra_sub_transaction_rejects_duplicate_top_level_guard_files =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "sub.unsigned"
+    forM_
+      [ (nativeScriptFile, [])
+      , (plutusScriptFile 4, ["--top-level-guard-datum-value", "42"])
+      ]
+      $ \(scriptFile, datumArgs) -> do
+        scriptHash <- filter (/= '\n') <$> execCardanoCLI ["hash", "script", "--script-file", scriptFile]
+        let fileArgs = ["--top-level-guard-script-file", scriptFile] ++ datumArgs
+            hashArgs = ["--top-level-guard-script-hash", scriptHash]
+        forM_ [fileArgs ++ hashArgs, hashArgs ++ fileArgs, fileArgs ++ fileArgs] $ \args -> do
+          stderr <- expectSubTransactionFailure outFile args
+          H.assertWith stderr ("Duplicate top-level guards:" `isInfixOf`)
+          H.assertWith stderr (scriptHash `isInfixOf`)
+
+-- | A key and the three CLI forms that must resolve to the same credential.
+topLevelKeyGuardFixture
+  :: FilePath -> H.PropertyT (ResourceT IO) (VerificationKey PaymentKey, [[String]])
+topLevelKeyGuardFixture tempDir = do
+  keyFile <- H.noteTempFile tempDir "payment.vkey"
+  key <- getVerificationKey <$> H.evalIO (generateSigningKey AsPaymentKey)
+  H.evalEither =<< H.evalIO (writeFileTextEnvelope (File keyFile) Nothing key)
+  pure
+    ( key
+    ,
+      [ ["--top-level-guard-key-hash", BSC.unpack $ serialiseToRawBytesHex $ verificationKeyHash key]
+      , ["--top-level-guard-verification-key", BSC.unpack $ serialiseToRawBytesHex key]
+      , ["--top-level-guard-verification-key-file", keyFile]
+      ]
+    )
+
+topLevelGuardHashArgs :: (Char, Maybe Integer) -> [String]
+topLevelGuardHashArgs (digit, datum) =
+  ["--top-level-guard-script-hash", replicate 56 digit]
+    ++ maybe [] (\value -> ["--top-level-guard-datum-value", show value]) datum
+
+buildSubTransaction
+  :: FilePath -> [String] -> H.PropertyT (ResourceT IO) Exp.UnsignedSubTx
+buildSubTransaction outFile args = do
+  void $ execCardanoCLI $ subTransactionArgs ++ args ++ ["--out-file", outFile]
+  H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
+
+expectSubTransactionFailure
+  :: FilePath -> [String] -> H.PropertyT (ResourceT IO) String
+expectSubTransactionFailure outFile args = do
+  (exitCode, _, stderr) <-
+    execDetailCardanoCLI $ subTransactionArgs ++ args ++ ["--out-file", outFile]
+  exitCode H.=== ExitFailure 1
+  exists <- H.evalIO $ doesFileExist outFile
+  exists H.=== False
+  pure stderr
+
+guardDatum :: HashableScriptData
+guardDatum = unsafeHashableScriptData $ ScriptDataNumber 42
 
 subTransactionArgs :: [String]
 subTransactionArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]

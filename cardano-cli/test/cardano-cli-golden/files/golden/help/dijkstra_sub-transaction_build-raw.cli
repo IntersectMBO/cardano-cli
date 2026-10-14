@@ -148,6 +148,17 @@ Usage: cardano-cli dijkstra sub-transaction build-raw (--tx-in TX_IN
                                                             )
                                                             --guard-execution-units (INT, INT)]
                                                         ]
+                                                        [ --top-level-guard-verification-key STRING
+                                                        | --top-level-guard-verification-key-file FILEPATH
+                                                        | --top-level-guard-key-hash HASH
+                                                        | ( --top-level-guard-script-hash HASH
+                                                          | --top-level-guard-script-file FILEPATH
+                                                          )
+                                                          [ --top-level-guard-datum-cbor-file CBOR_FILE
+                                                          | --top-level-guard-datum-file JSON_FILE
+                                                          | --top-level-guard-datum-value JSON_VALUE
+                                                          ]
+                                                        ]
                                                         [--out-canonical-cbor]
                                                         --out-file FILEPATH
                                                         
@@ -514,6 +525,46 @@ Available options:
                            strings and numbers.
   --guard-execution-units (INT, INT)
                            The time and space units needed by the script.
+  --top-level-guard-verification-key STRING
+                           Payment verification key whose signature the
+                           enclosing transaction requires (hex-encoded). For
+                           other signing-key roles, hash the verification key
+                           first and use --top-level-guard-key-hash.
+  --top-level-guard-verification-key-file FILEPATH
+                           Filepath of a payment verification key whose
+                           signature the enclosing transaction requires. For
+                           other signing-key roles, hash the verification key
+                           first and use --top-level-guard-key-hash.
+  --top-level-guard-key-hash HASH
+                           Hash of a verification key whose signature the
+                           enclosing transaction requires (hex-encoded). Accepts
+                           hashes from any Shelley signing-key role, including
+                           stake, DRep and committee keys.
+  --top-level-guard-script-hash HASH
+                           Hash of a script required as a guard in the enclosing
+                           transaction (hex-encoded). Supply its witness in the
+                           enclosing transaction.
+  --top-level-guard-script-file FILEPATH
+                           Script file whose hash is required as a guard in the
+                           enclosing transaction; no witness is added here.
+                           Plutus scripts must be V4 and require a datum; native
+                           scripts must not have one.
+  --top-level-guard-datum-cbor-file CBOR_FILE
+                           Datum file for the preceding script guard. Required
+                           only for Plutus scripts; must be omitted for key and
+                           native-script guards. The file has to be in CBOR
+                           format.
+  --top-level-guard-datum-file JSON_FILE
+                           Datum file for the preceding script guard. Required
+                           only for Plutus scripts; must be omitted for key and
+                           native-script guards. The file must follow the
+                           detailed JSON schema for script data.
+  --top-level-guard-datum-value JSON_VALUE
+                           Datum for the preceding script guard. Required only
+                           for Plutus scripts; must be omitted for key and
+                           native-script guards. There is no schema: (almost)
+                           any JSON value is supported, including top-level
+                           strings and numbers.
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
                            RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON unsigned sub-transaction.

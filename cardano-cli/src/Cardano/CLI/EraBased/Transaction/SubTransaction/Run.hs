@@ -107,6 +107,7 @@ runSubTransactionBuildRawCmd
     , mCurrentTreasuryValue
     , mTreasuryDonation
     , guards
+    , topLevelGuards
     , isCborOutCanonical
     , outFile
     } = do
@@ -157,6 +158,16 @@ runSubTransactionBuildRawCmd
         duplicates = [credential | credential : _ : _ <- List.group (List.sort guardCredentials)]
     unless (null duplicates) $ throwCliError $ TxCmdDuplicateGuards duplicates
 
+    topLevelGuardEntries <- mapM readTopLevelGuard topLevelGuards
+    let duplicateTopLevelGuards =
+          [ credential
+          | credential : _ : _ <- List.group (List.sort (map fst topLevelGuardEntries))
+          ]
+    unless (null duplicateTopLevelGuards) $
+      throwCliError $
+        TxCmdDuplicateTopLevelGuards duplicateTopLevelGuards
+    let requiredTopLevelGuards = Map.fromList topLevelGuardEntries
+
     subTx :: Exp.SubTxBodyContent (Exp.LedgerEra Exp.DijkstraEra) <-
       fromEitherCli $
         constructSubTx
@@ -177,6 +188,7 @@ runSubTransactionBuildRawCmd
           mTreasuryDonation
           supplementalDatums
           (OSet.fromList guardCredentials)
+          requiredTopLevelGuards
 
     unsigned <-
       fromEitherCli $ first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedSubTx subTx
@@ -211,21 +223,29 @@ readGuard = \case
     (credential, script) <- case source of
       Cmd.GuardScriptHash (ScriptHash scriptHash) -> pure (L.ScriptHashObj scriptHash, Nothing)
       Cmd.GuardScriptFile (File path) -> do
-        script <- readAnyScript @_ @Exp.DijkstraEra path
-        ledgerScript <- case script of
-          Exp.AnySimpleScript (Exp.SimpleScript native) -> pure $ L.fromNativeScript native
-          Exp.AnyPlutusScript plutus -> do
-            let language = Exp.Plutus.plutusScriptInEraLanguage plutus
-            unless (language == L.PlutusV4) $
-              throwCliError $
-                TxCmdSubTxUnsupportedPlutusLanguage language
-            pure $ Exp.Plutus.plutusScriptInEraToScript plutus
+        ledgerScript <- readGuardScriptFile TxCmdSubTxUnsupportedPlutusLanguage path
         pure (L.ScriptHashObj (L.hashScript ledgerScript), Just ledgerScript)
     forM_ script $ \s -> fromEitherCli $ validateGuardRedeemer credential s (isJust mRedeemer)
     redeemer <- forM mRedeemer $ \(redeemerData, units) -> do
       value <- fromExceptTCli $ readScriptDataOrFile redeemerData
       pure (toAlonzoData value, toAlonzoExUnits units)
     pure (credential, script, redeemer)
+
+-- | Both guard forms accept native scripts or Plutus V4 scripts.
+readGuardScriptFile
+  :: (L.Language -> TxCmdError)
+  -> FilePath
+  -> CIO e (L.Script (Exp.LedgerEra Exp.DijkstraEra))
+readGuardScriptFile languageError path = do
+  script <- readAnyScript @_ @Exp.DijkstraEra path
+  case script of
+    Exp.AnySimpleScript (Exp.SimpleScript native) -> pure $ L.fromNativeScript native
+    Exp.AnyPlutusScript plutus -> do
+      let language = Exp.Plutus.plutusScriptInEraLanguage plutus
+      unless (language == L.PlutusV4) $
+        throwCliError $
+          languageError language
+      pure $ Exp.Plutus.plutusScriptInEraToScript plutus
 
 validateGuardRedeemer
   :: L.Credential L.Guard
@@ -286,6 +306,27 @@ addGuardWitnesses pparams guards (Exp.UnsignedSubTx tx) = do
               )
       pure $ Exp.UnsignedSubTx $ witnessed & L.bodyTxL . L.scriptIntegrityHashTxBodyL .~ integrity
 
+-- | Record a requirement on the enclosing transaction without adding a witness.
+-- File inputs permit local datum validation; hashes leave it to the ledger.
+readTopLevelGuard
+  :: Cmd.TopLevelGuard
+  -> CIO e (L.Credential L.Guard, L.StrictMaybe (L.Data (Exp.LedgerEra Exp.DijkstraEra)))
+readTopLevelGuard = \case
+  Cmd.TopLevelKeyGuard key -> do
+    PaymentKeyHash keyHash <- readVerificationKeyOrHashOrTextEnvFile key
+    pure (L.KeyHashObj (coerceKeyRole keyHash), L.SNothing)
+  Cmd.TopLevelScriptGuard source mDatum -> do
+    scriptHash <- case source of
+      Cmd.GuardScriptHash (ScriptHash hash) -> pure hash
+      Cmd.GuardScriptFile (File path) -> do
+        script <- readGuardScriptFile (TxCmdTopLevelGuardUnsupportedPlutusLanguage path) path
+        if isJust (L.getNativeScript script)
+          then when (isJust mDatum) $ throwCliError $ TxCmdTopLevelGuardUnexpectedDatum path
+          else when (isNothing mDatum) $ throwCliError $ TxCmdTopLevelGuardMissingDatum path
+        pure $ L.hashScript script
+    datum <- forM mDatum $ \d -> toAlonzoData <$> fromExceptTCli (readScriptDataOrFile d)
+    pure (L.ScriptHashObj scriptHash, maybe L.SNothing L.SJust datum)
+
 -- | The sub-transaction analogue of 'constructTxBodyContent'. It shares the
 -- value preparation but builds a 'Exp.SubTxBodyContent', which has no fee,
 -- collateral, required signers or script validity, and adds guards.
@@ -318,6 +359,8 @@ constructSubTx
   -- ^ Supplemental datums
   -> OSet (L.Credential L.Guard)
   -- ^ Guards
+  -> Map.Map (L.Credential L.Guard) (L.StrictMaybe (L.Data (Exp.LedgerEra era)))
+  -- ^ Required top-level guards
   -> Either TxCmdError (Exp.SubTxBodyContent (Exp.LedgerEra era))
 constructSubTx
   mPparams
@@ -336,7 +379,8 @@ constructSubTx
   mCurrentTreasury
   mTreasuryDonation
   suppDatums
-  guards =
+  guards
+  requiredTopLevelGuards =
     do
       -- Only executed Plutus witnesses are restricted. Auxiliary scripts and
       -- reference scripts stored in outputs are not executed by this body.
@@ -398,6 +442,7 @@ constructSubTx
             & maybe id Exp.setTxTreasuryDonation (unTxTreasuryDonation <$> mTreasuryDonation)
             & Exp.setTxSupplementalDatums suppDatums
             & Exp.setTxGuards guards
+            & Exp.setTxRequiredTopLevelGuards requiredTopLevelGuards
         )
 
 runSubTransactionSignCmd
