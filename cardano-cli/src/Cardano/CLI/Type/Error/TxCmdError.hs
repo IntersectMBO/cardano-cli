@@ -91,6 +91,7 @@ data TxCmdError
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
   | TxCmdTopLevelGuardMissingDatum !FilePath
   | TxCmdTopLevelGuardUnexpectedDatum !FilePath
+  | TxCmdTopLevelGuardUnsupportedPlutusLanguage !FilePath !L.Language
   | TxCmdDuplicateTopLevelGuards ![L.Credential L.Guard]
 
 instance Show TxCmdError where
@@ -232,6 +233,8 @@ renderTxCmdError = \case
     "Plutus top-level guard " <> pretty path <> " requires a datum."
   TxCmdTopLevelGuardUnexpectedDatum path ->
     "Native script top-level guard " <> pretty path <> " must not have a datum."
+  TxCmdTopLevelGuardUnsupportedPlutusLanguage path language ->
+    "Top-level guard script " <> pretty path <> " must be Plutus V4; found " <> pshow language <> "."
   TxCmdDuplicateTopLevelGuards credentials ->
     "Duplicate top-level guards: "
       <> mconcat (List.intersperse ", " (map (pretty . L.credToText) credentials))

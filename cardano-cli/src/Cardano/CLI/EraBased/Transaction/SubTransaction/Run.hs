@@ -223,7 +223,7 @@ readGuard = \case
     (credential, script) <- case source of
       Cmd.GuardScriptHash (ScriptHash scriptHash) -> pure (L.ScriptHashObj scriptHash, Nothing)
       Cmd.GuardScriptFile (File path) -> do
-        ledgerScript <- readGuardScriptFile path
+        ledgerScript <- readGuardScriptFile TxCmdSubTxUnsupportedPlutusLanguage path
         pure (L.ScriptHashObj (L.hashScript ledgerScript), Just ledgerScript)
     forM_ script $ \s -> fromEitherCli $ validateGuardRedeemer credential s (isJust mRedeemer)
     redeemer <- forM mRedeemer $ \(redeemerData, units) -> do
@@ -232,8 +232,11 @@ readGuard = \case
     pure (credential, script, redeemer)
 
 -- | Both guard forms accept native scripts or Plutus V4 scripts.
-readGuardScriptFile :: FilePath -> CIO e (L.Script (Exp.LedgerEra Exp.DijkstraEra))
-readGuardScriptFile path = do
+readGuardScriptFile
+  :: (L.Language -> TxCmdError)
+  -> FilePath
+  -> CIO e (L.Script (Exp.LedgerEra Exp.DijkstraEra))
+readGuardScriptFile languageError path = do
   script <- readAnyScript @_ @Exp.DijkstraEra path
   case script of
     Exp.AnySimpleScript (Exp.SimpleScript native) -> pure $ L.fromNativeScript native
@@ -241,7 +244,7 @@ readGuardScriptFile path = do
       let language = Exp.Plutus.plutusScriptInEraLanguage plutus
       unless (language == L.PlutusV4) $
         throwCliError $
-          TxCmdSubTxUnsupportedPlutusLanguage language
+          languageError language
       pure $ Exp.Plutus.plutusScriptInEraToScript plutus
 
 validateGuardRedeemer
@@ -316,7 +319,7 @@ readTopLevelGuard = \case
     scriptHash <- case source of
       Cmd.GuardScriptHash (ScriptHash hash) -> pure hash
       Cmd.GuardScriptFile (File path) -> do
-        script <- readGuardScriptFile path
+        script <- readGuardScriptFile (TxCmdTopLevelGuardUnsupportedPlutusLanguage path) path
         if isJust (L.getNativeScript script)
           then when (isJust mDatum) $ throwCliError $ TxCmdTopLevelGuardUnexpectedDatum path
           else when (isNothing mDatum) $ throwCliError $ TxCmdTopLevelGuardMissingDatum path

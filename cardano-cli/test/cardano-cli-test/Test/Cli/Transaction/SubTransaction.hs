@@ -18,7 +18,7 @@ import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BSC
 import Data.Foldable (toList)
-import Data.List (isInfixOf)
+import Data.List (isInfixOf, isPrefixOf)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
 import Lens.Micro ((^.))
@@ -1043,7 +1043,7 @@ hprop_dijkstra_sub_transaction_rejects_invalid_top_level_key_guards =
         H.assertWith duplicateError ("Duplicate top-level guards:" `isInfixOf`)
         H.assertWith duplicateError (hashHex `isInfixOf`)
 
--- | Repeated guards retain their own optional datum in the serialized body.
+-- | Multiple distinct script-hash guards retain their own optional datum.
 -- A hash alone accepts either form because its script language is unknown.
 hprop_dijkstra_sub_transaction_top_level_guard_hashes :: Property
 hprop_dijkstra_sub_transaction_top_level_guard_hashes =
@@ -1076,6 +1076,10 @@ hprop_dijkstra_sub_transaction_top_level_guard_datum_formats =
     cbor <- build ["--top-level-guard-datum-cbor-file", cborFile]
     inline H.=== json
     inline H.=== cbor
+    ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
+    let Exp.UnsignedSubTx tx = inline
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+      H.=== Map.singleton (L.ScriptHashObj hash) (L.SJust $ toAlonzoData guardDatum)
 
 -- | Script files resolve to the same guard entries as their hashes, for both
 -- native scripts without datums and Plutus scripts with datums.
@@ -1084,16 +1088,19 @@ hprop_dijkstra_sub_transaction_top_level_guard_script_files =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     forM_
-      [ (nativeScriptFile, [])
-      , (plutusScriptFile 4, ["--top-level-guard-datum-value", "42"])
+      [ (nativeScriptFile, [], L.SNothing)
+      , (plutusScriptFile 4, ["--top-level-guard-datum-value", "42"], L.SJust $ toAlonzoData guardDatum)
       ]
-      $ \(scriptFile, datumArgs) -> do
+      $ \(scriptFile, datumArgs, expectedDatum) -> do
         scriptHash <- filter (/= '\n') <$> execCardanoCLI ["hash", "script", "--script-file", scriptFile]
         fromFile <- buildSubTransaction outFile $ ["--top-level-guard-script-file", scriptFile] ++ datumArgs
         fromHash <- buildSubTransaction outFile $ ["--top-level-guard-script-hash", scriptHash] ++ datumArgs
         fromFile H.=== fromHash
         -- A top-level requirement contributes no local guard or witness data.
         let Exp.UnsignedSubTx tx = fromFile
+        ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.pack scriptHash)
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+          H.=== Map.singleton (L.ScriptHashObj hash) expectedDatum
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
 
@@ -1169,7 +1176,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_canonical_datum =
       void $ execCardanoCLI $ buildOuter ++ ["--out-file", bodyFile]
       checkEmbedded bodyFile
 
-      -- Canonical embedding is safe only if the datum was canonicalised before signing.
+      -- Canonical top-level output must preserve the signed sub-transaction bytes.
       let canonicalOuter = buildOuter ++ ["--out-canonical-cbor", "--out-file", canonicalFile]
       if canonical
         then do
@@ -1195,7 +1202,9 @@ hprop_dijkstra_sub_transaction_top_level_guard_rejects_older_plutus_scripts =
           , "--top-level-guard-datum-value"
           , "42"
           ]
-      H.assertWith stderr ("require Plutus V4" `isInfixOf`)
+      H.assertWith
+        stderr
+        (("Top-level guard script " ++ plutusScriptFile version ++ " must be Plutus V4") `isInfixOf`)
       H.assertWith stderr (("PlutusV" ++ show version) `isInfixOf`)
 
 -- | Known Plutus guards require a datum, and known native guards reject one.
@@ -1218,13 +1227,29 @@ hprop_dijkstra_sub_transaction_top_level_guard_parser_failures =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     forM_
-      [ ["--top-level-guard-script-hash", "invalid"]
-      , ["--top-level-guard-key-hash", "invalid"]
-      , ["--top-level-guard-verification-key", "invalid"]
-      , ["--top-level-guard-datum-value", "42"]
-      , ["--top-level-guard-script-hash", replicate 56 '0', "--top-level-guard-datum-value", "{"]
+      [
+        ( ["--top-level-guard-script-hash", "invalid"]
+        , ["option --top-level-guard-script-hash:", "expecting hexadecimal digit"]
+        )
+      ,
+        ( ["--top-level-guard-key-hash", "invalid"]
+        , ["option --top-level-guard-key-hash:", "expecting hexadecimal digit"]
+        )
+      , (["--top-level-guard-verification-key", "invalid"], ["Invalid guard verification key"])
+      ,
+        ( ["--top-level-guard-datum-value", "42"]
+        , ["Missing:", "--top-level-guard-script-hash HASH | --top-level-guard-script-file FILEPATH"]
+        )
+      ,
+        ( ["--top-level-guard-script-hash", replicate 56 '0', "--top-level-guard-datum-value", "{"]
+        , ["option --top-level-guard-datum-value:", "Unexpected end-of-input"]
+        )
       ]
-      $ \args -> void $ expectSubTransactionFailure outFile args
+      $ \(args, expectedErrors) -> do
+        stderr <- expectSubTransactionFailure outFile args
+        -- Match the diagnostic, not option names repeated in the usage text.
+        let diagnostic = unlines $ takeWhile (not . isPrefixOf "Usage:") (lines stderr)
+        forM_ expectedErrors $ \message -> H.assertWith diagnostic (message `isInfixOf`)
 
 -- | Report every duplicate hash, including guards without datums and guards
 -- with conflicting datums, while excluding credentials given only once.
@@ -1241,7 +1266,7 @@ hprop_dijkstra_sub_transaction_rejects_duplicate_top_level_guard_hashes =
         )
     H.assertWith stderr ("Duplicate top-level guards:" `isInfixOf`)
     forM_ ['0', '1'] $ \digit -> H.assertWith stderr (replicate 56 digit `isInfixOf`)
-    H.assert $ not (replicate 56 '2' `isInfixOf` stderr)
+    H.assertWith stderr (not . isInfixOf (replicate 56 '2'))
 
 -- | Repeated files and file/hash aliases are duplicates, even with matching
 -- datums. A hash entry must not erase the datum checked for a Plutus file.
