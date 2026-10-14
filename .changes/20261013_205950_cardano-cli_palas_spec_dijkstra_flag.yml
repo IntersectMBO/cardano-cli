@@ -1,6 +1,0 @@
-description: |
-  `genesis create-testnet-data` now lists `--spec-dijkstra` in its help (it was hidden before). It takes a Dijkstra genesis file to start from, like `--spec-conway` does for Conway.
-kind:
-- feature
-pr: 1465
-project: cardano-cli
