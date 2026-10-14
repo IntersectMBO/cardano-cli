@@ -1,5 +1,25 @@
 # Changelog for cardano-cli
 
+## 11.3.1.0 -- 2026-10-14
+
+- `genesis create-testnet-data` now lists `--spec-dijkstra` in its help (it was hidden before). It takes a Dijkstra genesis file to start from, like `--spec-conway` does for Conway.
+  (feature)
+  [PR 1465](https://github.com/intersectmbo/cardano-cli/pull/1465)
+
+- Add the Dijkstra-only `dijkstra sub-transaction` command group with `build-raw` (builds an unsigned sub-transaction from the Conway-era transaction options plus `--guard-key-hash`, `--guard-verification-key`, `--guard-verification-key-file` and `--guard-script-hash`), `sign` and `txid`, and add a repeatable `--signed-sub-tx-file FILE` option to `dijkstra transaction build-raw` that embeds signed sub-transactions in a top-level transaction. Sub-transactions are written as `Unwitnessed SubTx DijkstraEra` / `Witnessed SubTx DijkstraEra` text envelopes.
+  Sub-transaction build-raw supports --out-canonical-cbor before signing. Canonical output of a top-level transaction rejects embedded sub-transactions whose signed body bytes would change.
+  Canonical output rejects changes to hashed metadata, redeemers, datums and native scripts within sub-transactions, including embedded signed sub-transactions, rather than writing invalid hashes.
+  Sub-transaction builders expose only Plutus V4 reference-script selectors and reject Plutus V1-V3 script files; native scripts and key witnesses remain supported.
+  Add Dijkstra-only Plutus V4 reference-script flags for spending, minting, certificates, withdrawals, voting and proposals in both top-level and sub-transaction builders.
+  (feature)
+  [PR 1453](https://github.com/intersectmbo/cardano-cli/pull/1453)
+
+- Add repeatable `--top-level-guard-key-hash`, `--top-level-guard-verification-key`, `--top-level-guard-verification-key-file`, `--top-level-guard-script-hash` and `--top-level-guard-script-file` options to `dijkstra sub-transaction build-raw` to specify credentials required as guards in the enclosing top-level transaction.
+  Script guards accept an optional datum as an inline value, a JSON file, or a CBOR file. For script files, require Plutus V4 and a datum for Plutus scripts, and reject datums for native scripts. Key guards do not accept datums. For script hashes, leave script-language validation to the ledger.
+  Reject repeated top-level guard credentials and list the duplicates, including keys and scripts supplied in different forms.
+  (feature)
+  [PR 1453](https://github.com/intersectmbo/cardano-cli/pull/1453)
+
 ## 11.3.0.0 -- 2026-10-07
 
 - The IPv4 address of a stake pool's registered relay is no longer byte-reversed in stake pool registration certificates, in pool state query output, or in transaction view output; this is fixed by requiring cardano-ledger-binary 1.9.1.0 (#1442).

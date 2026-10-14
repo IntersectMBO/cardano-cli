@@ -1,8 +1,0 @@
-project: cardano-cli
-pr: 1453
-kind:
-  - maintenance
-description: |
-  Bump cardano-api to 11.9.0.0 and update the CHaP index and Nix input.
-  Accept protocol parameters when building compatible Plutus transactions,
-  and support Plutus V4 in the script hash command.
