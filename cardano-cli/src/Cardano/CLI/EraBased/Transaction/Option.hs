@@ -210,6 +210,7 @@ pTransactionBuildCmd envCli = do
         <*> pInvalidHereafter era'
         <*> many (pCertificateFileForEra (Exp.useEra @era) AutoBalance)
         <*> many (pWithdrawalForEra (Exp.useEra @era) AutoBalance)
+        <*> pDirectDeposits (Exp.useEra @era)
         <*> pTxMetadataJsonSchema
         <*> many
           ( pScriptFor
@@ -272,6 +273,7 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> pInvalidHereafter Exp.useEra
         <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
         <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
+        <*> pDirectDeposits (Exp.useEra @era)
         <*> optional pTotalCollateral
         <*> optional pReferenceScriptSize
         <*> pTxMetadataJsonSchema
@@ -317,6 +319,7 @@ pTransactionBuildRaw =
       <*> pTxFee
       <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
       <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
+      <*> pDirectDeposits (Exp.useEra @era)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
