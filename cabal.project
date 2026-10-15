@@ -74,6 +74,15 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+-- Temporary, until cardano-api reads node configurations through cardano-config
+-- in a release.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: d967ab7c901d4733b29e80eb754682c056570b8c
+  subdir: cardano-api
+  --sha256: sha256-kRBsnJTDRE99bTw0MxElMF2tzg3H79Xb6U5qppp0qzA=
+
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
