@@ -2,13 +2,13 @@ name: Release Upload
 # Pipeline to download binaries from Hydra builds and create GitHub
 # releases out of them (or attaching the binaries to an already existing release).
 #
-# This pipeline is divided in three jobs:
+# This pipeline is divided in four jobs:
 #
 # 1. The "wait_for_hydra" job looks up the status of the Hydra build corresponding to
 #    the tag for which we want to release. If the status is success, the pipeline
 #    continues. If the status cannot be determined or is a failure, the pipeline stops.
 #    If the tag is annotated (signed tags are), this job first pushes the tagged commit
-#    to a ci/ branch, so that Hydra builds and reports on the commit itself.
+#    to a ci/ branch for this run, so that Hydra builds and reports on the commit itself.
 # 2. The "pull" job downloads the binaries from the Hydra build and uploads them as artifacts.
 #    This job uses a matrix to handle all supported platforms. Uploading as an artifact allows to
 #    do the last job without a matrix.
@@ -16,7 +16,9 @@ name: Release Upload
 #    This job uses `--builders "" --max-jobs 0` to ensure the assets are downloaded
 #    from the IOG cache.
 # 3. The "create_release" job downloads the artifacts and attaches them to the target release.
-#    Then it deletes the ci/ branch from step 1, if there is one.
+# 4. The "delete_ci_branch" job deletes the ci/ branch from step 1, if this run pushed one.
+#    It also runs when an earlier job failed or the run was cancelled, so that the branch
+#    does not stay behind.
 #
 # This pipeline is triggered in one of the following 3 ways:
 #
@@ -60,6 +62,7 @@ jobs:
       TARGET_TAG: ${{ steps.store_vars.outputs.TARGET_TAG }}
       DRY_RUN:    ${{ steps.store_vars.outputs.DRY_RUN }}
       FLAKE_REF:  ${{ steps.store_vars.outputs.FLAKE_REF }}
+      CI_BRANCH:  ${{ steps.ci_branch.outputs.CI_BRANCH }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -99,16 +102,21 @@ jobs:
 
           echo "DRY_RUN=$dry_run" >> "$GITHUB_OUTPUT"
       - name: Make Hydra build the tagged commit
+        id: ci_branch
         run: |
           # Hydra builds an annotated tag under the ID of the tag object, not the ID of the commit.
           # GitHub rejects Hydra's check-runs for that ID, so the next step would wait forever,
           # and the binaries Hydra builds would not match the ones the "pull" job asks for.
           # Hydra also builds ci/* branches, by commit ID, so push the tagged commit to one.
+          # The branch name includes the run ID, so that this run only ever touches its own branch.
           if [[ "$(git cat-file -t "refs/tags/${{ env.TARGET_TAG }}" 2>/dev/null)" == "tag" ]]
           then
             commit=$(git rev-parse "refs/tags/${{ env.TARGET_TAG }}^{commit}")
-            echo "${{ env.TARGET_TAG }} is an annotated tag: pushing $commit to ci/${{ env.TARGET_TAG }} for Hydra"
-            git push --force origin "$commit:refs/heads/ci/${{ env.TARGET_TAG }}"
+            branch="ci/${{ env.TARGET_TAG }}-run-${{ github.run_id }}"
+            echo "${{ env.TARGET_TAG }} is an annotated tag: pushing $commit to $branch for Hydra"
+            git push --force origin "$commit:refs/heads/$branch"
+            # Tell the "delete_ci_branch" job what to delete
+            echo "CI_BRANCH=$branch" >> "$GITHUB_OUTPUT"
           fi
       - name: Get specific check run status
         timeout-minutes: 120
@@ -259,9 +267,19 @@ jobs:
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           body_path: RELEASE_CHANGELOG.md
-      - name: Delete the ci/ branch pushed for Hydra
+
+  delete_ci_branch:
+    needs: [wait_for_hydra, pull, create_release]
+    name: "Delete the ci/ branch pushed for Hydra"
+    runs-on: ubuntu-latest
+    # always(): also after a failed or cancelled run, so that the branch does not stay behind
+    if: ${{ always() && needs.wait_for_hydra.outputs.CI_BRANCH != '' }}
+    steps:
+      - uses: actions/checkout@v6 # So that git can push to origin below
+      - name: Delete the ci/ branch
         run: |
-          branch="refs/heads/ci/${{ needs.wait_for_hydra.outputs.TARGET_TAG }}"
+          branch="refs/heads/${{ needs.wait_for_hydra.outputs.CI_BRANCH }}"
+          # An earlier attempt of this run may have deleted it already
           if git ls-remote --exit-code origin "$branch" > /dev/null
           then
             git push origin --delete "$branch"
