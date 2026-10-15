@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1408
+kind:
+  - refactoring
+description: |
+  Remove `pVoteFile`, `pProposalFile` and `pCertificateFile` from `Cardano.CLI.EraBased.Common.Option`; use `pVoteFileForEra`, `pProposalFileForEra` and `pCertificateFileForEra` with the era you need instead. Remove `readTxUpdateProposal` from `Cardano.CLI.Read`; read the file with `readFileTextEnvelope` instead. `CreateCompatibleSignedTransaction` now takes the update proposal file and the proposal files directly, without `Featured`.

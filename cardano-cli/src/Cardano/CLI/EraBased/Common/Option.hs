@@ -1096,11 +1096,6 @@ pVoteFilesForEra
   -> Parser [(VoteFile In, Maybe AnyNonAssetScript)]
 pVoteFilesForEra era bExUnits = many $ pVoteFileForEra era bExUnits
 
-pVoteFile
-  :: BalanceTxExecUnits
-  -> Parser (VoteFile In, Maybe AnyNonAssetScript)
-pVoteFile = pVoteFileForEra Exp.ConwayEra
-
 pVoteFileForEra
   :: Exp.Era era
   -> BalanceTxExecUnits
@@ -1168,11 +1163,6 @@ pProposalFilesForEra
   -> Parser [(ProposalFile In, Maybe AnyNonAssetScript)]
 pProposalFilesForEra era balExUnits =
   many (pProposalFileForEra era balExUnits)
-
-pProposalFile
-  :: BalanceTxExecUnits
-  -> Parser (ProposalFile In, Maybe AnyNonAssetScript)
-pProposalFile = pProposalFileForEra Exp.ConwayEra
 
 pProposalFileForEra
   :: Exp.Era era
@@ -1385,11 +1375,6 @@ pTxBuildOutputOptions =
         ( "Where to write the script cost information. (Deprecated: this flag is deprecated and will be "
             <> "removed in a future version. Please, use calculate-plutus-script-cost command instead.)"
         )
-
-pCertificateFile
-  :: BalanceTxExecUnits
-  -> Parser (CertificateFile, Maybe AnyNonAssetScript)
-pCertificateFile = pCertificateFileForEra Exp.ConwayEra
 
 pCertificateFileForEra
   :: Exp.Era era

@@ -12,6 +12,7 @@ module Cardano.CLI.Compatible.Transaction.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Environment
@@ -51,14 +52,15 @@ pCompatibleSignedTransaction
 pCompatibleSignedTransaction env sbe =
   CreateCompatibleSignedTransaction sbe
     <$> many pTxInOnly
+    <*> pTxInsCollateral sbe
     <*> many (pTxOutEraAware sbe)
-    <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
-    <*> pFeatured (toCardanoEra sbe) (many (pProposalFile ManualBalance))
+    <*> pOptionalUpdateProposalFile sbe
+    <*> pProposalFiles sbe ManualBalance
     <*> pVoteFiles sbe ManualBalance
     <*> many pWitnessSigningData
     <*> optional (pNetworkId env)
     <*> pTxFee
-    <*> many (pCertificateFile ManualBalance)
+    <*> pCertificateFiles sbe ManualBalance
     <*> optional pProtocolParamsFile
     <*> pOutputFile
 
@@ -70,6 +72,16 @@ pTxInOnly =
         <> Opt.metavar "TX_IN"
         <> Opt.help "TxId#TxIx"
     )
+
+pTxInsCollateral :: ShelleyBasedEra era -> Parser [TxIn]
+pTxInsCollateral = \case
+  ShelleyBasedEraShelley -> pure []
+  ShelleyBasedEraAllegra -> pure []
+  ShelleyBasedEraMary -> pure []
+  ShelleyBasedEraAlonzo -> many pTxInCollateral
+  ShelleyBasedEraBabbage -> many pTxInCollateral
+  ShelleyBasedEraConway -> many pTxInCollateral
+  ShelleyBasedEraDijkstra -> many pTxInCollateral
 
 -- This parser renders the appropriate parsers depending on what
 -- functionality is available per era.
@@ -89,18 +101,14 @@ pTxOutEraAware sbe =
     <*> pRefScriptFp sbe
 
 pTxOutDatum :: ShelleyBasedEra era -> Parser TxOutDatumAnyEra
-pTxOutDatum sbe =
-  forEraInEon
-    (convert sbe)
-    (pure TxOutDatumByNone)
-    ( \case
-        AlonzoEraOnwardsAlonzo ->
-          pAlonzoDatumFunctionality <|> pure TxOutDatumByNone
-        AlonzoEraOnwardsBabbage ->
-          pBabbageDatumFunctionality <|> pure TxOutDatumByNone
-        AlonzoEraOnwardsConway -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
-        AlonzoEraOnwardsDijkstra -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
-    )
+pTxOutDatum = \case
+  ShelleyBasedEraShelley -> pure TxOutDatumByNone
+  ShelleyBasedEraAllegra -> pure TxOutDatumByNone
+  ShelleyBasedEraMary -> pure TxOutDatumByNone
+  ShelleyBasedEraAlonzo -> pAlonzoDatumFunctionality <|> pure TxOutDatumByNone
+  ShelleyBasedEraBabbage -> pBabbageDatumFunctionality <|> pure TxOutDatumByNone
+  ShelleyBasedEraConway -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
+  ShelleyBasedEraDijkstra -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
  where
   pAlonzoDatumFunctionality =
     asum
@@ -151,21 +159,78 @@ pTxOutDatum sbe =
         "The script datum to embed in the tx output as an inline datum, in the given file."
 
 pRefScriptFp :: ShelleyBasedEra era -> Parser ReferenceScriptAnyEra
-pRefScriptFp =
-  inEonForShelleyBasedEra @ConwayEraOnwards
-    (pure ReferenceScriptAnyEraNone)
-    ( const $
-        ReferenceScriptAnyEra
-          <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
-            <|> pure ReferenceScriptAnyEraNone
-    )
+pRefScriptFp = \case
+  ShelleyBasedEraShelley -> pure ReferenceScriptAnyEraNone
+  ShelleyBasedEraAllegra -> pure ReferenceScriptAnyEraNone
+  ShelleyBasedEraMary -> pure ReferenceScriptAnyEraNone
+  ShelleyBasedEraAlonzo -> pure ReferenceScriptAnyEraNone
+  ShelleyBasedEraBabbage -> pure ReferenceScriptAnyEraNone
+  ShelleyBasedEraConway -> pReferenceScript
+  ShelleyBasedEraDijkstra -> pReferenceScript
+ where
+  pReferenceScript =
+    ReferenceScriptAnyEra
+      <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
+        <|> pure ReferenceScriptAnyEraNone
+
+pOptionalUpdateProposalFile :: ShelleyBasedEra era -> Parser (Maybe UpdateProposalFile)
+pOptionalUpdateProposalFile = \case
+  ShelleyBasedEraShelley -> optional pUpdateProposalFile
+  ShelleyBasedEraAllegra -> optional pUpdateProposalFile
+  ShelleyBasedEraMary -> optional pUpdateProposalFile
+  ShelleyBasedEraAlonzo -> optional pUpdateProposalFile
+  ShelleyBasedEraBabbage -> optional pUpdateProposalFile
+  ShelleyBasedEraConway -> pure Nothing
+  ShelleyBasedEraDijkstra -> pure Nothing
 
 pVoteFiles
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> BalanceTxExecUnits
   -> Parser [(VoteFile In, Maybe AnyNonAssetScript)]
 pVoteFiles sbe bExUnits =
-  inEonForShelleyBasedEra @ConwayEraOnwards
-    (pure [])
-    (const . many $ pVoteFile bExUnits)
-    sbe
+  case sbe of
+    ShelleyBasedEraShelley -> pure []
+    ShelleyBasedEraAllegra -> pure []
+    ShelleyBasedEraMary -> pure []
+    ShelleyBasedEraAlonzo -> pure []
+    ShelleyBasedEraBabbage -> pure []
+    ShelleyBasedEraConway -> pVoteFilesForEra (Exp.useEra @era) bExUnits
+    ShelleyBasedEraDijkstra -> pVoteFilesForEra (Exp.useEra @era) bExUnits
+
+pProposalFiles
+  :: forall era
+   . ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser [(ProposalFile In, Maybe AnyNonAssetScript)]
+pProposalFiles sbe bExUnits =
+  case sbe of
+    ShelleyBasedEraShelley -> pure []
+    ShelleyBasedEraAllegra -> pure []
+    ShelleyBasedEraMary -> pure []
+    ShelleyBasedEraAlonzo -> pure []
+    ShelleyBasedEraBabbage -> pure []
+    ShelleyBasedEraConway -> pProposalFilesForEra (Exp.useEra @era) bExUnits
+    ShelleyBasedEraDijkstra -> pProposalFilesForEra (Exp.useEra @era) bExUnits
+
+pCertificateFiles
+  :: forall era
+   . ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser [(CertificateFile, Maybe AnyNonAssetScript)]
+pCertificateFiles sbe bExUnits =
+  many $ case sbe of
+    ShelleyBasedEraShelley -> pCertificateFile
+    ShelleyBasedEraAllegra -> pCertificateFile
+    ShelleyBasedEraMary -> pCertificateFile
+    ShelleyBasedEraAlonzo -> pCertificateFile
+    ShelleyBasedEraBabbage -> pCertificateFile
+    ShelleyBasedEraConway -> pCertificateFileForEra (Exp.useEra @era) bExUnits
+    ShelleyBasedEraDijkstra -> pCertificateFileForEra (Exp.useEra @era) bExUnits
+ where
+  pCertificateFile :: Parser (CertificateFile, Maybe AnyNonAssetScript)
+  pCertificateFile =
+    pCertificateFileWithPlutusReferenceLanguage
+      (pAnyPlutusSLanguage "certificate-")
+      "the use of the certificate."
+      bExUnits

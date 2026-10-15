@@ -57,10 +57,8 @@ runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' 
       shelleyToBabbageProtocolParametersUpdate sbe eraBasedPParams'
     ShelleyBasedEraBabbage ->
       shelleyToBabbageProtocolParametersUpdate sbe eraBasedPParams'
-    ShelleyBasedEraConway -> conwayProtocolParametersUpdate sbe eraBasedPParams'
-    ShelleyBasedEraDijkstra ->
-      -- TODO: Dijkstra
-      error "runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd: Dijkstra not supported yet"
+    ShelleyBasedEraConway -> conwayOnwardsProtocolParametersUpdate sbe eraBasedPParams'
+    ShelleyBasedEraDijkstra -> conwayOnwardsProtocolParametersUpdate sbe eraBasedPParams'
 
 maybeAddUpdatedCostModel
   :: GovernanceActionProtocolParametersUpdateCmdArgs era
@@ -74,11 +72,12 @@ maybeAddUpdatedCostModel args = case uppCostModelsFile args of
     pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels $
       uppNewPParams args
 
-conwayProtocolParametersUpdate
-  :: ShelleyBasedEra ConwayEra
-  -> GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+conwayOnwardsProtocolParametersUpdate
+  :: Typeable era
+  => ShelleyBasedEra era
+  -> GovernanceActionProtocolParametersUpdateCmdArgs era
   -> CIO e ()
-conwayProtocolParametersUpdate sbe args = do
+conwayOnwardsProtocolParametersUpdate sbe args = do
   let oFp = uppFilePath args
       anyEra = AnyShelleyBasedEra sbe
 
