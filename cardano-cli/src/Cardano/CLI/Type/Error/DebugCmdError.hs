@@ -18,17 +18,9 @@ data DebugCmdError
   | -- | @DebugNodeConfigGenesisDataCmdError filepath error@ represents an error when
     -- reading the node configuration at @filepath@
     DebugNodeConfigGenesisDataCmdError !FilePath !Byron.GenesisDataError
-  | -- | @DebugNodeConfigWrongGenesisHashCmdError filepath eraGenesisPath actualHash expectedHash@ represents a user error
-    -- that the hash of @eraGenesisPath@ in @filepath@ is @actualHash@, whereas it should be @expectedHash@
-    DebugNodeConfigWrongGenesisHashCmdError
-      !FilePath
-      -- ^ The file path of the node configuration file
-      !FilePath
-      -- ^ The file path of the era configuration file whose hash is wrong
-      !Text
-      -- ^ The actual hash (the hash found by hashing the genesis file)
-      !Text
-      -- ^ The expected hash (the hash mentioned in the configuration file)
+  | -- | @DebugNodeConfigReadCmdError filepath error@ represents an error when
+    -- reading the node configuration at @filepath@, or the genesis files it names
+    DebugNodeConfigReadCmdError !FilePath !Text
   | DebugTxCmdError !TxCmdError
   deriving Show
 
@@ -40,13 +32,9 @@ instance Error DebugCmdError where
         <> pretty fp
         <> ": "
         <> pretty (Text.toLazyText $ build err)
-    DebugNodeConfigWrongGenesisHashCmdError nodeFp genesisFp actualHash expectedHash ->
-      "Wrong genesis hash for "
-        <> pretty genesisFp
-        <> " in "
-        <> pretty nodeFp
-        <> ": when computing the hash, got: "
-        <> pretty actualHash
-        <> ", but the node configuration files states that this hash is expected: "
-        <> pretty expectedHash
+    DebugNodeConfigReadCmdError fp err ->
+      "Error reading node configuration at: "
+        <> pretty fp
+        <> ": "
+        <> pretty err
     DebugTxCmdError err -> renderTxCmdError err
