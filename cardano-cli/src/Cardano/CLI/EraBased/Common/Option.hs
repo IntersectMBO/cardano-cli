@@ -1515,6 +1515,22 @@ pMetadataFile =
         File <$> parseFilePath "metadata-cbor-file" "Filepath of the metadata, in raw CBOR format."
     ]
 
+-- | Parse repeatable @--direct-deposit STAKE_ADDRESS+LOVELACE@ options for
+-- ADA deposits into registered accounts. Available only in Dijkstra.
+pDirectDeposits :: Exp.Era era -> Parser [(StakeAddress, Lovelace)]
+pDirectDeposits era = case era of
+  Exp.ConwayEra -> pure []
+  Exp.DijkstraEra ->
+    many $
+      Opt.option (readerFromParsecParser parseDeposit) $
+        Opt.long "direct-deposit"
+          <> Opt.metavar "STAKE_ADDRESS+LOVELACE"
+          <> Opt.help
+            "Deposit ADA into a registered account. Amount in lovelace; each account may occur once."
+ where
+  parseDeposit :: P.Parser (StakeAddress, Lovelace)
+  parseDeposit = (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
+
 pWithdrawalForEra
   :: Exp.Era era
   -> BalanceTxExecUnits
