@@ -108,7 +108,12 @@ hprop_check_node_configuration_failure = do
           ]
     --  H.success -- Temporarily disabled.
     H.assertWith exitCode (ExitSuccess /=)
-    H.assertWith stderr ("Wrong genesis hash" `isInfixOf`)
+    H.assertWith stderr ("Error reading node configuration" `isInfixOf`)
+    -- The 65-character Byron hash is not a hash at all, while the Alonzo hash
+    -- is a well-formed hash of something else.
+    H.assertWith stderr $ isInfixOf $ case fiddleKind of
+      FiddleByron -> "ByronGenesisHash"
+      FiddleNonByron -> "GenesisHashMismatch"
 
 -- | The JSON key of the genesis hash for the given era.
 eraToGenesisHashKey :: AnyCardanoEra -> Text.Text
