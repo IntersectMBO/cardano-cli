@@ -139,7 +139,11 @@ readRefScript sbe = \case
   ReferenceScriptAnyEraNone -> pure L.SNothing
   ReferenceScriptAnyEra fp -> do
     script <- readFileScriptInAnyLang fp
-    pure $ maybe L.SNothing (L.SJust . toShelleyScript) (toScriptInEra sbe script)
+    scriptInEra <-
+      fromMaybeCli
+        (TxOutputReferenceScriptLanguageNotSupportedInEra script (anyCardanoEra $ toCardanoEra sbe))
+        $ toScriptInEra sbe script
+    pure . L.SJust $ toShelleyScript scriptInEra
 
 toTxOutValueInShelleyBasedEra
   :: ShelleyBasedEra era

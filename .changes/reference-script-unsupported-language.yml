@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1452
+kind:
+  - bugfix
+description: |
+  A transaction output whose reference script is written in a Plutus language not supported by the transaction's era now makes the command fail with a clear error, instead of silently building the transaction with that reference script dropped from the output.

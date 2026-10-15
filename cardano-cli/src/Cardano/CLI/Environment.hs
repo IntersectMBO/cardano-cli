@@ -14,15 +14,21 @@ where
 
 import Cardano.Api
   ( AnyCardanoEra (..)
-  , CardanoEra (..)
   , NetworkId (..)
   , NetworkMagic (..)
   , forEraMaybeEon
+  , pretty
   )
 import Cardano.Api.Experimental qualified as Exp
 
+import Control.Monad.IO.Class (MonadIO (..))
+import Data.Char (toLower)
+import Data.Foldable (find)
+import Data.List (intercalate)
+import Data.Traversable (forM)
 import Data.Type.Equality
 import Data.Word (Word32)
+import GHC.Stack (HasCallStack)
 import System.Environment qualified as IO
 import System.IO qualified as IO
 import Text.Read (readMaybe)
@@ -84,21 +90,29 @@ getEnvNetworkId = do
 getEnvSocketPath :: IO (Maybe FilePath)
 getEnvSocketPath = IO.lookupEnv "CARDANO_NODE_SOCKET_PATH"
 
--- | If the environment variable @CARDANO_ERA@ is set, then return the set value.
+-- | If the environment variable @CARDANO_ERA@ is set to a known era, then return that era.
+-- If it is set to an unknown era, fail with an error listing the valid eras.
 -- Otherwise, return 'Nothing'.
-getCardanoEra :: IO (Maybe AnyCardanoEra)
+getCardanoEra :: (HasCallStack, MonadIO m) => m (Maybe AnyCardanoEra)
 getCardanoEra = do
-  mEraString <- IO.lookupEnv "CARDANO_ERA"
+  mEraString <- liftIO $ IO.lookupEnv "CARDANO_ERA"
+  forM mEraString $ \eraString ->
+    maybe (error $ invalidEraMessage eraString) pure $ parseCardanoEra eraString
+ where
+  invalidEraMessage :: String -> String
+  invalidEraMessage eraString =
+    mconcat
+      [ "The era specified in CARDANO_ERA is invalid: " <> eraString <> "."
+      , " It should be one of: " <> intercalate ", " (cardanoEraName <$> allCardanoEras) <> "."
+      ]
 
-  case mEraString of
-    Just eraString ->
-      case eraString of
-        "byron" -> pure $ Just $ AnyCardanoEra ByronEra
-        "shelley" -> pure $ Just $ AnyCardanoEra ShelleyEra
-        "allegra" -> pure $ Just $ AnyCardanoEra AllegraEra
-        "mary" -> pure $ Just $ AnyCardanoEra MaryEra
-        "alonzo" -> pure $ Just $ AnyCardanoEra AlonzoEra
-        "babbage" -> pure $ Just $ AnyCardanoEra BabbageEra
-        "conway" -> pure $ Just $ AnyCardanoEra ConwayEra
-        unknown -> error $ "Unknown era: " <> unknown -- TODO improve error handling
-    Nothing -> pure Nothing
+  -- Parse an era name, ignoring case, using the names that cardano-api renders for its eras.
+  parseCardanoEra :: String -> Maybe AnyCardanoEra
+  parseCardanoEra eraString =
+    find ((== map toLower eraString) . cardanoEraName) allCardanoEras
+
+  allCardanoEras :: [AnyCardanoEra]
+  allCardanoEras = enumFrom minBound
+
+  cardanoEraName :: AnyCardanoEra -> String
+  cardanoEraName = map toLower . show . pretty
