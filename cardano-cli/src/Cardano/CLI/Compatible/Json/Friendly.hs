@@ -44,6 +44,7 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
+import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
@@ -188,6 +189,16 @@ friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
                ]
             <> alonzoScriptWitnessPairs era ledgerTx
             <> conwayBodyPairs body
+            <> dijkstraBodyPairs era body
+
+dijkstraBodyPairs
+  :: Exp.Era era
+  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+dijkstraBodyPairs era body = case era of
+  Exp.ConwayEra -> []
+  Exp.DijkstraEra ->
+    ["direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)]
 
 renderCollateralInputs
   :: L.AlonzoEraTxBody (Exp.LedgerEra era)
@@ -480,7 +491,10 @@ friendlyExtraKeyWits keyhashes
   | otherwise = toJSON [PaymentKeyHash (coerceKeyRole kh) | kh <- Set.toList keyhashes]
 
 friendlyWithdrawals :: L.Withdrawals -> Aeson.Value
-friendlyWithdrawals (L.Withdrawals ws)
+friendlyWithdrawals (L.Withdrawals ws) = friendlyAccountAmounts ws
+
+friendlyAccountAmounts :: Map.Map L.AccountAddress Lovelace -> Aeson.Value
+friendlyAccountAmounts ws
   | Map.null ws = Null
   | otherwise =
       array
