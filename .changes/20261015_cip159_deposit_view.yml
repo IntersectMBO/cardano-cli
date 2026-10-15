@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1470
+kind:
+  - bugfix
+description: Show direct-deposit recipients and amounts in Dijkstra transaction JSON and YAML views.
