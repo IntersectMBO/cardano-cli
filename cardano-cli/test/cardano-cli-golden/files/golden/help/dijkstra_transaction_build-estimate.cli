@@ -119,6 +119,7 @@ Usage: cardano-cli dijkstra transaction build-estimate
                                                              )
                                                              --withdrawal-reference-tx-in-execution-units (INT, INT)
                                                            ]]
+                                                         [--direct-deposit STAKE_ADDRESS+LOVELACE]
                                                          [--tx-total-collateral INTEGER]
                                                          [--reference-script-size NATURAL]
                                                          [ --json-metadata-no-schema
@@ -441,6 +442,9 @@ Available options:
                            top-level strings and numbers.
   --withdrawal-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
+  --direct-deposit STAKE_ADDRESS+LOVELACE
+                           Deposit ADA into a registered account. Amount in
+                           lovelace; each account may occur once.
   --tx-total-collateral INTEGER
                            The total amount of collateral that will be collected
                            as fees in the event of a Plutus script failure. Must

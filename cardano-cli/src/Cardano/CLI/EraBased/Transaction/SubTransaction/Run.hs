@@ -98,6 +98,7 @@ runSubTransactionBuildRawCmd
     , mValidityUpperBound
     , certificates
     , withdrawals
+    , directDeposits
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -180,6 +181,7 @@ runSubTransactionBuildRawCmd
           valuesWithScriptWits
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
+          directDeposits
           txAuxScripts
           txMetadata
           votingProceduresAndMaybeScriptWits
@@ -349,6 +351,8 @@ constructSubTx
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Withdrawals
+  -> [(StakeAddress, Lovelace)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
@@ -372,6 +376,7 @@ constructSubTx
   valuesWithScriptWits
   certsAndMaybeScriptWits
   withdrawals
+  directDeposits
   txAuxScripts
   txMetadata
   votingProcedures
@@ -417,6 +422,7 @@ constructSubTx
             TxMetadataNone -> TxMetadata mempty
             TxMetadataInEra _ mDat -> mDat
 
+      validatedDirectDeposits <- convertDirectDeposits directDeposits
       validatedMintValue <- createTxMintValue valuesWithScriptWits
       validatedVotingProcedures <-
         first (TxCmdVotingError . TxVotingError) $
@@ -432,14 +438,15 @@ constructSubTx
             & Exp.setTxMetadata expTxMetadata
             & Exp.setTxAuxScripts auxScripts
             & Exp.setTxWithdrawals (convertWithdrawals withdrawals)
+            & Exp.setTxDirectDeposits validatedDirectDeposits
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
               (Exp.mkTxCertificates Exp.useEra certsAndMaybeScriptWits)
             & Exp.setTxMintValue validatedMintValue
             & Exp.setTxVotingProcedures validatedVotingProcedures
             & Exp.setTxProposalProcedures (Exp.mkTxProposalProcedures txProposals)
-            & maybe id Exp.setTxCurrentTreasuryValue (unTxCurrentTreasuryValue <$> mCurrentTreasury)
-            & maybe id Exp.setTxTreasuryDonation (unTxTreasuryDonation <$> mTreasuryDonation)
+            & maybe id (Exp.setTxCurrentTreasuryValue . unTxCurrentTreasuryValue) mCurrentTreasury
+            & maybe id (Exp.setTxTreasuryDonation . unTxTreasuryDonation) mTreasuryDonation
             & Exp.setTxSupplementalDatums suppDatums
             & Exp.setTxGuards guards
             & Exp.setTxRequiredTopLevelGuards requiredTopLevelGuards

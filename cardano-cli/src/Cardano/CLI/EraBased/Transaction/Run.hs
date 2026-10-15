@@ -148,6 +148,7 @@ runTransactionBuildCmd
     , mValidityUpperBound
     , certificates
     , withdrawals
+    , directDeposits
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -308,6 +309,7 @@ runTransactionBuildCmd
           mValidityUpperBound
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
+          directDeposits
           requiredSigners
           txAuxScripts
           txMetadata
@@ -393,6 +395,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , mValidityUpperBound
     , certificates
     , withdrawals
+    , directDeposits
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -485,6 +488,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           valuesWithScriptWits
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
+          directDeposits
           requiredSigners
           0
           txAuxScripts
@@ -599,6 +603,7 @@ runTransactionBuildRawCmd
     , fee
     , certificates
     , withdrawals
+    , directDeposits
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -688,6 +693,7 @@ runTransactionBuildRawCmd
           valuesWithScriptWits
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
+          directDeposits
           requiredSigners
           txAuxScripts
           txMetadata
@@ -733,6 +739,8 @@ runTxBuildRaw
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(StakeAddress, Lovelace)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -760,6 +768,7 @@ runTxBuildRaw
   valuesWithScriptWits
   certsAndMaybeSriptWits
   withdrawals
+  directDeposits
   reqSigners
   txAuxScripts
   txMetadata
@@ -785,6 +794,7 @@ runTxBuildRaw
         valuesWithScriptWits
         certsAndMaybeSriptWits
         withdrawals
+        directDeposits
         reqSigners
         fee
         txAuxScripts
@@ -826,6 +836,8 @@ constructTxBodyContent
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Withdrawals
+  -> [(StakeAddress, Lovelace)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> Lovelace
@@ -857,6 +869,7 @@ constructTxBodyContent
   valuesWithScriptWits
   certsAndMaybeScriptWits
   withdrawals
+  directDeposits
   reqSigners
   fee
   txAuxScripts
@@ -904,6 +917,7 @@ constructTxBodyContent
             Exp.mkTxProposalProcedures txProposals
       let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue <$> mCurrentTreasury
           validatedTreasuryDonation = unTxTreasuryDonation <$> mTreasuryDonation
+      validatedDirectDeposits <- convertDirectDeposits directDeposits
       let validatedWithdrawals = convertWithdrawals withdrawals
       return
         ( Exp.defaultTxBodyContent
@@ -919,6 +933,7 @@ constructTxBodyContent
             & Exp.setTxMetadata expTxMetadata
             & Exp.setTxAuxScripts auxScripts
             & Exp.setTxWithdrawals validatedWithdrawals
+            & Exp.setTxDirectDeposits validatedDirectDeposits
             & Exp.setTxExtraKeyWits (Exp.TxExtraKeyWitnesses reqSigners)
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
@@ -972,6 +987,8 @@ runTxBuild
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(StakeAddress, Lovelace)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -1001,6 +1018,7 @@ runTxBuild
   mUpperBound
   certsAndMaybeScriptWits
   withdrawals
+  directDeposits
   reqSigners
   txAuxScripts
   txMetadata
@@ -1069,6 +1087,7 @@ runTxBuild
             mintValueWithScriptWits
             certsAndMaybeScriptWits
             withdrawals
+            directDeposits
             reqSigners
             0
             txAuxScripts

@@ -9,6 +9,7 @@ module Cardano.CLI.EraBased.Transaction.Internal.Common
   , getAllReferenceInputs
   , createTxMintValue
   , convertWithdrawals
+  , convertDirectDeposits
   , convertVotingProcedures
   , scriptInEraToSimpleScript
   , partitionSomeWitnesses
@@ -27,6 +28,7 @@ import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError
+import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Hashes (DataHash)
 
 import RIO hiding (toList)
@@ -178,3 +180,13 @@ partitionSomeWitnesses = reversePartitionedWits . Foldable.foldl' go mempty
         (byronWit : byronAcc, shelleyKeyAcc)
       AShelleyKeyWitness shelleyKeyWit ->
         (byronAcc, shelleyKeyWit : shelleyKeyAcc)
+
+-- | Reject duplicate recipients before converting deposits to the ledger map.
+convertDirectDeposits :: [(StakeAddress, Lovelace)] -> Either TxCmdError L.DirectDeposits
+convertDirectDeposits deposits =
+  case [address | address : _ : _ <- List.group (List.sort $ map fst deposits)] of
+    [] ->
+      Right $
+        L.DirectDeposits $
+          Map.fromList [(toShelleyStakeAddr address, amount) | (address, amount) <- deposits]
+    duplicates -> Left $ TxCmdDuplicateDirectDeposits duplicates

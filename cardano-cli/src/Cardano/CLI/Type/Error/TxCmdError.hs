@@ -34,6 +34,7 @@ import Cardano.Prelude qualified as List
 
 import RIO
 
+import Data.Text qualified as Text
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
@@ -86,6 +87,7 @@ data TxCmdError
   | TxCmdSubTxCborError !DecoderError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
+  | TxCmdDuplicateDirectDeposits ![StakeAddress]
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
   | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
@@ -219,6 +221,9 @@ renderTxCmdError = \case
     "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
+  TxCmdDuplicateDirectDeposits addresses ->
+    "Duplicate direct-deposit accounts: "
+      <> pretty (Text.intercalate ", " $ map serialiseAddress addresses)
   TxCmdDuplicateGuards credentials ->
     "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
   TxCmdPlutusGuardMissingRedeemer credential ->
