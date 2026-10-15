@@ -41,3 +41,4 @@ jobs:
           package: ${{ inputs.package }}
           version: ${{ inputs.version }}
           base-branch: ${{ inputs.branch || github.ref_name }}
+          chap-instructions: 'true'
