@@ -4,10 +4,12 @@
 module Cardano.CLI.EraBased.Option
   ( pCmds
   , pAnyEraCommand
+  , MainnetEra
   )
 where
 
 import Cardano.Api.Experimental
+import Cardano.Api.Pretty (prettyShow)
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Command
@@ -28,6 +30,9 @@ import Data.Foldable
 import Data.Maybe
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
+
+-- | The era running on mainnet, used by the latest, top-level node and top-level query commands.
+type MainnetEra = ConwayEra
 
 pCmds :: forall era. IsEra era => EnvCli -> Parser (Cmds era)
 pCmds envCli = do
@@ -59,6 +64,7 @@ pAnyEraCommand envCli =
             Opt.progDesc "Dijkstra era commands"
     , Opt.hsubparser $
         commandWithMetavar "latest" $
-          Opt.info (AnyEraCommandOf ConwayEra <$> pCmds @ConwayEra envCli) $
-            Opt.progDesc "Latest era commands (Conway)"
+          Opt.info (AnyEraCommandOf (useEra @MainnetEra) <$> pCmds @MainnetEra envCli) $
+            Opt.progDesc $
+              "Latest era commands (" <> prettyShow (useEra @MainnetEra) <> ")"
     ]

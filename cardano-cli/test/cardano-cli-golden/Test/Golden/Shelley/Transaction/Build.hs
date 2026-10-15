@@ -83,6 +83,25 @@ hprop_golden_shelley_transaction_build_minting =
     goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-3.json"
     H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
+-- The policy id of a Plutus V4 script is its script hash.
+-- Regression test for https://github.com/IntersectMBO/cardano-cli/issues/1448
+hprop_golden_transaction_policyid_plutus_v4 :: Property
+hprop_golden_transaction_policyid_plutus_v4 =
+  watchdogProp . propertyOnce $ do
+    policyId <-
+      execCardanoCLI
+        [ "latest"
+        , "transaction"
+        , "policyid"
+        , "--script-file"
+        , "test/cardano-cli-golden/files/input/dijkstra/plutus/v4-always-succeeds.plutus"
+        ]
+
+    scriptHash <-
+      H.readFile "test/cardano-cli-golden/files/golden/dijkstra/plutus/v4-always-succeeds.hash"
+
+    equivalence (filter (/= '\n') policyId) scriptHash
+
 hprop_golden_shelley_transaction_build_withdrawal_script_witnessed :: Property
 hprop_golden_shelley_transaction_build_withdrawal_script_witnessed =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do

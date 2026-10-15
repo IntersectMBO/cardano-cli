@@ -1,0 +1,127 @@
+auxiliary scripts: null
+certificates:
+- Stake address registration:
+    deposit: 2000000
+    stake credential:
+      keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
+collateral inputs: []
+currentTreasuryValue: null
+datums:
+- datum: I 24
+  datum hash: df5078aee07dd171a343fb99d5fc1b5462fb3c94d82bf72dc1b77d9c0aceec29
+era: Dijkstra
+fee: 200000 Lovelace
+governance actions:
+- anchor:
+    dataHash: 52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2
+    url: https://example.com
+  deposit: 12345
+  governance action:
+    tag: InfoAction
+  return address:
+    credential:
+      keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+    network: Testnet
+inputs:
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#200
+metadata: null
+mint:
+  policy 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681:
+    default asset: 1000
+outputs:
+- address: addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg
+  address era: Shelley
+  amount:
+    lovelace: 15000000
+  datum: null
+  network: Testnet
+  payment credential key hash: 5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938
+  reference script: null
+  stake reference: null
+redeemers:
+- purpose:
+    spending script witnessed input: fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#200
+  redeemer:
+    data: I 42
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    minting currency with policy id: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
+  redeemer:
+    data: I 42
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    validating certificate with script credentials:
+      credential:
+        keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
+      deposit: 2000000
+      kind: RegCert
+  redeemer:
+    data: I 63
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    withdrawing reward from script address:
+      credential:
+        scriptHash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+      network: Testnet
+  redeemer:
+    data: I 83
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    voting using script protected voter credentials:
+      contents:
+        keyHash: 8f4fefcf28017a57b41517a67d56ef4c0dc04181a11d35178dd53f4c
+      tag: DRepVoter
+  redeemer:
+    data: I 1
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    submitting a proposal following proposal policy:
+      anchor:
+        dataHash: 52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2
+        url: https://example.com
+      deposit: 12345
+      govAction:
+        tag: InfoAction
+      returnAddr:
+        credential:
+          keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+        network: Testnet
+  redeemer:
+    data: I 1
+    execution units:
+      memory: 110
+      steps: 100
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+return collateral: null
+scripts:
+- script data:
+    plutus version: PlutusV4
+    script: '46450101002499'
+    type: plutus
+  script hash: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
+total collateral: null
+treasuryDonation: 0
+validity range:
+  lower bound: null
+  upper bound: null
+voters:
+  drep-keyHash-8f4fefcf28017a57b41517a67d56ef4c0dc04181a11d35178dd53f4c:
+    704e5c60c51dd0f3732991980b273402fbad0581c3407d682f8ea5b808a530fc#0:
+      anchor: null
+      decision: VoteYes
+withdrawals:
+- address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+  amount: 10000 Lovelace
+  network: Testnet
+  stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4

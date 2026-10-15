@@ -8,8 +8,6 @@ module Cardano.CLI.Option
   )
 where
 
-import Cardano.Api.Experimental (ConwayEra)
-
 import Cardano.CLI.Byron.Parser (backwardsCompatibilityCommands, parseByronCommands)
 import Cardano.CLI.Compatible.Option
 import Cardano.CLI.Environment (EnvCli)
@@ -61,14 +59,14 @@ addressCmdsTopLevel envCli = AddressCommand <$> pAddressCmds envCli
 -- The node related commands are shelley era agnostic for the time being.
 -- There is no need to guard them by the era argument.
 nodeCmdsTopLevel :: Parser ClientCommand
-nodeCmdsTopLevel = NodeCommands <$> pNodeCmds @ConwayEra
+nodeCmdsTopLevel = NodeCommands <$> pNodeCmds @MainnetEra
 
 -- Queries actually depend on the node to client version which may coincide
 -- with a hardfork but not necessarily. We will expose commands at the top level
 -- regardless if they are compatible with the era or not. The help text should be
 -- updated to make this clear. Gating commands behind eras
 queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
-queryCmdsTopLevel envCli = QueryCommands @ConwayEra <$> pQueryCmdsTopLevel envCli
+queryCmdsTopLevel envCli = QueryCommands @MainnetEra <$> pQueryCmdsTopLevel envCli
 
 keyCmdsTopLevel :: Parser ClientCommand
 keyCmdsTopLevel = KeyCommands <$> pKeyCmds

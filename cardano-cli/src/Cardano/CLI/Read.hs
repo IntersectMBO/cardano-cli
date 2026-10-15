@@ -16,6 +16,7 @@ module Cardano.CLI.Read
     -- * Script
   , ScriptDecodeError (..)
   , readAnyScript
+  , readAnyScriptHash
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
   , PlutusScriptDecodeError (..)
@@ -199,6 +200,15 @@ readVerificationKeySource extractHash = \case
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
+
+-- | Reads the script in cardano-api's newest era, so every script language decodes.
+-- Returns only the era-independent script hash.
+readAnyScriptHash :: MonadIO m => ScriptFile -> m ScriptHash
+readAnyScriptHash scriptFile =
+  case maxBound of
+    Exp.Some (era :: Exp.Era era) ->
+      Exp.obtainCommonConstraints era $
+        fromShelleyScriptHash . Exp.hashAnyScript <$> readAnyScript @_ @era (unFile scriptFile)
 
 readAnyScript
   :: forall m era

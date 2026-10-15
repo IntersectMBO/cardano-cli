@@ -1530,12 +1530,9 @@ runTransactionPolicyIdCmd
   -> CIO e ()
 runTransactionPolicyIdCmd
   Cmd.TransactionPolicyIdCmdArgs
-    { scriptFile = File sFile
-    } = do
-    script <-
-      readAnyScript @_ @ConwayEra sFile
-    let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
-    liftIO . Text.putStrLn $ serialiseToRawBytesHexText hash
+    { scriptFile
+    } =
+    liftIO . Text.putStrLn . serialiseToRawBytesHexText =<< readAnyScriptHash scriptFile
 
 -- ----------------------------------------------------------------------------
 -- Other misc small commands

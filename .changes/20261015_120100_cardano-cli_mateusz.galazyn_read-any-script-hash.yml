@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1452
+kind:
+  - refactoring
+description: |
+  Add `readAnyScriptHash` to `Cardano.CLI.Read`, which returns the hash of a script file in any script language cardano-api supports, including Plutus V4. Add `MainnetEra` to `Cardano.CLI.EraBased.Option`, the era used by the `latest` command group and the top-level `node` and `query` commands.
