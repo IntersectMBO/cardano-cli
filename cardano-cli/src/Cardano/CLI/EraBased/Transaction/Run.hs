@@ -159,6 +159,8 @@ runTransactionBuildCmd
     , isCborOutCanonical
     , buildOutputOptions
     } = do
+    -- Reject invalid deposits before any node queries, including the network check.
+    void $ fromEitherCli $ convertDirectDeposits directDeposits
     checkNodeNetworkId nodeConnInfo
 
     let eon = convert currentEra

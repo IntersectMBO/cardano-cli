@@ -24,7 +24,7 @@ import System.Exit (ExitCode (..))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 import Test.Cli.Transaction.SubTransaction
@@ -68,7 +68,7 @@ hprop_cip159_direct_deposits_roundtrip =
               Map.fromList $
                 zip (map toShelleyStakeAddr recipients) (map (Coin . snd) deposits)
       Exp.UnsignedSubTx sub <- buildSubTransaction subFile args
-      sub ^. L.bodyTxL . L.directDepositsTxBodyL H.=== expected
+      sub ^. L.bodyTxL . L.directDepositsTxBodyL === expected
       signSubTransaction subFile signingKey signedFile
       void $
         execCardanoCLI $
@@ -77,11 +77,11 @@ hprop_cip159_direct_deposits_roundtrip =
             ++ ["--signed-sub-tx-file", signedFile, "--out-file", outFile]
       ShelleyTx _ tx <- readDijkstraTransaction outFile
       let body = tx ^. L.bodyTxL
-      body ^. L.directDepositsTxBodyL H.=== expected
+      body ^. L.directDepositsTxBodyL === expected
       let nested = toList $ body ^. L.subTransactionsTxBodyL
-      length nested H.=== 1
+      length nested === 1
       forM_ nested $ \child ->
-        child ^. L.bodyTxL . L.directDepositsTxBodyL H.=== expected
+        child ^. L.bodyTxL . L.directDepositsTxBodyL === expected
 
 hprop_cip159_rejects_invalid_direct_deposits :: Property
 hprop_cip159_rejects_invalid_direct_deposits =
@@ -96,15 +96,45 @@ hprop_cip159_rejects_invalid_direct_deposits =
       forM_ invalid $ \args -> do
         H.noteShow_ args
         (exitCode, _, _) <- execDetailCardanoCLI $ base ++ args ++ ["--out-file", outFile]
-        exitCode H.=== ExitFailure 1
-        H.evalIO (doesFileExist outFile) >>= (H.=== False)
+        exitCode === ExitFailure 1
+        H.evalIO (doesFileExist outFile) >>= (=== False)
       (exitCode, _, stderr) <-
         execDetailCardanoCLI $
           base
             ++ ["--direct-deposit", account ++ "+1", "--direct-deposit", account ++ "+2", "--out-file", outFile]
-      exitCode H.=== ExitFailure 1
+      exitCode === ExitFailure 1
       H.assertWith stderr ("Duplicate direct-deposit accounts" `isInfixOf`)
-      H.evalIO (doesFileExist outFile) >>= (H.=== False)
+      H.evalIO (doesFileExist outFile) >>= (=== False)
+
+-- | Invalid arguments must be reported even when the node is unavailable.
+hprop_cip159_build_rejects_duplicate_deposits_before_node_query :: Property
+hprop_cip159_build_rejects_duplicate_deposits_before_node_query =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    outFile <- H.noteTempFile tempDir "unused"
+    socketPath <- H.noteTempFile tempDir "missing.socket"
+    (exitCode, _, stderr) <-
+      execDetailCardanoCLI
+        [ "dijkstra"
+        , "transaction"
+        , "build"
+        , "--testnet-magic"
+        , "42"
+        , "--socket-path"
+        , socketPath
+        , "--tx-in"
+        , txIn
+        , "--change-address"
+        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"
+        , "--direct-deposit"
+        , account ++ "+1"
+        , "--direct-deposit"
+        , account ++ "+2"
+        , "--out-file"
+        , outFile
+        ]
+    exitCode === ExitFailure 1
+    H.assertWith stderr (("Duplicate direct-deposit accounts: " ++ account) `isInfixOf`)
+    H.evalIO (doesFileExist outFile) >>= (=== False)
 
 hprop_cip159_direct_deposit_era_gating :: Property
 hprop_cip159_direct_deposit_era_gating =
@@ -116,7 +146,7 @@ hprop_cip159_direct_deposit_era_gating =
         (exitCode, _, stderr) <-
           execDetailCardanoCLI
             [era, "transaction", command, "--direct-deposit", account ++ "+1", "--out-file", "unused"]
-        exitCode H.=== ExitFailure 1
+        exitCode === ExitFailure 1
         H.assertWith stderr ("Invalid option `--direct-deposit'" `isInfixOf`)
 
 -- | With 100 ADA of inputs and direct deposits of 20 and 30 ADA, build-estimate
@@ -170,10 +200,10 @@ hprop_cip159_build_estimate_deducts_deposits_from_change =
         changeAmount = sum [output ^. L.coinTxOutL | output <- toList $ body ^. L.outputsTxBodyL]
     -- Check that the requested deposit was included in the serialized body.
     body ^. L.directDepositsTxBodyL
-      H.=== L.DirectDeposits (Map.fromList [(address, depositAmount), (otherAddress, otherDepositAmount)])
+      === L.DirectDeposits (Map.fromList [(address, depositAmount), (otherAddress, otherDepositAmount)])
 
     -- Use the fee calculated by build-estimate, since it depends on transaction
     -- size. The remaining change must be 100 ADA - 20 ADA - 30 ADA - that fee.
     H.note_ $ "Estimated fee (lovelace): " ++ show (L.unCoin estimatedFee)
     H.note_ $ "Returned change (lovelace): " ++ show (L.unCoin changeAmount)
-    changeAmount H.=== inputValue - depositAmount - otherDepositAmount - estimatedFee
+    changeAmount === inputValue - depositAmount - otherDepositAmount - estimatedFee
