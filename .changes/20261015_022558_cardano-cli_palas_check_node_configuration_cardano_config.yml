@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1475
+kind:
+- breaking
+description: Command `debug check-node-configuration` now accepts the new node configuration format, decodes every genesis file, and rejects a configuration without genesis hashes (`DebugNodeConfigWrongGenesisHashCmdError` is replaced by `DebugNodeConfigReadCmdError`).

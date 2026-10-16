@@ -75,6 +75,30 @@ jobs:
         f+${{ matrix.sys.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
+    - name: "[macOS] Use the default Xcode's toolchain and SDK"
+      if: runner.os == 'macOS'
+      # The macos-26 image 20261013.0424 updated the Command Line Tools to 27.0, whose
+      # macOS 27 SDK the default Xcode's linker cannot read ("tapi error: malformed file",
+      # "unknown architecture arm64e.x1-macos"). Builds still reach that SDK through
+      # the Command Line Tools' MacOSX.sdk link even with SDKROOT set, so point that
+      # link at the default Xcode's SDK too. Remove once the image's toolchain and
+      # SDK match again.
+      run: |
+        developer_dir=/Applications/Xcode.app/Contents/Developer
+        sdkroot="$(DEVELOPER_DIR="$developer_dir" xcrun --sdk macosx --show-sdk-path)"
+        echo "DEVELOPER_DIR=$developer_dir" >> "$GITHUB_ENV"
+        echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+        echo "xcode-select -p: $(xcode-select -p)"
+        echo "Using DEVELOPER_DIR=$developer_dir SDKROOT=$sdkroot"
+        DEVELOPER_DIR="$developer_dir" xcrun ld -v 2>&1 | head -1
+        clt_sdk=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+        ls -l /Library/Developer/CommandLineTools/SDKs/
+        if [ -e "$clt_sdk" ] || [ -L "$clt_sdk" ]; then
+          sudo mv "$clt_sdk" "$clt_sdk.ci-original"
+        fi
+        sudo ln -s "$sdkroot" "$clt_sdk"
+        echo "$clt_sdk -> $(readlink "$clt_sdk")"
+
     - name: Install Haskell
       uses: input-output-hk/actions/haskell@latest
       id: setup-haskell
