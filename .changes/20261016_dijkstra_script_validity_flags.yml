@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1474
+kind:
+  - breaking
+description: Remove --script-valid and --script-invalid from Dijkstra transaction build, build-raw and build-estimate in preparation for CIP-0167; retain both options for Conway.
