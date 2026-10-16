@@ -1,5 +1,31 @@
 # Changelog for cardano-cli
 
+## 11.4.0.0 -- 2026-10-16
+
+- Remove --script-valid and --script-invalid from Dijkstra transaction build, build-raw and build-estimate in preparation for CIP-0167; retain both options for Conway.
+  (breaking)
+  [PR 1474](https://github.com/intersectmbo/cardano-cli/pull/1474)
+
+- Add --direct-deposit STAKE_ADDRESS+LOVELACE to Dijkstra transaction build, build-raw and build-estimate, and sub-transaction build-raw, to deposit ADA into registered accounts. Reject duplicate recipients and include deposits in automatic fee balancing.
+  (feature)
+  [PR 1469](https://github.com/intersectmbo/cardano-cli/pull/1469)
+
+- `CARDANO_ERA` now accepts every era cardano-api supports, including `dijkstra`, in any letter case, and an unknown value stops the command with an error that lists the valid eras.
+  (bugfix)
+  [PR 1452](https://github.com/intersectmbo/cardano-cli/pull/1452)
+
+- `transaction policyid` and `address build` with `--payment-script-file` or `--stake-script-file` now accept Plutus V4 scripts, instead of failing with "Plutus language PlutusScriptV4 is not supported in the Conway era". They also accept simple scripts with a `guard`, which used to crash them.
+  (bugfix)
+  [PR 1452](https://github.com/intersectmbo/cardano-cli/pull/1452)
+
+- A transaction output whose reference script is written in a Plutus language not supported by the transaction's era now makes the command fail with a clear error, instead of silently building the transaction with that reference script dropped from the output.
+  (bugfix)
+  [PR 1452](https://github.com/intersectmbo/cardano-cli/pull/1452)
+
+- Add a repeatable `--tx-in-collateral` option to `compatible transaction signed-transaction`, available from the Alonzo era onwards, so transactions with Plutus witnesses can include collateral inputs.
+  (feature)
+  [PR 1408](https://github.com/intersectmbo/cardano-cli/pull/1408)
+
 ## 11.3.1.0 -- 2026-10-14
 
 - `genesis create-testnet-data` now lists `--spec-dijkstra` in its help (it was hidden before). It takes a Dijkstra genesis file to start from, like `--spec-conway` does for Conway.

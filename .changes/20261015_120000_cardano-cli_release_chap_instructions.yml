@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1468
-kind:
-  - maintenance
-description: |
-  Include CHaP submission instructions in release PR descriptions
