@@ -105,29 +105,23 @@ source-repository-package
     libs/small-steps
     libs/vector-map
 
--- cardano-api 11.9 uses guard and stake distribution accessors changed by the ledger SRP.
--- Keep this temporary substitution in sync with cardano-api.postPatch in flake.nix.
+-- Temporary cardano-api compatibility branch: srp/cardano-ledger-6189
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: 79d1fd050d131127e3d976208d1654c8e097eee6
-  --sha256: 009cbk7vjy07b1gg54rh3kxgh02s6513f51j8aa3lxmxp4rkx0j3
+  tag: 326a8f02df4ff1bb8a862aba23ed7e0cbe40a32c
+  --sha256: 0gn5ad80qp7i5bvyjrsqrm2hq6ifmvcjhnzf6yys30286y94km5l
   subdir: cardano-api
-  post-checkout-command: sh -ec "sed -i.bak s/requiredTopLevelGuardsL/requiredTopLevelGuardsTxBodyL/g cardano-api/src/Cardano/Api/Experimental/Tx/Internal/BodyContent.hs cardano-api/src/Cardano/Api/Experimental/Tx/Internal/SubTransaction.hs cardano-api/test/cardano-api-test/Test/Cardano/Api/Experimental.hs; sed -i.bak -e 's/^import Data.Aeson qualified as Aeson$/import Data.Aeson qualified as Aeson; import Lens.Micro ((^.))/' -e 's|^import Cardano.Ledger.Shelley.API qualified as Shelley$|import Cardano.Ledger.Shelley.API qualified as Shelley; import Cardano.Ledger.Shelley.LedgerState qualified as Shelley (nesStakePoolDistrG)|' -e 's/Shelley.nesPd newEpochS/newEpochS ^. Shelley.nesStakePoolDistrG/' cardano-api/src/Cardano/Api/Query/Internal/Type/DebugLedgerState.hs"
 
--- Adapt the released consensus package to the ledger's new stake distribution getter.
--- Keep these substitutions in sync with ouroboros-consensus.postPatch in flake.nix.
+-- Temporary ouroboros-consensus compatibility branch: srp/cardano-ledger-6189
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus
-  tag: 4ab9e25069c24be341fb96887a416443f822d01c
-  --sha256: 01rgxx962d5vmdd4l69g0z5dxi51c21mj32406x9ldclmc6i9r5r
-  post-checkout-command: sh -ec "sed -i.bak 's/nesPd \\./view SL.nesStakePoolDistrG ./g' ouroboros-consensus-cardano/src/shelley/Ouroboros/Consensus/Shelley/Ledger/Ledger.hs; sed -i.bak -e 's|^import qualified Cardano.Ledger.Shelley.API as SL$|import qualified Cardano.Ledger.Shelley.API as SL; import qualified Cardano.Ledger.Shelley.LedgerState as SL (nesStakePoolDistrG)|' -e 's/SL.NewEpochState{nesPd} = nes/nesPd = nes Lens.Micro.^. SL.nesStakePoolDistrG/' ouroboros-consensus-cardano/src/shelley/Ouroboros/Consensus/Shelley/Ledger/SupportsProtocol.hs; sed -i.bak -e 's/seedInitialStakeSnapshots maxKeyAge trigger/seedInitialStakeSnapshots _maxKeyAge trigger/' -e 's/mkSetSnapShot (ss ^. ssStakeMarkL) maxKeyAge/mkSetSnapShot (ss ^. ssStakeMarkL)/' ouroboros-consensus-cardano/src/ouroboros-consensus-cardano/Ouroboros/Consensus/Cardano/Node.hs"
+  tag: 7ef5dc2474d42eeccc8244c9d2a5379ea2405df7
+  --sha256: 073rxsv3p5wr9n6kj4hbksa5mirmkpxasayv6h221v1frswp0mr7
 
 allow-newer:
   -- Temporary ledger SRP versions exceed the bounds in these released packages.
-  , cardano-api:cardano-ledger-api
-  , cardano-api:cardano-protocol
   , cardano-config:cardano-ledger-alonzo
   , cardano-config:cardano-ledger-conway
   , cardano-config:cardano-ledger-core
@@ -136,14 +130,6 @@ allow-newer:
   , cardano-keys:cardano-ledger-core
   , cardano-keys:cardano-ledger-shelley
   , cardano-keys:cardano-protocol
-  , ouroboros-consensus:cardano-ledger-alonzo
-  , ouroboros-consensus:cardano-ledger-api
-  , ouroboros-consensus:cardano-ledger-conway
-  , ouroboros-consensus:cardano-ledger-core
-  , ouroboros-consensus:cardano-ledger-dijkstra
-  , ouroboros-consensus:cardano-ledger-mary
-  , ouroboros-consensus:cardano-ledger-shelley
-  , ouroboros-consensus:cardano-protocol
   -- Allow network-mux 0.11 from SRP (cardano-ping 0.10 on CHaP expects ^>=0.10)
   , cardano-ping:network-mux
   -- Allow grapesy deps with updated bounds (matching cardano-node)
