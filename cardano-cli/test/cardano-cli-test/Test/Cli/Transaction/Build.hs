@@ -5,6 +5,7 @@ module Test.Cli.Transaction.Build where
 import Cardano.Api
 import Cardano.Api.Ledger (hashToBytes)
 
+import Control.Monad (forM_)
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Base16 qualified as Base16
 import Data.List (isInfixOf)
@@ -28,6 +29,21 @@ import Hedgehog.Range qualified as Range
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/shelley/transaction"
+
+-- | Script validity is no longer supplied by the transaction author in Dijkstra.
+hprop_transaction_script_validity_era_gating :: Property
+hprop_transaction_script_validity_era_gating =
+  watchdogProp . propertyOnce $ do
+    forM_ ["build", "build-raw", "build-estimate"] $ \command -> do
+      forM_ ["--script-valid", "--script-invalid"] $ \flag -> do
+        (exitCode, _, stderr) <-
+          execDetailCardanoCLI ["dijkstra", "transaction", command, flag]
+        exitCode === ExitFailure 1
+        H.assertWith stderr (("Invalid option `" ++ flag ++ "'") `isInfixOf`)
+      forM_ ["conway", "latest"] $ \era -> do
+        help <- execCardanoCLI [era, "transaction", command, "--help"]
+        forM_ ["--script-valid", "--script-invalid"] $ \flag ->
+          H.assertWith help (flag `isInfixOf`)
 
 -- | This is a test of https://github.com/IntersectMBO/cardano-cli/issues/662
 -- Execute me with:

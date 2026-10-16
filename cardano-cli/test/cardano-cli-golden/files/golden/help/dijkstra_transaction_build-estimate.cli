@@ -1,8 +1,4 @@
-Usage: cardano-cli dijkstra transaction build-estimate 
-                                                         [ --script-valid
-                                                         | --script-invalid
-                                                         ]
-                                                         --shelley-key-witnesses INT
+Usage: cardano-cli dijkstra transaction build-estimate --shelley-key-witnesses INT
                                                          [--byron-key-witnesses Int]
                                                          --protocol-params-file FILEPATH
                                                          --total-utxo-value VALUE
@@ -176,10 +172,6 @@ Usage: cardano-cli dijkstra transaction build-estimate
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Available options:
-  --script-valid           Assertion that the script is valid. (default)
-  --script-invalid         Assertion that the script is invalid. If a
-                           transaction is submitted with such a script, the
-                           script will fail and the collateral will be taken.
   --shelley-key-witnesses INT
                            Specify the number of Shelley key witnesses the
                            transaction requires.

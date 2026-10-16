@@ -144,25 +144,30 @@ pSignWitnessBackwardCompatible =
   Opt.subparser $
     Opt.command "sign-witness" assembleInfo <> Opt.internal
 
-pScriptValidity :: Parser ScriptValidity
-pScriptValidity =
-  asum
-    [ Opt.flag' ScriptValid $
-        mconcat
-          [ Opt.long "script-valid"
-          , Opt.help "Assertion that the script is valid. (default)"
-          ]
-    , Opt.flag' ScriptInvalid $
-        mconcat
-          [ Opt.long "script-invalid"
-          , Opt.help $
-              mconcat
-                [ "Assertion that the script is invalid.  "
-                , "If a transaction is submitted with such a script, "
-                , "the script will fail and the collateral will be taken."
-                ]
-          ]
-    ]
+pScriptValidity :: Exp.Era era -> Parser (Maybe ScriptValidity)
+pScriptValidity era' = case era' of
+  -- CIP-0167 removes the author-supplied validity flag from standalone transactions:
+  -- https://github.com/cardano-foundation/CIPs/tree/master/CIP-0167
+  Exp.DijkstraEra -> pure Nothing
+  Exp.ConwayEra ->
+    optional $
+      asum
+        [ Opt.flag' ScriptValid $
+            mconcat
+              [ Opt.long "script-valid"
+              , Opt.help "Assertion that the script is valid. (default)"
+              ]
+        , Opt.flag' ScriptInvalid $
+            mconcat
+              [ Opt.long "script-invalid"
+              , Opt.help $
+                  mconcat
+                    [ "Assertion that the script is invalid.  "
+                    , "If a transaction is submitted with such a script, "
+                    , "the script will fail and the collateral will be taken."
+                    ]
+              ]
+        ]
 
 pTransactionBuildCmd
   :: forall era. Exp.IsEra era => EnvCli -> Maybe (Parser (TransactionCmds era))
@@ -195,7 +200,7 @@ pTransactionBuildCmd envCli = do
                 <*> pNetworkId envCli
                 <*> pSocketPath envCli
             )
-        <*> optional pScriptValidity
+        <*> pScriptValidity (Exp.useEra @era)
         <*> optional pWitnessOverride
         <*> some (pTxInForEra (Exp.useEra @era) AutoBalance)
         <*> many pReadOnlyReferenceTxIn
@@ -256,7 +261,7 @@ pTransactionBuildEstimateCmd _envCli = do
   pCmd = do
     fmap TransactionBuildEstimateCmd $
       TransactionBuildEstimateCmdArgs Exp.useEra
-        <$> optional pScriptValidity
+        <$> pScriptValidity (Exp.useEra @era)
         <*> pNumberOfShelleyKeyWitnesses
         <*> optional pNumberOfByronKeyWitnesses
         <*> pProtocolParamsFile
@@ -305,7 +310,7 @@ pTransactionBuildRaw :: forall era. Exp.IsEra era => Parser (TransactionCmds era
 pTransactionBuildRaw =
   fmap TransactionBuildRawCmd $
     TransactionBuildRawCmdArgs Exp.useEra
-      <$> optional pScriptValidity
+      <$> pScriptValidity (Exp.useEra @era)
       <*> some (pTxInForEra (Exp.useEra @era) ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
