@@ -5528,6 +5528,17 @@ Usage: cardano-cli dijkstra transaction build-raw (--tx-in TX_IN
                                                     [ --required-signer FILEPATH
                                                     | --required-signer-hash HASH
                                                     ]
+                                                    [
+                                                      ( --guard-script-file FILEPATH
+                                                      | --guard-tx-in-reference TX_IN
+                                                        --guard-script-hash HASH
+                                                      )
+                                                      [
+                                                        ( --guard-redeemer-cbor-file CBOR_FILE
+                                                        | --guard-redeemer-file JSON_FILE
+                                                        | --guard-redeemer-value JSON_VALUE
+                                                        )
+                                                        --guard-execution-units (INT, INT)]]
                                                     [--tx-out ADDRESS VALUE
                                                       [ --tx-out-datum-hash HASH
                                                       | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -5700,6 +5711,15 @@ Usage: cardano-cli dijkstra transaction build
                                                 [ --required-signer FILEPATH
                                                 | --required-signer-hash HASH
                                                 ]
+                                                [
+                                                  ( --guard-script-file FILEPATH
+                                                  | --guard-tx-in-reference TX_IN
+                                                    --guard-script-hash HASH
+                                                  )
+                                                  [ --guard-redeemer-cbor-file CBOR_FILE
+                                                  | --guard-redeemer-file JSON_FILE
+                                                  | --guard-redeemer-value JSON_VALUE
+                                                  ]]
                                                 [--tx-in-collateral TX_IN]
                                                 [--tx-out-return-collateral ADDRESS VALUE]
                                                 [--tx-total-collateral INTEGER]
@@ -5858,6 +5878,17 @@ Usage: cardano-cli dijkstra transaction build-estimate --shelley-key-witnesses I
                                                          [ --required-signer FILEPATH
                                                          | --required-signer-hash HASH
                                                          ]
+                                                         [
+                                                           ( --guard-script-file FILEPATH
+                                                           | --guard-tx-in-reference TX_IN
+                                                             --guard-script-hash HASH
+                                                           )
+                                                           [
+                                                             ( --guard-redeemer-cbor-file CBOR_FILE
+                                                             | --guard-redeemer-file JSON_FILE
+                                                             | --guard-redeemer-value JSON_VALUE
+                                                             )
+                                                             --guard-execution-units (INT, INT)]]
                                                          [--tx-in-collateral TX_IN]
                                                          [--tx-out-return-collateral ADDRESS VALUE]
                                                          [--tx-out ADDRESS VALUE

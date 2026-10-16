@@ -87,6 +87,7 @@ data TxCmdError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
   | TxCmdDuplicateDirectDeposits ![StakeAddress]
+  | TxCmdGuardScriptsNotSupported
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
   | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
@@ -223,12 +224,13 @@ renderTxCmdError = \case
   TxCmdDuplicateDirectDeposits addresses ->
     "Duplicate direct-deposit accounts: "
       <> hsep (map (pretty . serialiseAddress) addresses)
+  TxCmdGuardScriptsNotSupported -> "Script guards require the Dijkstra era."
   TxCmdDuplicateGuards credentials ->
     "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
   TxCmdPlutusGuardMissingRedeemer credential ->
     "Plutus guard "
       <> pretty (L.credToText credential)
-      <> " requires --guard-redeemer-* and --guard-execution-units."
+      <> " requires --guard-redeemer-* and --guard-execution-units (transaction build calculates execution units automatically)."
   TxCmdNativeGuardWithRedeemer credential ->
     "Native script guard "
       <> pretty (L.credToText credential)

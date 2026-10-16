@@ -15,6 +15,7 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraBased.Script.Guard.Option
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.EraBased.Transaction.SubTransaction.Option
 import Cardano.CLI.Option.Flag
@@ -205,6 +206,7 @@ pTransactionBuildCmd envCli = do
         <*> some (pTxInForEra (Exp.useEra @era) AutoBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
+        <*> pGuardScriptWitnesses (Exp.useEra @era) AutoBalance
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> optional pTotalCollateral
@@ -269,6 +271,7 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> some (pTxInForEra (Exp.useEra @era) ManualBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
+        <*> pGuardScriptWitnesses (Exp.useEra @era) ManualBalance
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> many pTxOut
@@ -317,6 +320,7 @@ pTransactionBuildRaw =
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
+      <*> pGuardScriptWitnesses (Exp.useEra @era) ManualBalance
       <*> many pTxOut
       <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
       <*> optional pInvalidBefore
