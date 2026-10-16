@@ -5,9 +5,6 @@ Usage: cardano-cli dijkstra transaction build
                                                 | --testnet-magic NATURAL
                                                 )
                                                 --socket-path SOCKET_PATH
-                                                [ --script-valid
-                                                | --script-invalid
-                                                ]
                                                 [--witness-override WORD]
                                                 (--tx-in TX_IN
                                                   [ --spending-tx-in-reference TX_IN
@@ -175,10 +172,6 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
-  --script-valid           Assertion that the script is valid. (default)
-  --script-invalid         Assertion that the script is invalid. If a
-                           transaction is submitted with such a script, the
-                           script will fail and the collateral will be taken.
   --witness-override WORD  Specify and override the number of witnesses the
                            transaction requires.
   --tx-in TX_IN            TxId#TxIx
