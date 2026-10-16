@@ -5,6 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Compatible.Transaction.Run
   ( runCompatibleTransactionCmd
@@ -32,13 +33,18 @@ import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Transaction.Run
+import Cardano.CLI.EraBased.Transaction.Internal.Common (partitionSomeWitnesses)
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.ProtocolParamsError
 
 import Control.Monad
+import Data.Aeson qualified as Aeson
+import Data.Bifunctor (first)
 import Data.Map.Ordered.Strict qualified as OMap
 import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe)
+import Data.Text qualified as Text
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -49,14 +55,16 @@ runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
       sbe
       ins
+      insCollateral
       outs
       mUpdateProposal
-      mProposalProcedure
+      proposals
       mVotes
       witnesses
       mNetworkId
       fee
       certificates
+      mProtocolParamsFile
       outputFp
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
@@ -79,36 +87,47 @@ runCompatibleTransactionCmd
 
     (protocolUpdates, votes) :: (AnyProtocolUpdate era, AnyVote era) <-
       inEonForShelleyBasedEra
-        ( case mUpdateProposal of
-            Nothing -> return (NoPParamsUpdate sbe, NoVotes)
-            Just p -> do
-              pparamUpdate <- readUpdateProposalFile p
-              return (pparamUpdate, NoVotes)
+        ( do
+            pparamUpdate <-
+              fromMaybe (NoPParamsUpdate sbe) <$> forM mUpdateProposal (readUpdateProposalFile sbe)
+            return (pparamUpdate, NoVotes)
         )
-        ( \w ->
-            case mProposalProcedure of
-              Nothing -> return (NoPParamsUpdate sbe, NoVotes)
-              Just prop -> do
-                pparamUpdate <- readProposalProcedureFile prop
-                votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
-                  obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
-                votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
-                  obtainCommonConstraints (convert w) $
-                    fromEitherCli
-                      ( Exp.mkTxVotingProcedures
-                          [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
-                          | (vp, anyW) <- votesAndWits
-                          ]
-                      )
-                return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
+        ( \w -> do
+            pparamUpdate <- readProposalProcedureFile sbe proposals
+            votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
+              obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
+            votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
+              obtainCommonConstraints (convert w) $
+                fromEitherCli
+                  ( Exp.mkTxVotingProcedures
+                      [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
+                      | (vp, anyW) <- votesAndWits
+                      ]
+                  )
+            return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
         )
         sbe
 
     let txCerts = mkTxCertificatesSbe sbe certsAndMaybeScriptWits
 
+    pparams <- forM mProtocolParamsFile $ \(ProtocolParamsFile path) -> do
+      bytes <- readFileCli path
+      fromEitherCli $ first (ProtocolParamsErrorJSON path . Text.pack) $ Aeson.eitherDecodeStrict' bytes
+
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
-        createCompatibleTx sbe ins allOuts extraDatums fee protocolUpdates votes txCerts
+        createCompatibleTx sbe $
+          (defaultCompatibleTxBodyContent sbe)
+            { compatibleTxIns = [(txIn, Exp.AnyKeyWitnessPlaceholder) | txIn <- ins]
+            , compatibleTxOuts = allOuts
+            , compatibleTxSupplementalDatums = extraDatums
+            , compatibleTxFee = fee
+            , compatibleTxProtocolUpdate = protocolUpdates
+            , compatibleTxVotingProcedures = votes
+            , compatibleTxCertificates = txCerts
+            , compatibleTxInsCollateral = insCollateral
+            , compatibleTxProtocolParams = pparams
+            }
 
     let txBody = ledgerTx ^. L.bodyTxL
 
@@ -216,31 +235,49 @@ mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map attachW
     (c, wit <$ Compatible.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
-  :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
+  :: forall e era
+   . ShelleyBasedEra era
+  -> UpdateProposalFile
   -> CIO e (AnyProtocolUpdate era)
-readUpdateProposalFile (Featured sToB Nothing) =
-  return $ NoPParamsUpdate $ convert sToB
-readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
-  prop <-
-    fromExceptTCli $ readTxUpdateProposal sToB updateProposalFile
-  case prop of
-    TxUpdateProposalNone -> return $ NoPParamsUpdate $ convert sToB
-    TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
+readUpdateProposalFile sbe (UpdateProposalFile file) =
+  case sbe of
+    ShelleyBasedEraShelley -> ProtocolUpdate ShelleyToBabbageEraShelley <$> readUpdateProposal
+    ShelleyBasedEraAllegra -> ProtocolUpdate ShelleyToBabbageEraAllegra <$> readUpdateProposal
+    ShelleyBasedEraMary -> ProtocolUpdate ShelleyToBabbageEraMary <$> readUpdateProposal
+    ShelleyBasedEraAlonzo -> ProtocolUpdate ShelleyToBabbageEraAlonzo <$> readUpdateProposal
+    ShelleyBasedEraBabbage -> ProtocolUpdate ShelleyToBabbageEraBabbage <$> readUpdateProposal
+    ShelleyBasedEraConway -> pure $ NoPParamsUpdate sbe
+    ShelleyBasedEraDijkstra -> pure $ NoPParamsUpdate sbe
+ where
+  readUpdateProposal :: CIO e (UpdateProposal era)
+  readUpdateProposal =
+    fromEitherIOCli @(FileError TextEnvelopeError) $
+      shelleyBasedEraConstraints sbe $
+        readFileTextEnvelope (File file)
 
 readProposalProcedureFile
   :: forall e era
-   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe AnyNonAssetScript)]
+   . ShelleyBasedEra era
+  -> [(ProposalFile In, Maybe AnyNonAssetScript)]
   -> CIO e (AnyProtocolUpdate era)
-readProposalProcedureFile (Featured cEraOnwards []) =
-  let sbe = convert cEraOnwards
-   in return $ NoPParamsUpdate sbe
-readProposalProcedureFile (Featured cEraOnwards proposals) = do
-  let era = convert cEraOnwards
-  props :: [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))] <-
-    Exp.obtainCommonConstraints era $ mapM readProposal proposals
-
-  return $
-    Exp.obtainCommonConstraints era $
-      ProposalProcedures cEraOnwards $
-        Exp.mkTxProposalProcedures
-          [(govProp, swit) | (Proposal govProp, swit) <- props]
+readProposalProcedureFile sbe [] = return $ NoPParamsUpdate sbe
+readProposalProcedureFile sbe proposals =
+  case sbe of
+    ShelleyBasedEraShelley -> return $ NoPParamsUpdate sbe
+    ShelleyBasedEraAllegra -> return $ NoPParamsUpdate sbe
+    ShelleyBasedEraMary -> return $ NoPParamsUpdate sbe
+    ShelleyBasedEraAlonzo -> return $ NoPParamsUpdate sbe
+    ShelleyBasedEraBabbage -> return $ NoPParamsUpdate sbe
+    ShelleyBasedEraConway -> ProposalProcedures ConwayEraOnwardsConway <$> readProcedures
+    ShelleyBasedEraDijkstra -> ProposalProcedures ConwayEraOnwardsDijkstra <$> readProcedures
+ where
+  readProcedures
+    :: forall era'
+     . Exp.IsEra era'
+    => CIO e (Exp.TxProposalProcedures (ShelleyLedgerEra era'))
+  readProcedures = Exp.obtainCommonConstraints (Exp.useEra @era') $ do
+    props :: [(Proposal era', Exp.AnyWitness (Exp.LedgerEra era'))] <-
+      mapM readProposal proposals
+    pure $
+      Exp.mkTxProposalProcedures
+        [(govProp, swit) | (Proposal govProp, swit) <- props]

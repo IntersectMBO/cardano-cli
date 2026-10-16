@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1452
+kind:
+  - bugfix
+description: |
+  `CARDANO_ERA` now accepts every era cardano-api supports, including `dijkstra`, in any letter case, and an unknown value stops the command with an error that lists the valid eras.

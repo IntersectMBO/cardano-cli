@@ -24,11 +24,11 @@ data CompatibleTransactionCmds era
   = CreateCompatibleSignedTransaction
       (ShelleyBasedEra era)
       [TxIn]
+      [TxIn]
+      -- ^ Collateral inputs
       [TxOutAnyEra]
-      !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-      !( Maybe
-           (Featured ConwayEraOnwards era [(ProposalFile In, Maybe AnyNonAssetScript)])
-       )
+      !(Maybe UpdateProposalFile)
+      ![(ProposalFile In, Maybe AnyNonAssetScript)]
       ![(VoteFile In, Maybe AnyNonAssetScript)]
       [WitnessSigningData]
       -- ^ Signing keys
@@ -37,6 +37,7 @@ data CompatibleTransactionCmds era
       -- ^ Tx fee
       ![(CertificateFile, Maybe AnyNonAssetScript)]
       -- ^ stake registering certs
+      !(Maybe ProtocolParamsFile)
       !(File () Out)
 
 renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text

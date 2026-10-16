@@ -365,4 +365,4 @@ watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog
  where
   -- Windows tests run under Wine emulation on Hydra and are much slower,
   -- so give them a longer timeout
-  cfg = H.WatchdogConfig{H.watchdogTimeout = if isWin32 then 35 else 20}
+  cfg = H.WatchdogConfig{H.watchdogTimeout = if isWin32 then 90 else 20}

@@ -16,6 +16,7 @@ module Cardano.CLI.Read
     -- * Script
   , ScriptDecodeError (..)
   , readAnyScript
+  , readAnyScriptHash
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
   , PlutusScriptDecodeError (..)
@@ -29,6 +30,10 @@ module Cardano.CLI.Read
   , readFileTx
   , readFileTxBody
   , readTx -- For testing purposes
+
+    -- * Sub-transactions
+  , readFileUnsignedSubTx
+  , readFileSignedSubTx
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -74,9 +79,6 @@ module Cardano.CLI.Read
   , readHexAsSafeHash
   , readSafeHash
   , scriptHashReader
-
-    -- * Update proposals
-  , readTxUpdateProposal
 
     -- * Vote related
   , readVoteDelegationTarget
@@ -199,6 +201,15 @@ readVerificationKeySource extractHash = \case
   VksKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
 
+-- | Reads the script in cardano-api's newest era, so every script language decodes.
+-- Returns only the era-independent script hash.
+readAnyScriptHash :: MonadIO m => ScriptFile -> m ScriptHash
+readAnyScriptHash scriptFile =
+  case maxBound of
+    Exp.Some (era :: Exp.Era era) ->
+      Exp.obtainCommonConstraints era $
+        fromShelleyScriptHash . Exp.hashAnyScript <$> readAnyScript @_ @era (unFile scriptFile)
+
 readAnyScript
   :: forall m era
    . (MonadIO m, Exp.IsEra era)
@@ -215,7 +226,8 @@ readAnyScript anyScriptFp = do
         Left err -> throwCliError err
         Right script ->
           case Exp.useEra @era of
-            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+            Exp.DijkstraEra ->
+              pure . Exp.AnySimpleScript . Exp.SimpleScript $ toDijkstraNativeScript script
             era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
               let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
               return . Exp.AnySimpleScript $ Exp.SimpleScript s
@@ -333,6 +345,18 @@ fromSomeShelleyTx =
  where
   makeTxProxy :: HasTypeProxy era => ShelleyBasedEra era -> AsType (Tx era)
   makeTxProxy _ = AsTx (proxyToAsType (Proxy :: Proxy era))
+
+-- Sub-transactions
+
+-- Sub-transactions only exist in Dijkstra, so the envelope type fixes the era.
+
+readFileUnsignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.UnsignedSubTx)
+readFileUnsignedSubTx =
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsUnsignedSubTx id]
+
+readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.SignedSubTx)
+readFileSignedSubTx =
+  readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
 
 -- Tx witnesses
 
@@ -568,15 +592,6 @@ instance Error VoteError where
   prettyError = \case
     VoteErrorFile e ->
       prettyError e
-
-readTxUpdateProposal
-  :: ()
-  => ShelleyToBabbageEra era
-  -> UpdateProposalFile
-  -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
-readTxUpdateProposal w (UpdateProposalFile upFp) = do
-  TxUpdateProposal w
-    <$> newExceptT (shelleyBasedEraConstraints (convert w) $ readFileTextEnvelope (File upFp))
 
 newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException

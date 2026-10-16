@@ -17,14 +17,12 @@ module Cardano.CLI.EraIndependent.Address.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental.AnyScript qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Info.Run
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Read
-import Cardano.CLI.Read qualified as Exp
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.AddressCmdError
 import Cardano.CLI.Type.Key
@@ -40,6 +38,7 @@ import Cardano.CLI.Type.Key
 import Control.Monad (void)
 import Data.ByteString.Char8 qualified as BS
 import Data.Function
+import Data.Maybe (fromMaybe)
 import Data.Text.IO qualified as Text
 import Vary (Vary)
 import Vary qualified
@@ -206,15 +205,11 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
         nonPaymentKey ->
           throwCliError $ AddressCmdExpectedPaymentVerificationKey nonPaymentKey
       return $ serialiseAddress (addr :: AddressAny)
-    PaymentVerifierScriptFile (File fp) -> do
-      script <-
-        readAnyScript @_ @ConwayEra fp
-
-      let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
-          payCred = PaymentCredentialByScript hash
+    PaymentVerifierScriptFile scriptFile -> do
+      payCred <- PaymentCredentialByScript <$> readAnyScriptHash scriptFile
 
       stakeAddressReference <-
-        maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
+        fromMaybe NoStakeAddress <$> traverse makeStakeAddressRef mbStakeVerifier
 
       return $ serialiseAddress . makeShelleyAddress nw payCred $ stakeAddressReference
 
@@ -233,14 +228,8 @@ makeStakeAddressRef stakeIdentifier =
           stakeVKeyHash <-
             readVerificationKeyOrHashOrFile stkVkeyOrFile
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
-        StakeVerifierScriptFile (File fp) -> do
-          script <-
-            Exp.readAnyScript @_ @ConwayEra fp
-
-          let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
-              stakeCred = StakeCredentialByScript hash
-
-          return (StakeAddressByValue stakeCred)
+        StakeVerifierScriptFile scriptFile ->
+          StakeAddressByValue . StakeCredentialByScript <$> readAnyScriptHash scriptFile
     StakeIdentifierAddress stakeAddr ->
       pure $ StakeAddressByValue $ stakeAddressCredential stakeAddr
 
@@ -251,4 +240,5 @@ buildShelleyAddress
   -> CIO e (Address ShelleyAddr)
 buildShelleyAddress vkey mbStakeVerifier nw =
   makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey))
-    <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
+    . fromMaybe NoStakeAddress
+    <$> traverse makeStakeAddressRef mbStakeVerifier
