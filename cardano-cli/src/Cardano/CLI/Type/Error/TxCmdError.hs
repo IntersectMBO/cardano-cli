@@ -34,7 +34,6 @@ import Cardano.Prelude qualified as List
 
 import RIO
 
-import Data.Text qualified as Text
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
@@ -223,7 +222,7 @@ renderTxCmdError = \case
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
   TxCmdDuplicateDirectDeposits addresses ->
     "Duplicate direct-deposit accounts: "
-      <> pretty (Text.intercalate ", " $ map serialiseAddress addresses)
+      <> hsep (map (pretty . serialiseAddress) addresses)
   TxCmdDuplicateGuards credentials ->
     "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
   TxCmdPlutusGuardMissingRedeemer credential ->

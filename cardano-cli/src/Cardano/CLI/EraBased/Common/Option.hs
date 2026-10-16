@@ -380,6 +380,9 @@ parseLovelace = do
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
     else return $ L.Coin i
 
+parseStakeAddressAndLovelace :: P.Parser (StakeAddress, Lovelace)
+parseStakeAddressAndLovelace = (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
+
 parseCoinPerByte :: P.Parser L.CoinPerByte
 parseCoinPerByte = do
   i <- P.parseDecimal
@@ -1507,14 +1510,11 @@ pDirectDeposits era = case era of
   Exp.ConwayEra -> pure []
   Exp.DijkstraEra ->
     many $
-      Opt.option (readerFromParsecParser parseDeposit) $
+      Opt.option (readerFromParsecParser parseStakeAddressAndLovelace) $
         Opt.long "direct-deposit"
           <> Opt.metavar "STAKE_ADDRESS+LOVELACE"
           <> Opt.help
             "Deposit ADA into a registered account. Amount in lovelace; each account may occur once."
- where
-  parseDeposit :: P.Parser (StakeAddress, Lovelace)
-  parseDeposit = (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
 
 pWithdrawalForEra
   :: Exp.Era era
@@ -1538,7 +1538,7 @@ pWithdrawalWithPlutusReferenceLanguage
 pWithdrawalWithPlutusReferenceLanguage pLanguage scriptFileHelp balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
-      (readerFromParsecParser parseWithdrawal)
+      (readerFromParsecParser parseStakeAddressAndLovelace)
       ( Opt.long "withdrawal"
           <> Opt.metavar "WITHDRAWAL"
           <> Opt.help helpText
@@ -1561,10 +1561,6 @@ pWithdrawalWithPlutusReferenceLanguage pLanguage scriptFileHelp balance =
       , "followed by the amount in Lovelace. Optionally specify "
       , "a script witness."
       ]
-
-  parseWithdrawal :: P.Parser (StakeAddress, Lovelace)
-  parseWithdrawal =
-    (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
 
 pWithdrawalScriptWitness
   :: BalanceTxExecUnits
