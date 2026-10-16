@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1452
-kind:
-  - bugfix
-description: |
-  `transaction policyid` and `address build` with `--payment-script-file` or `--stake-script-file` now accept Plutus V4 scripts, instead of failing with "Plutus language PlutusScriptV4 is not supported in the Conway era". They also accept simple scripts with a `guard`, which used to crash them.
