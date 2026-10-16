@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1469
+kind:
+  - feature
+description: Add --direct-deposit STAKE_ADDRESS+LOVELACE to Dijkstra transaction build, build-raw and build-estimate, and sub-transaction build-raw, to deposit ADA into registered accounts. Reject duplicate recipients and include deposits in automatic fee balancing.

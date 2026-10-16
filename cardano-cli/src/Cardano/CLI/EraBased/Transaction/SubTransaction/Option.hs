@@ -112,6 +112,7 @@ pSubTransactionBuildRaw =
             "the withdrawal of rewards. Only native scripts or Plutus V4 scripts are supported."
             ManualBalance
         )
+      <*> pDirectDeposits Exp.DijkstraEra
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

@@ -84,6 +84,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , certificates :: ![(CertificateFile, Maybe AnyNonAssetScript)]
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
+  , directDeposits :: ![(StakeAddress, Coin)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
@@ -150,6 +152,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   -- ^ Withdrawals with potential script witness
+  , directDeposits :: ![(StakeAddress, Coin)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
@@ -197,6 +201,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   -- ^ Withdrawals with potential script witness
+  , directDeposits :: ![(StakeAddress, Coin)]
+  -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   , plutusCollateral :: !(Maybe Coin)
   -- ^ Total collateral
   , totalReferenceScriptSize :: !(Maybe ReferenceScriptSize)
