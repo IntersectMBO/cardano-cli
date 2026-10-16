@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1452
-kind:
-  - test
-description: |
-  Add golden tests for Plutus V4 scripts: script files as direct witnesses for every script purpose in `dijkstra transaction build-raw`, `hash script`, `transaction policyid`, `address build` with payment and stake scripts, and the error for a V4 reference script in a Conway transaction.
