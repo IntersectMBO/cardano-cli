@@ -10,6 +10,7 @@ Usage: cardano-cli latest query
                                   | leadership-schedule
                                   | ledger-peer-snapshot
                                   | ledger-state
+                                  | leios-committee
                                   | pool-state
                                   | proposals
                                   | protocol-parameters
@@ -62,6 +63,8 @@ Available commands:
                            stake.
   ledger-state             Dump the current ledger state of the node
                            (Ledger.NewEpochState -- advanced command)
+  leios-committee          Get the Leios voting committees of the current and
+                           the next epoch
   pool-params              DEPRECATED. Use query pool-state instead. Dump the
                            pool parameters
                            (Ledger.NewEpochState.esLState._delegationState._pState._pParams

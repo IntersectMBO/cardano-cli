@@ -72,6 +72,7 @@ data QueryCmds era
   | QueryGovStateCmd !(QueryNoArgCmdArgs era)
   | QueryRatifyStateCmd !(QueryNoArgCmdArgs era)
   | QueryFuturePParamsCmd !(QueryNoArgCmdArgs era)
+  | QueryLeiosCommitteeCmd !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
   | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
@@ -340,6 +341,8 @@ renderQueryCmds = \case
     "ratify-state"
   QueryFuturePParamsCmd{} ->
     "future-pparams"
+  QueryLeiosCommitteeCmd{} ->
+    "leios-committee"
   QueryDRepStateCmd{} ->
     "drep-state"
   QueryDRepStakeDistributionCmd{} ->
@@ -383,6 +386,7 @@ queryCmdNodeConnInfo = \case
   QueryGovStateCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
   QueryRatifyStateCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
   QueryFuturePParamsCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
+  QueryLeiosCommitteeCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
   QueryDRepStateCmd QueryDRepStateCmdArgs{commons} -> fromCommons commons
   QueryDRepStakeDistributionCmd QueryDRepStakeDistributionCmdArgs{commons} -> fromCommons commons
   QuerySPOStakeDistributionCmd QuerySPOStakeDistributionCmdArgs{commons} -> fromCommons commons

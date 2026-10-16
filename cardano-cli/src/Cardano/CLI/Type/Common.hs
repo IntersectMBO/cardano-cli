@@ -53,8 +53,6 @@ module Cardano.CLI.Type.Common
   , OpCertNodeStateCounter (..)
   , OpCertOnDiskCounter (..)
   , OpCertStartingKesPeriod (..)
-  , PoolParams (..)
-  , mkPoolStates
   , ParserFileDirection (..)
   , PrivKeyFile (..)
   , ProposalBinary
@@ -109,14 +107,9 @@ import Cardano.Api hiding (Script)
 import Cardano.Api.Experimental.Certificate (DRepMetadata, StakePoolMetadata)
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
-import Cardano.Ledger.State qualified as L
 
-import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
-import Data.Map.Strict (Map)
-import Data.Map.Strict qualified as Map
 import Data.String (IsString)
 import Data.Text qualified as Text
 import Data.Word (Word64)
@@ -360,52 +353,6 @@ instance FromJSON GenesisFile where
         <> show invalid
 
 data AllOrOnly a = All | Only [a] deriving (Eq, Show)
-
--- | This data structure is used to allow nicely formatted output in the query pool-params command.
--- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
--- epoch that has been set for pool retirement.  Any of these may be Nothing.
-data PoolParams era = PoolParams
-  { poolParameters :: Maybe L.StakePoolState
-  , futurePoolParameters :: Maybe (L.StakePoolParams era)
-  -- ^ Staged changes, so these are parameters rather than state: they have no
-  -- deposit, delegators or voting-key registration epoch until they take effect.
-  , retiringEpoch :: Maybe EpochNo
-  }
-  deriving Show
-
-mkPoolStates
-  :: PoolState era -> Map (L.KeyHash L.StakePool) (PoolParams (ShelleyLedgerEra era))
-mkPoolStates
-  ( PoolState
-      ( L.QueryPoolStateResult
-          { L.qpsrStakePools
-          , L.qpsrFutureStakePoolParams
-          , L.qpsrRetiring
-          }
-        )
-    ) = (`Map.mapWithKey` qpsrStakePools) $ \kh sps ->
-    PoolParams
-      { poolParameters = Just sps
-      , futurePoolParameters = Map.lookup kh qpsrFutureStakePoolParams
-      , retiringEpoch = Map.lookup kh qpsrRetiring
-      }
-
--- | Pretty printing for pool parameters
-instance ToJSON (PoolParams era) where
-  toJSON (PoolParams p fp r) =
-    object
-      [ "poolParams" .= p
-      , "futurePoolParams" .= fp
-      , "retiring" .= r
-      ]
-
-  toEncoding (PoolParams p fp r) =
-    pairs $
-      mconcat
-        [ "poolParams" .= p
-        , "futurePoolParams" .= fp
-        , "retiring" .= r
-        ]
 
 type SigningKeyFile = File (SigningKey ())
 

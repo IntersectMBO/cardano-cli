@@ -1889,6 +1889,7 @@ Usage: cardano-cli conway query
                                   | leadership-schedule
                                   | ledger-peer-snapshot
                                   | ledger-state
+                                  | leios-committee
                                   | pool-state
                                   | proposals
                                   | protocol-parameters
@@ -2141,6 +2142,24 @@ Usage: cardano-cli conway query ledger-state
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli conway query leios-committee 
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  --socket-path SOCKET_PATH
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
+                                                  [--out-file FILEPATH]
+                                                  
+
+  Get the Leios voting committees of the current and the next epoch
 
 Usage: cardano-cli conway query pool-params 
                                               [--cardano-mode
@@ -4373,6 +4392,7 @@ Usage: cardano-cli dijkstra query
                                     | leadership-schedule
                                     | ledger-peer-snapshot
                                     | ledger-state
+                                    | leios-committee
                                     | pool-state
                                     | proposals
                                     | protocol-parameters
@@ -4633,6 +4653,24 @@ Usage: cardano-cli dijkstra query ledger-state
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli dijkstra query leios-committee 
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
+                                                    ( --mainnet
+                                                    | --testnet-magic NATURAL
+                                                    )
+                                                    --socket-path SOCKET_PATH
+                                                    [ --volatile-tip
+                                                    | --immutable-tip
+                                                    ]
+                                                    [ --output-json
+                                                    | --output-yaml
+                                                    ]
+                                                    [--out-file FILEPATH]
+                                                    
+
+  Get the Leios voting committees of the current and the next epoch
 
 Usage: cardano-cli dijkstra query pool-params 
                                                 [--cardano-mode
@@ -6838,6 +6876,7 @@ Usage: cardano-cli latest query
                                   | leadership-schedule
                                   | ledger-peer-snapshot
                                   | ledger-state
+                                  | leios-committee
                                   | pool-state
                                   | proposals
                                   | protocol-parameters
@@ -7090,6 +7129,24 @@ Usage: cardano-cli latest query ledger-state
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
+
+Usage: cardano-cli latest query leios-committee 
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  --socket-path SOCKET_PATH
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
+                                                  [--out-file FILEPATH]
+                                                  
+
+  Get the Leios voting committees of the current and the next epoch
 
 Usage: cardano-cli latest query pool-params 
                                               [--cardano-mode

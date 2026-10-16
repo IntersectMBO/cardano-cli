@@ -268,6 +268,7 @@ pQueryCmds envCli =
         $ mconcat
           [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
           ]
+    , pQueryLeiosCommitteeCmd envCli
     , Just
         . Opt.hsubparser
         $ mconcat
@@ -675,6 +676,17 @@ pQueryFuturePParamsCmd envCli = do
     . commandWithMetavar "future-pparams"
     . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs envCli "future-pparams")
     $ Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
+
+pQueryLeiosCommitteeCmd
+  :: IsEra era
+  => EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryLeiosCommitteeCmd envCli = do
+  pure
+    . Opt.hsubparser
+    . commandWithMetavar "leios-committee"
+    . Opt.info (QueryLeiosCommitteeCmd <$> pQueryNoArgCmdArgs envCli "leios-committee")
+    $ Opt.progDesc "Get the Leios voting committees of the current and the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
 -- makes use of 'KeyHashObj' constructor of 'Credential kr c'. Should we also support here 'ScriptHashObj'?
