@@ -202,6 +202,28 @@
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
+              # haskell.nix does not run the SRP post-checkout-command from cabal.project.
+              # Apply the same temporary cardano-api compatibility fix here.
+              packages.cardano-api.postPatch = ''
+                substituteInPlace src/Cardano/Api/Experimental/Tx/Internal/BodyContent.hs \
+                  src/Cardano/Api/Experimental/Tx/Internal/SubTransaction.hs \
+                  test/cardano-api-test/Test/Cardano/Api/Experimental.hs \
+                  --replace-fail requiredTopLevelGuardsL requiredTopLevelGuardsTxBodyL
+                substituteInPlace src/Cardano/Api/Query/Internal/Type/DebugLedgerState.hs \
+                  --replace-fail 'import Data.Aeson qualified as Aeson' 'import Data.Aeson qualified as Aeson; import Lens.Micro ((^.))' \
+                  --replace-fail 'import Cardano.Ledger.Shelley.API qualified as Shelley' 'import Cardano.Ledger.Shelley.API qualified as Shelley; import Cardano.Ledger.Shelley.LedgerState qualified as Shelley (nesStakePoolDistrG)' \
+                  --replace-fail 'Shelley.nesPd newEpochS' 'newEpochS ^. Shelley.nesStakePoolDistrG'
+              '';
+              packages.ouroboros-consensus.postPatch = ''
+                substituteInPlace ouroboros-consensus-cardano/src/shelley/Ouroboros/Consensus/Shelley/Ledger/Ledger.hs \
+                  --replace-fail 'nesPd .' 'view SL.nesStakePoolDistrG .'
+                substituteInPlace ouroboros-consensus-cardano/src/shelley/Ouroboros/Consensus/Shelley/Ledger/SupportsProtocol.hs \
+                  --replace-fail 'import qualified Cardano.Ledger.Shelley.API as SL' 'import qualified Cardano.Ledger.Shelley.API as SL; import qualified Cardano.Ledger.Shelley.LedgerState as SL (nesStakePoolDistrG)' \
+                  --replace-fail 'SL.NewEpochState{nesPd} = nes' 'nesPd = nes Lens.Micro.^. SL.nesStakePoolDistrG'
+                substituteInPlace ouroboros-consensus-cardano/src/ouroboros-consensus-cardano/Ouroboros/Consensus/Cardano/Node.hs \
+                  --replace-fail 'seedInitialStakeSnapshots maxKeyAge trigger' 'seedInitialStakeSnapshots _maxKeyAge trigger' \
+                  --replace-fail 'mkSetSnapShot (ss ^. ssStakeMarkL) maxKeyAge' 'mkSetSnapShot (ss ^. ssStakeMarkL)'
+              '';
               packages.basement.configureFlags = ["--hsc2hs-option=--cflag=-Wno-int-conversion"];
             })
             ({
