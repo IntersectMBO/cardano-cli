@@ -51,6 +51,8 @@ on:
   push:
     tags:
       - '**'
+permissions:
+  contents: read
 env:
   GH_TOKEN: ${{ github.token }}
 
@@ -58,6 +60,8 @@ jobs:
   wait_for_hydra:
     name: "Wait for Hydra check-runs"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # To push the ci/ branch
     outputs:
       TARGET_TAG: ${{ steps.store_vars.outputs.TARGET_TAG }}
       DRY_RUN:    ${{ steps.store_vars.outputs.DRY_RUN }}
@@ -109,11 +113,11 @@ jobs:
           # and the binaries Hydra builds would not match the ones the "pull" job asks for.
           # Hydra also builds ci/* branches, by commit ID, so push the tagged commit to one.
           # The branch name includes the run ID, so that this run only ever touches its own branch.
-          if [[ "$(git cat-file -t "refs/tags/${{ env.TARGET_TAG }}" 2>/dev/null)" == "tag" ]]
+          if [[ "$(git cat-file -t "refs/tags/$TARGET_TAG" 2>/dev/null)" == "tag" ]]
           then
-            commit=$(git rev-parse "refs/tags/${{ env.TARGET_TAG }}^{commit}")
-            branch="ci/${{ env.TARGET_TAG }}-run-${{ github.run_id }}"
-            echo "${{ env.TARGET_TAG }} is an annotated tag: pushing $commit to $branch for Hydra"
+            commit=$(git rev-parse "refs/tags/$TARGET_TAG^{commit}")
+            branch="ci/$TARGET_TAG-run-$GITHUB_RUN_ID"
+            echo "$TARGET_TAG is an annotated tag: pushing $commit to $branch for Hydra"
             git push --force origin "$commit:refs/heads/$branch"
             # Tell the "delete_ci_branch" job what to delete
             echo "CI_BRANCH=$branch" >> "$GITHUB_OUTPUT"
@@ -124,7 +128,7 @@ jobs:
           while true; do
             # A check that has not finished has no conclusion (null). gh prints null as an empty line,
             # and $(...) drops it when it comes last, so such a check would not be counted. Hence "pending".
-            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/${{ env.TARGET_TAG }}/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion // "pending"')
+            conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TARGET_TAG/check-runs" --jq '.check_runs[] | select(.name | test("ci/hydra-build:.*\\.required")) | .conclusion // "pending"')
             # Here we are being careful, because we query the status of multiple jobs (once per line)
             # But the only thing we are sure is that "success" means a green job. There
             # could be unknown statuses, which is why we may retry when unsure (see 'sleep') below.
@@ -218,6 +222,8 @@ jobs:
     needs: [wait_for_hydra, pull]
     name: "Create Release"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # To create the release and upload its files
     if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
     steps:
       - uses: actions/checkout@v6 # We need the repo to execute extract-changelog.sh  below
@@ -272,13 +278,17 @@ jobs:
     needs: [wait_for_hydra, pull, create_release]
     name: "Delete the ci/ branch pushed for Hydra"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # To delete the ci/ branch
     # always(): also after a failed or cancelled run, so that the branch does not stay behind
     if: ${{ always() && needs.wait_for_hydra.outputs.CI_BRANCH != '' }}
     steps:
       - uses: actions/checkout@v6 # So that git can push to origin below
       - name: Delete the ci/ branch
+        env:
+          CI_BRANCH: ${{ needs.wait_for_hydra.outputs.CI_BRANCH }}
         run: |
-          branch="refs/heads/${{ needs.wait_for_hydra.outputs.CI_BRANCH }}"
+          branch="refs/heads/$CI_BRANCH"
           # An earlier attempt of this run may have deleted it already
           if git ls-remote --exit-code origin "$branch" > /dev/null
           then
