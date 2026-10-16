@@ -1,5 +1,5 @@
 project: cardano-cli
-pr: 0
+pr: 1477
 kind:
   - feature
 description: Add native and Plutus V4 script guards to Dijkstra transaction build, build-raw, and build-estimate, with inline or reference scripts, guarding redeemers, and automatic or explicit execution budgets.
