@@ -79,9 +79,6 @@ module Cardano.CLI.Read
   , readSafeHash
   , scriptHashReader
 
-    -- * Update proposals
-  , readTxUpdateProposal
-
     -- * Vote related
   , readVoteDelegationTarget
   , readVerificationKeySource
@@ -585,15 +582,6 @@ instance Error VoteError where
   prettyError = \case
     VoteErrorFile e ->
       prettyError e
-
-readTxUpdateProposal
-  :: ()
-  => ShelleyToBabbageEra era
-  -> UpdateProposalFile
-  -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
-readTxUpdateProposal w (UpdateProposalFile upFp) = do
-  TxUpdateProposal w
-    <$> newExceptT (shelleyBasedEraConstraints (convert w) $ readFileTextEnvelope (File upFp))
 
 newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
