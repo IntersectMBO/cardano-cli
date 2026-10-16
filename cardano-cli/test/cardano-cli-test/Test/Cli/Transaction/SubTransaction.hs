@@ -1293,7 +1293,7 @@ hprop_dijkstra_sub_transaction_top_level_key_guard_forms =
       forM_ [keyArgs ++ scriptArgs, scriptArgs ++ keyArgs] $ \args -> do
         H.noteShow_ args
         Exp.UnsignedSubTx tx <- buildSubTransaction outFile args
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== expected
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== expected
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
 
@@ -1326,7 +1326,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_hashes =
     expected <- forM [('0', L.SNothing), ('1', L.SJust datum), ('2', L.SNothing)] $ \(digit, mDatum) -> do
       ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex $ BSC.pack $ replicate 56 digit
       pure (L.ScriptHashObj hash, mDatum)
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== Map.fromList expected
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== Map.fromList expected
 
 -- | Inline, JSON-file and CBOR-file datums produce the same guard entry.
 hprop_dijkstra_sub_transaction_top_level_guard_datum_formats :: Property
@@ -1347,7 +1347,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_datum_formats =
     inline H.=== cbor
     ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
     let Exp.UnsignedSubTx tx = inline
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton (L.ScriptHashObj hash) (L.SJust $ toAlonzoData guardDatum)
 
 -- | Script files resolve to the same guard entries as their hashes, for both
@@ -1368,7 +1368,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_script_files =
         -- A top-level requirement contributes no local guard or witness data.
         let Exp.UnsignedSubTx tx = fromFile
         ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.pack scriptHash)
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
           H.=== Map.singleton (L.ScriptHashObj hash) expectedDatum
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
@@ -1401,7 +1401,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_coexists_with_local_guard =
              , "42"
              ]
     [credential] <- pure $ toList (local ^. L.bodyTxL . L.guardsTxBodyL)
-    combined ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    combined ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton credential (L.SJust $ toAlonzoData guardDatum)
     combined ^. L.bodyTxL . L.guardsTxBodyL H.=== local ^. L.bodyTxL . L.guardsTxBodyL
     combined ^. L.witsTxL H.=== local ^. L.witsTxL
