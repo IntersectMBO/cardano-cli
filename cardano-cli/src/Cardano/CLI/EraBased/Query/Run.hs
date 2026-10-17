@@ -119,6 +119,7 @@ runQueryCmds cmd = do
     Cmd.QueryDRepStateCmd args -> runQueryDRepState args
     Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
     Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+    Cmd.QueryLeiosCommitteeCmd args -> runQueryLeiosCommittee args
     Cmd.QueryGovStateCmd args -> runQueryGovState args
     Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
     Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
@@ -664,15 +665,12 @@ runQueryPoolStateCmd
 
           era <- supportedEra cEra
 
-          let beo = convert era
-              poolFilter = case allOrOnlyPoolIds of
+          let poolFilter = case allOrOnlyPoolIds of
                 All -> Nothing
-                Only poolIds -> Just $ fromList poolIds
+                Only poolIds -> Just . fromList $ map unStakePoolKeyHash poolIds
 
-          currentEpoch <- easyRunQuery (queryEpoch (convert era))
-
-          result <- easyRunQuery (queryPoolState beo poolFilter)
-          hoist liftIO $ writePoolState era currentEpoch outputFormat mOutFile result
+          result <- easyRunQuery (queryStakePoolState (convert era) poolFilter False)
+          hoist liftIO $ writePoolState outputFormat mOutFile result
       )
       & fromEitherCIOCli
 
@@ -1170,22 +1168,15 @@ writeStakeSnapshots era outputFormat mOutFile qState = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
--- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
---   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
+-- | The state of each stake pool: its current and future parameters, deposit,
+-- voting key and retirement epoch.
 writePoolState
-  :: Exp.Era era
-  -> EpochNo
-  -> Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState era
+  -> Map (L.KeyHash L.StakePool) (L.QueryResultStakePoolState era)
   -> ExceptT QueryCmdError IO ()
-writePoolState era currentEpoch outputFormat mOutFile serialisedCurrentEpochState = do
-  poolState <-
-    liftEither . first QueryCmdPoolStateDecodeError $
-      decodePoolState (convert era) serialisedCurrentEpochState
-
-  let poolStates = mkPoolStates currentEpoch poolState :: Map (L.KeyHash L.StakePool) PoolParams
-      output =
+writePoolState outputFormat mOutFile poolStates = do
+  let output =
         outputFormat
           & ( id
                 . Vary.on (\FormatJson -> Json.encodeJson)
@@ -1693,6 +1684,34 @@ runQueryFuturePParams
                   $ Vary.exhaustiveCase
               )
             $ futurePParams
+
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
+
+runQueryLeiosCommittee
+  :: Cmd.QueryNoArgCmdArgs era
+  -> CIO e ()
+runQueryLeiosCommittee
+  Cmd.QueryNoArgCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.outputFormat
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    committee <- fromExceptTCli $ runQuery nodeConnInfo target $ queryLeiosCommittee (convert eon)
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ committee
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringOutput mOutFile output
