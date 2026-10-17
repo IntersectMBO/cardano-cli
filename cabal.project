@@ -127,3 +127,58 @@ if impl(ghc >= 9.14)
     , time-locale-compat:time
     , with-utf8:base
 -- cabal-allow-newer end
+
+-- TODO: drop once the ledger and consensus queries are released to CHaP.
+-- cardano-ledger master after https://github.com/IntersectMBO/cardano-ledger/pull/6162
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 6654c3e5e348aaa735d428fba0973dd17703d9d3
+  --sha256: sha256-e1e3GwjKaFVtWxcJPfGlCKb1WJ8WV30qc//1eCki7BU=
+  subdir:
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/small-steps
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol
+    libs/cardano-protocol-tpraos
+    eras/byron/chain/executable-spec
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/shelley/impl
+    eras/mary/impl
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/babbage/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+
+-- https://github.com/IntersectMBO/ouroboros-consensus/pull/2419 on top of
+-- https://github.com/IntersectMBO/ouroboros-consensus/pull/2412
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 0d02985b030317be91c5422020d1ed3565fe3ee3
+  --sha256: sha256-TAVzwcNlaqen5oUzFMFCZXkoZ861lY8ri7Hw1UDcMt4=
+
+-- https://github.com/IntersectMBO/cardano-api/pull/TODO
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 10ed945ae1cc1a9e761319eed64e84335dc08458
+  --sha256: sha256-NBS5H3bonzSbrOn6HIBKd3Z9sjJiF40djOvfZV8Ck/Q=
+  subdir:
+    cardano-api
+
+allow-newer:
+    , cardano-keys:cardano-ledger-core
+    , cardano-keys:cardano-ledger-shelley
+    , cardano-keys:cardano-protocol
+    , cardano-config:cardano-ledger-conway
+    , cardano-config:cardano-ledger-core
+    , cardano-config:cardano-ledger-dijkstra
+    , cardano-config:cardano-ledger-shelley
+
+-- consensus main still carries version 5.0
+allow-older: *:ouroboros-consensus
