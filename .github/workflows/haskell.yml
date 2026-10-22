@@ -18,39 +18,31 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ matrix.sys.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         ghc: [&ghc-stable "9.6", "9.10", &ghc-latest "9.12", "9.14"]
         cabal: [&cabal-version "3.16"]
-        sys:
-          - { os: ubuntu-latest, shell: bash }
+        os: [ubuntu-latest]
         include:
           # Using include, to make sure there will only be one macOS job, even if the matrix gets expanded later on.
           # We want a single job, because macOS runners are scarce.
           - ghc: *ghc-stable
             cabal: *cabal-version
-            sys:
-              os: macos-latest
-              shell: bash
+            os: macos-latest
           - ghc: *ghc-latest
             cabal: *cabal-version
-            sys:
-              os: windows-latest
-              shell: 'C:/msys64/usr/bin/bash.exe -e {0}'
+            os: windows-latest
 
     defaults:
       run:
-        shell: ${{ matrix.sys.shell }}
+        shell: bash
 
     env:
       # Modify this value to "invalidate" the cabal cache.
       CABAL_CACHE_VERSION: "2025-03-25"
-      # these two are msys2 env vars, they have no effect on non-msys2 installs.
-      MSYS2_PATH_TYPE: inherit
-      MSYSTEM: MINGW64
 
     concurrency:
       group: >
@@ -59,7 +51,7 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.sys.os }}
+        f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
 
@@ -72,8 +64,18 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.sys.os }}
+        f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
+
+    # The macos-26-arm64 image 20261013 ships Command Line Tools 27 (SDK 27.0)
+    # next to Xcode 26.6, whose ld cannot read the SDK 27 .tbd stubs
+    # ("tapi error: malformed file ... unknown architecture arm64e.x1").
+    # Use the Command Line Tools toolchain so ld and SDK match.
+    # Remove once https://github.com/actions/runner-images/issues/14940 is fixed
+    # in the image (its README lists Command Line Tools 26.x again).
+    - name: Use Command Line Tools toolchain on macOS
+      if: runner.os == 'macOS'
+      run: sudo xcode-select -s /Library/Developer/CommandLineTools
 
     - name: Install Haskell
       uses: input-output-hk/actions/haskell@latest
@@ -127,7 +129,7 @@ jobs:
       # We don't run this step on Windows, because some tests do not run on Windows,
       # and so some golden files don't get regenerated. See
       # https://github.com/IntersectMBO/cardano-cli/blob/0048f119036ffb9eab357b25dcaf7d320362f071/cardano-cli/test/cardano-cli-golden/Test/Golden/Help.hs#L54
-      if: ${{ matrix.sys.os != 'windows-latest' }}
+      if: ${{ matrix.os != 'windows-latest' }}
       run: |
         NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l | xargs)
         if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
@@ -139,7 +141,7 @@ jobs:
 
     - name: Check golden files are up-to-date
       # We don't run this step on Windows, as explained in the previous step.
-      if: ${{ matrix.sys.os != 'windows-latest' }}
+      if: ${{ matrix.os != 'windows-latest' }}
       run: |
         NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l | xargs)
         if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
@@ -154,11 +156,11 @@ jobs:
         mkdir -p artifacts
 
         for exe in $(cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[] | select(.style == "local" and (."component-name" | startswith("exe:"))) | ."bin-file"'); do
-          if [ -f $exe ]; then
+          if [ -f "$exe" ]; then
             echo "Including artifact $exe"
 
             ( cd artifacts
-              tar -C "$(dirname $exe)" -czf "$(basename $exe).tar.gz" "$(basename $exe)"
+              tar -C "$(dirname "$exe")" -czf "$(basename "$exe").tar.gz" "$(basename "$exe")"
             )
           else
             echo "Skipping artifact $exe"
@@ -168,19 +170,11 @@ jobs:
     - name: Save Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: artifacts-${{ matrix.sys.os }}-${{ matrix.ghc }}
+        name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
         path: ./artifacts
 
     # Uncomment the following back in for debugging. Remember to launch a `pwsh` from
-    # the tmux session to debug `pwsh` issues. And be reminded that the `/msys2` and
-    # `/msys2/mingw64` paths are not in PATH by default for the workflow, but tmate
-    # will put them in.
-    # You may also want to run
-    #
-    #   $env:PATH=("C:\Program Files\PowerShell\7;{0}" -f $env:ORIGINAL_PATH)
-    #
-    # to restore the original path.  Do note that some test might need msys2
-    # and will silently fail if msys2 is not in path. See the "Run tests" step.
+    # the tmux session to debug `pwsh` issues.
     #
     # - name: Setup tmate session
     #   if: ${{ failure() }}
