@@ -24,7 +24,11 @@ data DebugCmdError
     DebugNodeConfigGenesisDataCmdError !FilePath !Byron.GenesisDataError
   | -- | @DebugNodeConfigReadCmdError filepath error@ represents an error when
     -- reading the node configuration at @filepath@, or the genesis files it names
-    DebugNodeConfigReadCmdError !FilePath !NodeConfigError
+    DebugNodeConfigReadCmdError
+      !FilePath
+      -- ^ The file path of the node configuration file
+      !NodeConfigError
+      -- ^ The error from reading the node configuration or a genesis file it names
   | DebugTxCmdError !TxCmdError
   deriving Show
 

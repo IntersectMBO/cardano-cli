@@ -307,7 +307,8 @@
                 # unix-compat, which cardano-config brings in through trace-dispatcher,
                 # asks for msvcrt on Windows, but the toolchain links ucrt: the two C
                 # runtimes define the same symbols (__getmainargs, _onexit, tzset, ...),
-                # so no executable links. cardano-node and cardano-api carry the same fix.
+                # so no executable links. cardano-node (nix/haskell.nix) and cardano-api
+                # carry the same fix. Remove once unix-compat stops asking for msvcrt
                 packages.unix-compat.postPatch = ''
                   sed -i 's/msvcrt//g' unix-compat.cabal
                 '';
