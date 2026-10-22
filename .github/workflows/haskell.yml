@@ -18,26 +18,23 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ matrix.sys.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         ghc: [&ghc-stable "9.6", "9.10", &ghc-latest "9.12", "9.14"]
         cabal: [&cabal-version "3.16"]
-        sys:
-          - { os: ubuntu-latest }
+        os: [ubuntu-latest]
         include:
           # Using include, to make sure there will only be one macOS job, even if the matrix gets expanded later on.
           # We want a single job, because macOS runners are scarce.
           - ghc: *ghc-stable
             cabal: *cabal-version
-            sys:
-              os: macos-latest
+            os: macos-latest
           - ghc: *ghc-latest
             cabal: *cabal-version
-            sys:
-              os: windows-latest
+            os: windows-latest
 
     defaults:
       run:
@@ -54,7 +51,7 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.sys.os }}
+        f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
 
@@ -67,7 +64,7 @@ jobs:
         c+${{ github.job }}
         d+${{ matrix.ghc }}
         e+${{ matrix.cabal }}
-        f+${{ matrix.sys.os }}
+        f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
     - name: Install Haskell
@@ -119,7 +116,7 @@ jobs:
       # We don't run this step on Windows, because some tests do not run on Windows,
       # and so some golden files don't get regenerated. See
       # https://github.com/IntersectMBO/cardano-cli/blob/0048f119036ffb9eab357b25dcaf7d320362f071/cardano-cli/test/cardano-cli-golden/Test/Golden/Help.hs#L54
-      if: ${{ matrix.sys.os != 'windows-latest' }}
+      if: ${{ matrix.os != 'windows-latest' }}
       run: |
         NB_UNUSED_GOLDEN_FILES=$(git ls-files -d | wc -l | xargs)
         if [[ "$NB_UNUSED_GOLDEN_FILES" != "0" ]]; then
@@ -131,7 +128,7 @@ jobs:
 
     - name: Check golden files are up-to-date
       # We don't run this step on Windows, as explained in the previous step.
-      if: ${{ matrix.sys.os != 'windows-latest' }}
+      if: ${{ matrix.os != 'windows-latest' }}
       run: |
         NB_MODIFIED_GOLDEN_FILES=$(git ls-files -m | wc -l | xargs)
         if [[ "$NB_MODIFIED_GOLDEN_FILES" != "0" ]]; then
@@ -160,7 +157,7 @@ jobs:
     - name: Save Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: artifacts-${{ matrix.sys.os }}-${{ matrix.ghc }}
+        name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
         path: ./artifacts
 
     # Uncomment the following back in for debugging. Remember to launch a `pwsh` from
