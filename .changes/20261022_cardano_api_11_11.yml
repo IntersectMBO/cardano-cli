@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 0
+kind:
+  - maintenance
+description: Update to cardano-api 11.11 and adapt sub-transaction guard construction to its validated guard collection.
