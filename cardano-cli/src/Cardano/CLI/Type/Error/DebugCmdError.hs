@@ -7,9 +7,13 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.TxCmdError
+import Cardano.Configuration qualified as Cfg
 
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.Types qualified as Aeson
 import Data.Text.Lazy.Builder qualified as Text
 import Formatting.Buildable (build)
 
@@ -32,9 +36,26 @@ instance Error DebugCmdError where
         <> pretty fp
         <> ": "
         <> pretty (Text.toLazyText $ build err)
-    DebugNodeConfigReadCmdError fp err ->
-      "Error reading node configuration at: "
-        <> pretty fp
-        <> ": "
-        <> prettyError err
+    DebugNodeConfigReadCmdError fp err -> case err of
+      -- cardano-config says which genesis file is at fault, and which key names it
+      NodeConfigParsingError
+        Cfg.ConfigurationParsingError
+          { Cfg.errFile = L.SJust genesisFp
+          , Cfg.errPath = [Aeson.Key key]
+          , Cfg.errMessage = message
+          }
+          | genesisFp /= fp ->
+              "Error reading the genesis file "
+                <> pretty genesisFp
+                <> " ("
+                <> pretty (Aeson.toText key)
+                <> " in "
+                <> pretty fp
+                <> "): "
+                <> pretty message
+      _ ->
+        "Error reading node configuration at: "
+          <> pretty fp
+          <> ": "
+          <> prettyError err
     DebugTxCmdError err -> renderTxCmdError err
