@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1480
+kind:
+  - maintenance
+description: |
+  Use Git Bash instead of MSYS2 for the Windows CI steps.
