@@ -9,6 +9,7 @@ currentTreasuryValue: null
 datums:
 - datum: I 24
   datum hash: df5078aee07dd171a343fb99d5fc1b5462fb3c94d82bf72dc1b77d9c0aceec29
+direct deposits: null
 era: Dijkstra
 fee: 200000 Lovelace
 governance actions:
