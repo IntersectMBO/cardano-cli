@@ -86,6 +86,9 @@ jobs:
       uses: input-output-hk/actions/base@latest
       with:
         use-sodium-vrf: true # default is true
+        # Work around macOS foreign-library configure failures with iohk-nix v3.2.
+        # https://github.com/IntersectMBO/cardano-cli/actions/runs/39825029792/job/119985950591
+        url-prefix: ${{ runner.os == 'macOS' && 'https://github.com/input-output-hk/iohk-nix/releases/download/v3.1' || 'https://github.com/input-output-hk/iohk-nix/releases/latest/download' }}
 
     - uses: actions/checkout@v6
 
