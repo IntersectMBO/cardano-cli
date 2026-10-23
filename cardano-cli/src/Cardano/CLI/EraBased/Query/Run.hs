@@ -669,7 +669,9 @@ runQueryPoolStateCmd
                 All -> Nothing
                 Only poolIds -> Just . fromList $ map unStakePoolKeyHash poolIds
 
-          result <- easyRunQuery (queryStakePoolState (convert era) poolFilter False)
+          result <-
+            easyRunQuery $
+              queryStakePoolState (convert era) poolFilter NotIncludeDelegators
           hoist liftIO $ writePoolState outputFormat mOutFile result
       )
       & fromEitherCIOCli
