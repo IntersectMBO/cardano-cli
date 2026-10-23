@@ -2,7 +2,7 @@
 
 module Test.Golden.Debug.TransactionView where
 
-import Control.Monad (void)
+import Control.Monad (void, when)
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
@@ -92,3 +92,76 @@ goldenDijkstraDirectDeposits format =
         , "--output-" ++ format
         ]
     H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-direct-deposits." ++ format
+
+hprop_golden_debug_transaction_view_dijkstra_intervals_json :: Property
+hprop_golden_debug_transaction_view_dijkstra_intervals_json = goldenDijkstraIntervals "json" False
+
+hprop_golden_debug_transaction_view_dijkstra_intervals_yaml :: Property
+hprop_golden_debug_transaction_view_dijkstra_intervals_yaml = goldenDijkstraIntervals "yaml" False
+
+hprop_golden_debug_transaction_view_dijkstra_signed_intervals_json :: Property
+hprop_golden_debug_transaction_view_dijkstra_signed_intervals_json = goldenDijkstraIntervals "json" True
+
+hprop_golden_debug_transaction_view_dijkstra_signed_intervals_yaml :: Property
+hprop_golden_debug_transaction_view_dijkstra_signed_intervals_yaml = goldenDijkstraIntervals "yaml" True
+
+-- Include every interval constructor, the same account at different levels,
+-- and a second sub-transaction without intervals to exercise ordering and nulls.
+goldenDijkstraIntervals :: String -> Bool -> Property
+goldenDijkstraIntervals format signed =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    bodyFile <- H.noteTempFile tempDir "tx.body"
+    signedFile <- H.noteTempFile tempDir "tx.signed"
+    let account = "stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99"
+        otherAccount = "stake_test1uz855drx5szvz845zqcnq9dc3ez8mqdkqzy7yhmpzcqwvpg59zzfl"
+        input ix = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#" ++ ix
+        output = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
+        key = inputDir </> "dijkstra/keys/utxo_keys/signing_key"
+        buildSub ix args = do
+          body <- H.noteTempFile tempDir $ "sub-" ++ ix ++ ".body"
+          out <- H.noteTempFile tempDir $ "sub-" ++ ix ++ ".signed"
+          void $
+            execCardanoCLI $
+              concat
+                [ ["dijkstra", "sub-transaction", "build-raw"]
+                , ["--tx-in", input ix, "--tx-out", output, "--out-file", body]
+                , args
+                ]
+          void $
+            execCardanoCLI $
+              concat
+                [ ["dijkstra", "sub-transaction", "sign"]
+                , ["--sub-tx-file", body, "--signing-key-file", key, "--out-file", out]
+                ]
+          pure out
+    firstSub <-
+      buildSub "1" $
+        concat
+          [ ["--account-balance-interval", account ++ ">=100,<200"]
+          , ["--account-balance-interval", otherAccount ++ "=42"]
+          ]
+    secondSub <- buildSub "2" []
+    void $
+      execCardanoCLI $
+        concat
+          [ ["dijkstra", "transaction", "build-raw"]
+          , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
+          , ["--account-balance-interval", account ++ ">=100"]
+          , ["--account-balance-interval", otherAccount ++ "<200"]
+          , ["--starting-account-balance-interval", account ++ "=300"]
+          , ["--starting-account-balance-interval", otherAccount ++ ">=0,<400"]
+          , ["--signed-sub-tx-file", firstSub, "--signed-sub-tx-file", secondSub]
+          , ["--out-file", bodyFile]
+          ]
+    when signed $
+      void $
+        execCardanoCLI $
+          concat
+            [ ["dijkstra", "transaction", "sign"]
+            , ["--tx-body-file", bodyFile, "--signing-key-file", key, "--out-file", signedFile]
+            ]
+    let (fileFlag, file, suffix) =
+          if signed then ("--tx-file", signedFile, "-signed") else ("--tx-body-file", bodyFile, "")
+    result <- execCardanoCLI ["debug", "transaction", "view", fileFlag, file, "--output-" ++ format]
+    H.diffVsGoldenFile result $
+      goldenDir </> "dijkstra/transaction-view-intervals" ++ suffix ++ "." ++ format
