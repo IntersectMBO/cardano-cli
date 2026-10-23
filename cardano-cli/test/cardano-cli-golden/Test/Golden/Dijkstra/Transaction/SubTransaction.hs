@@ -60,6 +60,35 @@ hprop_golden_dijkstra_transaction_sub_transaction_pipeline =
         ]
     H.diffFileVsGoldenFile signedSubTxFile (goldenDir <> "/signed_out")
 
+    -- Creating a detached witness and assembling must reproduce direct signing.
+    witnessFile <- noteTempFile tempDir "sub-tx.witness"
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "sub-transaction"
+        , "witness"
+        , "--sub-tx-file"
+        , unsignedSubTxFile
+        , "--signing-key-file"
+        , signingKeyFile
+        , "--out-file"
+        , witnessFile
+        ]
+    H.diffFileVsGoldenFile witnessFile (goldenDir <> "/witness_out")
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "sub-transaction"
+        , "assemble"
+        , "--sub-tx-file"
+        , unsignedSubTxFile
+        , "--witness-file"
+        , witnessFile
+        , "--out-file"
+        , signedSubTxFile
+        ]
+    H.diffFileVsGoldenFile signedSubTxFile (goldenDir <> "/signed_out")
+
     -- The id is the body hash, so signing must not change it
     unsignedId <-
       execCardanoCLI

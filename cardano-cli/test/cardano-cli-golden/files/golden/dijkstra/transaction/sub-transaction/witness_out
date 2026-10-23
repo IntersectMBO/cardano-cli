@@ -1,0 +1,5 @@
+{
+    "type": "TxWitness DijkstraEra",
+    "description": "Key Witness ShelleyEra",
+    "cborHex": "82582048d968a47923d491cbba6548e61cc3e347e658d1818d7bea90cf7d04ca13dbd15840449d80212dc4f45426f668daefe5dc22f60ff15c74b7262ccaebd8fad59504e05e19b03616a3305dcb4d0e384385b8bf7da7d059bfa112ad899223c7d1c6d400"
+}
