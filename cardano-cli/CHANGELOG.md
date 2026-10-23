@@ -1,5 +1,21 @@
 # Changelog for cardano-cli
 
+## 11.5.0.0 -- 2026-10-23
+
+- `debug check-node-configuration` now reads the configuration with cardano-config. It accepts both the old flat format and the new cardano-config format.
+  Genesis hashes are now required. Before, a configuration without them was accepted, and only the hashes it gave were checked.
+  Every genesis file is now decoded, not only hashed.
+  With `ExperimentalHardForksEnabled`, the configuration must also name a `DijkstraGenesisFile` and its `DijkstraGenesisHash`, and that file is checked too.
+  The initial data in the Shelley and Conway genesis files, such as `initialFunds`, is now checked too: it is rejected on mainnet, when it is given both at the top level and under `extraConfig`, or when a file it names is missing.
+  The success message now goes to stderr instead of stdout.
+  `DebugNodeConfigWrongGenesisHashCmdError` is replaced by `DebugNodeConfigReadCmdError`, which carries the configuration file path and cardano-api's `NodeConfigError`.
+  (breaking)
+  [PR 1475](https://github.com/intersectmbo/cardano-cli/pull/1475)
+
+- Show direct-deposit recipients and amounts in Dijkstra transaction JSON and YAML views.
+  (bugfix)
+  [PR 1470](https://github.com/intersectmbo/cardano-cli/pull/1470)
+
 ## 11.4.0.0 -- 2026-10-16
 
 - Remove --script-valid and --script-invalid from Dijkstra transaction build, build-raw and build-estimate in preparation for CIP-0167; retain both options for Conway.
