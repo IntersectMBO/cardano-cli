@@ -10,6 +10,8 @@ module Cardano.CLI.EraBased.Transaction.Internal.Common
   , createTxMintValue
   , convertWithdrawals
   , convertDirectDeposits
+  , convertAccountBalanceIntervals
+  , findDuplicates
   , convertVotingProcedures
   , scriptInEraToSimpleScript
   , partitionSomeWitnesses
@@ -29,6 +31,7 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.Ledger.Address qualified as L
+import Cardano.Ledger.Dijkstra.Scripts qualified as L
 import Cardano.Ledger.Hashes (DataHash)
 
 import RIO hiding (toList)
@@ -181,12 +184,30 @@ partitionSomeWitnesses = reversePartitionedWits . Foldable.foldl' go mempty
       AShelleyKeyWitness shelleyKeyWit ->
         (byronAcc, shelleyKeyWit : shelleyKeyAcc)
 
+-- | Return repeated values in ascending order, with each value included only once.
+findDuplicates :: Ord a => [a] -> [a]
+findDuplicates values = [value | value : _ : _ <- List.group (List.sort values)]
+
 -- | Reject duplicate recipients before converting deposits to the ledger map.
 convertDirectDeposits :: [(StakeAddress, Lovelace)] -> Either TxCmdError L.DirectDeposits
 convertDirectDeposits deposits =
-  case [address | address : _ : _ <- List.group (List.sort $ map fst deposits)] of
+  case findDuplicates (map fst deposits) of
     [] ->
       Right $
         L.DirectDeposits $
           Map.fromList [(toShelleyStakeAddr address, amount) | (address, amount) <- deposits]
     duplicates -> Left $ TxCmdDuplicateDirectDeposits duplicates
+
+-- | An account may occur once in each interval field. Never silently discard
+-- assertions by constructing a map before checking for duplicate addresses.
+convertAccountBalanceIntervals
+  :: String
+  -> [(StakeAddress, L.AccountBalanceInterval era)]
+  -> Either TxCmdError (L.AccountBalanceIntervals era)
+convertAccountBalanceIntervals option intervals =
+  case findDuplicates (map fst intervals) of
+    [] ->
+      Right $
+        L.AccountBalanceIntervals $
+          Map.fromList [(toShelleyStakeAddr address, interval) | (address, interval) <- intervals]
+    duplicates -> Left $ TxCmdDuplicateAccountBalanceIntervals option duplicates

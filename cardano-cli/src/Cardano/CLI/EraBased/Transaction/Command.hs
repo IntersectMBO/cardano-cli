@@ -37,6 +37,7 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
+import Cardano.Ledger.Dijkstra.Scripts qualified as L
 
 import Data.Universe (Some)
 import Vary (Vary)
@@ -86,6 +87,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   , directDeposits :: ![(StakeAddress, Coin)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  , accountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  , startingAccountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
@@ -154,6 +157,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Withdrawals with potential script witness
   , directDeposits :: ![(StakeAddress, Coin)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  , accountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  , startingAccountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
@@ -203,6 +208,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Withdrawals with potential script witness
   , directDeposits :: ![(StakeAddress, Coin)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  , accountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  , startingAccountBalanceIntervals :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   , plutusCollateral :: !(Maybe Coin)
   -- ^ Total collateral
   , totalReferenceScriptSize :: !(Maybe ReferenceScriptSize)
