@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+-- | CIP-159 direct deposit tests.
 module Test.Cli.Transaction.DirectDeposit where
 
 import Cardano.Api
@@ -48,8 +49,8 @@ accountAddress = toShelleyStakeAddr <$> H.evalMaybe (deserialiseAddress AsStakeA
 
 -- Decode both the top-level and signed nested transaction to catch deposits
 -- being accepted by the parser but lost during construction or embedding.
-hprop_cip159_direct_deposits_roundtrip :: Property
-hprop_cip159_direct_deposits_roundtrip =
+hprop_direct_deposits_roundtrip :: Property
+hprop_direct_deposits_roundtrip =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "tx.body"
     subFile <- H.noteTempFile tempDir "sub.body"
@@ -78,13 +79,11 @@ hprop_cip159_direct_deposits_roundtrip =
       ShelleyTx _ tx <- readDijkstraTransaction outFile
       let body = tx ^. L.bodyTxL
       body ^. L.directDepositsTxBodyL === expected
-      let nested = toList $ body ^. L.subTransactionsTxBodyL
-      length nested === 1
-      forM_ nested $ \child ->
-        child ^. L.bodyTxL . L.directDepositsTxBodyL === expected
+      map (^. L.bodyTxL . L.directDepositsTxBodyL) (toList $ body ^. L.subTransactionsTxBodyL)
+        === [expected]
 
-hprop_cip159_rejects_invalid_direct_deposits :: Property
-hprop_cip159_rejects_invalid_direct_deposits =
+hprop_rejects_invalid_direct_deposits :: Property
+hprop_rejects_invalid_direct_deposits =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "unused"
     let invalid =
@@ -107,37 +106,28 @@ hprop_cip159_rejects_invalid_direct_deposits =
       H.evalIO (doesFileExist outFile) >>= (=== False)
 
 -- | Invalid arguments must be reported even when the node is unavailable.
-hprop_cip159_build_rejects_duplicate_deposits_before_node_query :: Property
-hprop_cip159_build_rejects_duplicate_deposits_before_node_query =
+hprop_build_rejects_duplicate_deposits_before_node_query :: Property
+hprop_build_rejects_duplicate_deposits_before_node_query =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "unused"
     socketPath <- H.noteTempFile tempDir "missing.socket"
     (exitCode, _, stderr) <-
-      execDetailCardanoCLI
-        [ "dijkstra"
-        , "transaction"
-        , "build"
-        , "--testnet-magic"
-        , "42"
-        , "--socket-path"
-        , socketPath
-        , "--tx-in"
-        , txIn
-        , "--change-address"
-        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"
-        , "--direct-deposit"
-        , account ++ "+1"
-        , "--direct-deposit"
-        , account ++ "+2"
-        , "--out-file"
-        , outFile
-        ]
+      execDetailCardanoCLI $
+        concat
+          [ ["dijkstra", "transaction", "build"]
+          , ["--testnet-magic", "42", "--socket-path", socketPath]
+          , ["--tx-in", txIn]
+          , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
+          , ["--direct-deposit", account ++ "+1"]
+          , ["--direct-deposit", account ++ "+2"]
+          , ["--out-file", outFile]
+          ]
     exitCode === ExitFailure 1
     H.assertWith stderr (("Duplicate direct-deposit accounts: " ++ account) `isInfixOf`)
     H.evalIO (doesFileExist outFile) >>= (=== False)
 
-hprop_cip159_direct_deposit_era_gating :: Property
-hprop_cip159_direct_deposit_era_gating =
+hprop_direct_deposit_era_gating :: Property
+hprop_direct_deposit_era_gating =
   watchdogProp . propertyOnce $ do
     forM_ ["build", "build-raw", "build-estimate"] $ \command -> do
       help <- execCardanoCLI ["dijkstra", "transaction", command, "--help"]
@@ -152,8 +142,8 @@ hprop_cip159_direct_deposit_era_gating =
 -- | With 100 ADA of inputs and direct deposits of 20 and 30 ADA, build-estimate
 -- must return 50 ADA minus the estimated fee as change. This catches deposits being
 -- recorded in the body but omitted from the change calculation.
-hprop_cip159_build_estimate_deducts_deposits_from_change :: Property
-hprop_cip159_build_estimate_deducts_deposits_from_change =
+hprop_build_estimate_deducts_deposits_from_change :: Property
+hprop_build_estimate_deducts_deposits_from_change =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     paramsFile <- H.noteTempFile tempDir "params.json"
     outFile <- H.noteTempFile tempDir "tx.body"
@@ -166,31 +156,18 @@ hprop_cip159_build_estimate_deducts_deposits_from_change =
             & L.ppTxFeePerByteL .~ L.CoinPerByte (L.CompactCoin 44)
             & L.ppTxFeeFixedL .~ 155381
     H.evalIO $ Aeson.encodeFile paramsFile params
-    -- build-estimate works offline: supply the input value explicitly. There
-    -- are no --tx-out arguments, so every generated output is change.
-    H.note_ "The 100 ADA input must fund deposits of 20 and 30 ADA, the estimated fee, and change."
+    -- With no explicit outputs, the balance after deposits and fees becomes change.
     void $
-      execCardanoCLI
-        [ "dijkstra"
-        , "transaction"
-        , "build-estimate"
-        , "--tx-in"
-        , txIn
-        , "--total-utxo-value"
-        , show (L.unCoin inputValue)
-        , "--shelley-key-witnesses"
-        , "1"
-        , "--protocol-params-file"
-        , paramsFile
-        , "--change-address"
-        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"
-        , "--direct-deposit"
-        , account ++ "+" ++ show (L.unCoin depositAmount)
-        , "--direct-deposit"
-        , otherAccount ++ "+" ++ show (L.unCoin otherDepositAmount)
-        , "--out-file"
-        , outFile
-        ]
+      execCardanoCLI $
+        concat
+          [ ["dijkstra", "transaction", "build-estimate"]
+          , ["--tx-in", txIn, "--total-utxo-value", show (L.unCoin inputValue)]
+          , ["--shelley-key-witnesses", "1", "--protocol-params-file", paramsFile]
+          , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
+          , ["--direct-deposit", account ++ "+" ++ show (L.unCoin depositAmount)]
+          , ["--direct-deposit", otherAccount ++ "+" ++ show (L.unCoin otherDepositAmount)]
+          , ["--out-file", outFile]
+          ]
     ShelleyTx _ tx <- readDijkstraTransaction outFile
     address <- accountAddress
     otherAddress <-
@@ -198,12 +175,7 @@ hprop_cip159_build_estimate_deducts_deposits_from_change =
     let body = tx ^. L.bodyTxL
         estimatedFee = body ^. L.feeTxBodyL
         changeAmount = sum [output ^. L.coinTxOutL | output <- toList $ body ^. L.outputsTxBodyL]
-    -- Check that the requested deposit was included in the serialized body.
     body ^. L.directDepositsTxBodyL
       === L.DirectDeposits (Map.fromList [(address, depositAmount), (otherAddress, otherDepositAmount)])
 
-    -- Use the fee calculated by build-estimate, since it depends on transaction
-    -- size. The remaining change must be 100 ADA - 20 ADA - 30 ADA - that fee.
-    H.note_ $ "Estimated fee (lovelace): " ++ show (L.unCoin estimatedFee)
-    H.note_ $ "Returned change (lovelace): " ++ show (L.unCoin changeAmount)
     changeAmount === inputValue - depositAmount - otherDepositAmount - estimatedFee

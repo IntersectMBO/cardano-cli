@@ -1,3 +1,4 @@
+account balance intervals: null
 auxiliary scripts: null
 certificates:
 - Stake address registration:
@@ -111,6 +112,8 @@ scripts:
     script: '46450101002499'
     type: plutus
   script hash: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
+starting account balance intervals: null
+sub-transactions: []
 total collateral: null
 treasuryDonation: 0
 validity range:

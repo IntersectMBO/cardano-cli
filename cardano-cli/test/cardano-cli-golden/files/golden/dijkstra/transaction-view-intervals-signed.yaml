@@ -1,0 +1,83 @@
+account balance intervals:
+- address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+  interval:
+    kind: lowerBound
+    lower: 100
+  network: Testnet
+  stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+- address: stake_test1uz855drx5szvz845zqcnq9dc3ez8mqdkqzy7yhmpzcqwvpg59zzfl
+  interval:
+    kind: upperBound
+    upper: 200
+  network: Testnet
+  stake credential key hash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+auxiliary scripts: null
+certificates: null
+collateral inputs: []
+currentTreasuryValue: null
+datums: []
+direct deposits: null
+era: Dijkstra
+fee: 200000 Lovelace
+governance actions: []
+inputs:
+- 63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0
+metadata: null
+mint: null
+outputs:
+- address: addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg
+  address era: Shelley
+  amount:
+    lovelace: 5000000
+  datum: null
+  network: Testnet
+  payment credential key hash: 5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938
+  reference script: null
+  stake reference: null
+redeemers: []
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+return collateral: null
+scripts: []
+starting account balance intervals:
+- address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+  interval:
+    coin: 300
+    kind: exact
+  network: Testnet
+  stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+- address: stake_test1uz855drx5szvz845zqcnq9dc3ez8mqdkqzy7yhmpzcqwvpg59zzfl
+  interval:
+    kind: bothBounds
+    lower: 0
+    upper: 400
+  network: Testnet
+  stake credential key hash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+sub-transactions:
+- account balance intervals:
+  - address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+    interval:
+      kind: bothBounds
+      lower: 100
+      upper: 200
+    network: Testnet
+    stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+  - address: stake_test1uz855drx5szvz845zqcnq9dc3ez8mqdkqzy7yhmpzcqwvpg59zzfl
+    interval:
+      coin: 42
+      kind: exact
+    network: Testnet
+    stake credential key hash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+  id: 61ba2d8821e417661702f29f7ce1d3aea71fabd53d3594be3e87ff9ddb647188
+- account balance intervals: null
+  id: c45b108f5a31036036618ef8213be0df21e556c7fd53e35d0254ba8fe959d261
+total collateral: null
+treasuryDonation: 0
+validity range:
+  lower bound: null
+  upper bound: null
+voters: {}
+withdrawals: null
+witnesses:
+- key: VKey (VerKeyEd25519DSIGN "48d968a47923d491cbba6548e61cc3e347e658d1818d7bea90cf7d04ca13dbd1")
+  signature: SignedDSIGN (SigEd25519DSIGN "81e5b2b75f6370e1255ea705f5a1ff7f41e35e7716b0afbfff54b545028b4a4607babfcc4e2272f3fe53ba86234d14715f3bb5a168f4314dd51dd88e5564b807")

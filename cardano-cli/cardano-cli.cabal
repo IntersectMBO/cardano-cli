@@ -431,6 +431,7 @@ test-suite cardano-cli-test
     Test.Cli.Run.Hash
     Test.Cli.Run.Query
     Test.Cli.Shelley.Genesis.Create
+    Test.Cli.Transaction.AccountBalanceInterval
     Test.Cli.Transaction.Build
     Test.Cli.Transaction.DirectDeposit
     Test.Cli.Transaction.SubTransaction
