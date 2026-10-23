@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.DebugCmdError</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugCmdError"><span class="hs-identifier">DebugCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.Byron.html"><span class="hs-identifier">Cardano.Api.Byron</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Byron</span></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.TxCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.TxCmdError</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Cardano.Configuration</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cfg</span></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson.Key</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Aeson</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson.Types</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Aeson</span></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/text-2.1.3-inplace/src/Data.Text.Lazy.Builder.html"><span class="hs-identifier">Data.Text.Lazy.Builder</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Formatting.Buildable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">build</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">data</span><span> </span><span id="DebugCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugCmdError"><span class="hs-identifier hs-var">DebugCmdError</span></a></span></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="DebugCmdFailed"><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugCmdFailed"><span class="hs-identifier hs-var">DebugCmdFailed</span></a></span></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | @DebugNodeConfigGenesisDataCmdError filepath error@ represents an error when</span><span>
+</span><span id="line-23"></span><span>    </span><span class="hs-comment">-- reading the node configuration at @filepath@</span><span>
+</span><span id="line-24"></span><span>    </span><span id="DebugNodeConfigGenesisDataCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugNodeConfigGenesisDataCmdError"><span class="hs-identifier hs-var">DebugNodeConfigGenesisDataCmdError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-ledger-byron-1.3.0.0-36988d2f06d0b5a55954bb66e2ab87d3a9a28a6a036340e6082d7ba092087325/share/doc/html/src/Cardano.Chain.Genesis.Data.html#GenesisDataError"><span class="hs-identifier hs-type">Byron.GenesisDataError</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | @DebugNodeConfigReadCmdError filepath error@ represents an error when</span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-comment">-- reading the node configuration at @filepath@, or the genesis files it names</span><span>
+</span><span id="line-27"></span><span>    </span><span id="DebugNodeConfigReadCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugNodeConfigReadCmdError"><span class="hs-identifier hs-var">DebugNodeConfigReadCmdError</span></a></span></span><span>
+</span><span id="line-28"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-29"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ The file path of the node configuration file</span></span><span>
+</span><span id="line-30"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.LedgerState.html#NodeConfigError"><span class="hs-identifier hs-type">NodeConfigError</span></a></span><span>
+</span><span id="line-31"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ The error from reading the node configuration or a genesis file it names</span></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="DebugTxCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugTxCmdError"><span class="hs-identifier hs-var">DebugTxCmdError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Type.Error.TxCmdError.html#TxCmdError"><span class="hs-identifier hs-type">TxCmdError</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682332804"><span id="local-6989586621682332820"><span id="local-6989586621682332824"><span class="annot"><span class="annottext">Int -&gt; DebugCmdError -&gt; ShowS
+[DebugCmdError] -&gt; ShowS
+DebugCmdError -&gt; String
+(Int -&gt; DebugCmdError -&gt; ShowS)
+-&gt; (DebugCmdError -&gt; String)
+-&gt; ([DebugCmdError] -&gt; ShowS)
+-&gt; Show DebugCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; DebugCmdError -&gt; ShowS
+showsPrec :: Int -&gt; DebugCmdError -&gt; ShowS
+$cshow :: DebugCmdError -&gt; String
+show :: DebugCmdError -&gt; String
+$cshowList :: [DebugCmdError] -&gt; ShowS
+showList :: [DebugCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugCmdError"><span class="hs-identifier hs-type">DebugCmdError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621682332876"><span class="annot"><span class="annottext">prettyError :: forall ann. DebugCmdError -&gt; Doc ann
+</span><a href="#local-6989586621682332876"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">DebugCmdError
+</span><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugCmdFailed"><span class="hs-identifier hs-var">DebugCmdFailed</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Debug command failed&quot;</span></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugNodeConfigGenesisDataCmdError"><span class="hs-identifier hs-type">DebugNodeConfigGenesisDataCmdError</span></a></span><span> </span><span id="local-6989586621682332878"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332878"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621682332879"><span class="annot"><span class="annottext">GenesisDataError
+</span><a href="#local-6989586621682332879"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-39"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading node configuration at: &quot;</span></span><span>
+</span><span id="line-40"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332878"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-41"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;: &quot;</span></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Builder -&gt; Text
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/text-2.1.3-inplace/src/Data.Text.Internal.Builder.html#toLazyText"><span class="hs-identifier hs-var">Text.toLazyText</span></a></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; Text) -&gt; Builder -&gt; Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">GenesisDataError -&gt; Builder
+forall p. Buildable p =&gt; p -&gt; Builder
+</span><span class="hs-identifier hs-var">build</span></span><span> </span><span class="annot"><span class="annottext">GenesisDataError
+</span><a href="#local-6989586621682332879"><span class="hs-identifier hs-var">err</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugNodeConfigReadCmdError"><span class="hs-identifier hs-type">DebugNodeConfigReadCmdError</span></a></span><span> </span><span id="local-6989586621682332882"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332882"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621682332883"><span class="annot"><span class="annottext">NodeConfigError
+</span><a href="#local-6989586621682332883"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">NodeConfigError
+</span><a href="#local-6989586621682332883"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-44"></span><span>      </span><span class="hs-comment">-- cardano-config says which genesis file is at fault, and which key names it</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.LedgerState.html#NodeConfigParsingError"><span class="hs-identifier hs-type">NodeConfigParsingError</span></a></span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Cfg.ConfigurationParsingError</span></span><span>
+</span><span id="line-47"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">errFile :: ConfigurationParsingError -&gt; StrictMaybe String
+</span><span class="hs-identifier hs-var">Cfg.errFile</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-strict-containers-0.1.6.0-27d0323ed023693a9e7dc75f91afb25fba5b52243e8b35c028a1f5599dc698b5/share/doc/html/src/Data.Maybe.Strict.html#SJust"><span class="hs-identifier hs-type">L.SJust</span></a></span><span> </span><span id="local-6989586621682332888"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332888"><span class="hs-identifier hs-var">genesisFp</span></a></span></span><span>
+</span><span id="line-48"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">errPath :: ConfigurationParsingError -&gt; JSONPath
+</span><span class="hs-identifier hs-var">Cfg.errPath</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Aeson.Key</span></span><span> </span><span id="local-6989586621682332891"><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621682332891"><span class="hs-identifier hs-var">key</span></a></span></span><span class="hs-special">]</span><span>
+</span><span id="line-49"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">errMessage :: ConfigurationParsingError -&gt; String
+</span><span class="hs-identifier hs-var">Cfg.errMessage</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682332893"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332893"><span class="hs-identifier hs-var">message</span></a></span></span><span>
+</span><span id="line-50"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-51"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332888"><span class="hs-identifier hs-var">genesisFp</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Classes.html#%2F%3D"><span class="hs-operator hs-var">/=</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332882"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-52"></span><span>              </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading the genesis file &quot;</span></span><span>
+</span><span id="line-53"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332888"><span class="hs-identifier hs-var">genesisFp</span></a></span><span>
+</span><span id="line-54"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; (&quot;</span></span><span>
+</span><span id="line-55"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Key -&gt; Text
+</span><span class="hs-identifier hs-var">Aeson.toText</span></span><span> </span><span class="annot"><span class="annottext">Key
+</span><a href="#local-6989586621682332891"><span class="hs-identifier hs-var">key</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; in &quot;</span></span><span>
+</span><span id="line-57"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332882"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-58"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;): &quot;</span></span><span>
+</span><span id="line-59"></span><span>                </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332893"><span class="hs-identifier hs-var">message</span></a></span><span>
+</span><span id="line-60"></span><span>      </span><span class="annot"><span class="annottext">NodeConfigError
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-61"></span><span>        </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading node configuration at: &quot;</span></span><span>
+</span><span id="line-62"></span><span>          </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332882"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-63"></span><span>          </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;: &quot;</span></span><span>
+</span><span id="line-64"></span><span>          </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">NodeConfigError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. NodeConfigError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">NodeConfigError
+</span><a href="#local-6989586621682332883"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-65"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugTxCmdError"><span class="hs-identifier hs-type">DebugTxCmdError</span></a></span><span> </span><span id="local-6989586621682332896"><span class="annot"><span class="annottext">TxCmdError
+</span><a href="#local-6989586621682332896"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxCmdError -&gt; Doc ann
+forall ann. TxCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Error.TxCmdError.html#renderTxCmdError"><span class="hs-identifier hs-var">renderTxCmdError</span></a></span><span> </span><span class="annot"><span class="annottext">TxCmdError
+</span><a href="#local-6989586621682332896"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-66"></span></pre></body></html>

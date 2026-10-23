@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span class="hs-cpp">
+#ifdef __GLASGOW_HASKELL__
+</span><span class="hs-pragma">{-# LANGUAGE Safe #-}</span><span class="hs-cpp">
+#endif
+</span><span class="hs-cpp">
+#include &quot;containers.h&quot;
+</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- Module      :  Data.IntMap</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- Copyright   :  (c) Daan Leijen 2002</span><span>
+</span><span id="line-12"></span><span class="hs-comment">--                (c) Andriy Palamarchuk 2008</span><span>
+</span><span id="line-13"></span><span class="hs-comment">-- License     :  BSD-style</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- Maintainer  :  libraries@haskell.org</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- Portability :  portable</span><span>
+</span><span id="line-16"></span><span class="hs-comment">--</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- = Finite Int Maps (lazy interface)</span><span>
+</span><span id="line-19"></span><span class="hs-comment">--</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- This module re-exports the value lazy &quot;Data.IntMap.Lazy&quot; API.</span><span>
+</span><span id="line-21"></span><span class="hs-comment">--</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- The @'IntMap' v@ type represents a finite map (sometimes called a dictionary)</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- from keys of type @Int@ to values of type @v@.</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- The functions in &quot;Data.IntMap.Strict&quot; are careful to force values before</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- installing them in an 'IntMap'. This is usually more efficient in cases where</span><span>
+</span><span id="line-27"></span><span class="hs-comment">-- laziness is not essential. The functions in this module do not do so.</span><span>
+</span><span id="line-28"></span><span class="hs-comment">--</span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- For a walkthrough of the most commonly used functions see the</span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- &lt;https://haskell-containers.readthedocs.io/en/latest/map.html maps introduction&gt;.</span><span>
+</span><span id="line-31"></span><span class="hs-comment">--</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- This module is intended to be imported qualified, to avoid name clashes with</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- Prelude functions, e.g.</span><span>
+</span><span id="line-34"></span><span class="hs-comment">--</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- &gt; import Data.IntMap.Lazy (IntMap)</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- &gt; import qualified Data.IntMap.Lazy as IntMap</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--</span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- Note that the implementation is generally /left-biased/. Functions that take</span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- two maps as arguments and combine them, such as `union` and `intersection`,</span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- prefer the values in the first argument to those in the second.</span><span>
+</span><span id="line-41"></span><span class="hs-comment">--</span><span>
+</span><span id="line-42"></span><span class="hs-comment">--</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- == Implementation</span><span>
+</span><span id="line-44"></span><span class="hs-comment">--</span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- The implementation is based on /big-endian patricia trees/.  This data</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- structure performs especially well on binary operations like 'union'</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- and 'intersection'. Additionally, benchmarks show that it is also</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- (much) faster on insertions and deletions when compared to a generic</span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- size-balanced map implementation (see &quot;Data.Map&quot;).</span><span>
+</span><span id="line-50"></span><span class="hs-comment">--</span><span>
+</span><span id="line-51"></span><span class="hs-comment">--    * Chris Okasaki and Andy Gill,</span><span>
+</span><span id="line-52"></span><span class="hs-comment">--      \&quot;/Fast Mergeable Integer Maps/\&quot;,</span><span>
+</span><span id="line-53"></span><span class="hs-comment">--      Workshop on ML, September 1998, pages 77-86,</span><span>
+</span><span id="line-54"></span><span class="hs-comment">--      &lt;https://web.archive.org/web/20150417234429/https://ittc.ku.edu/~andygill/papers/IntMap98.pdf&gt;.</span><span>
+</span><span id="line-55"></span><span class="hs-comment">--</span><span>
+</span><span id="line-56"></span><span class="hs-comment">--    * D.R. Morrison,</span><span>
+</span><span id="line-57"></span><span class="hs-comment">--      \&quot;/PATRICIA -- Practical Algorithm To Retrieve Information Coded In Alphanumeric/\&quot;,</span><span>
+</span><span id="line-58"></span><span class="hs-comment">--      Journal of the ACM, 15(4), October 1968, pages 514-534,</span><span>
+</span><span id="line-59"></span><span class="hs-comment">--      &lt;https://doi.org/10.1145/321479.321481&gt;.</span><span>
+</span><span id="line-60"></span><span class="hs-comment">--</span><span>
+</span><span id="line-61"></span><span class="hs-comment">--</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- == Performance information</span><span>
+</span><span id="line-63"></span><span class="hs-comment">--</span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- Operation comments contain the operation time complexity in</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- [big-O notation](http://en.wikipedia.org/wiki/Big_O_notation), with \(n\)</span><span>
+</span><span id="line-66"></span><span class="hs-comment">-- referring to the number of entries in the map and \(W\) referring to the</span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- number of bits in an 'Int' (32 or 64).</span><span>
+</span><span id="line-68"></span><span class="hs-comment">--</span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- Operations like 'lookup', 'insert', and 'delete' have a worst-case</span><span>
+</span><span id="line-70"></span><span class="hs-comment">-- complexity of \(O(\min(n,W))\). This means that the operation can become</span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- linear in the number of elements with a maximum of \(W\) -- the number of</span><span>
+</span><span id="line-72"></span><span class="hs-comment">-- bits in an 'Int' (32 or 64). These peculiar asymptotics are determined by the</span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- depth of the Patricia trees:</span><span>
+</span><span id="line-74"></span><span class="hs-comment">--</span><span>
+</span><span id="line-75"></span><span class="hs-comment">-- * even for an extremely unbalanced tree, the depth cannot be larger than</span><span>
+</span><span id="line-76"></span><span class="hs-comment">--   the number of elements \(n\),</span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- * each level of a Patricia tree determines at least one more bit</span><span>
+</span><span id="line-78"></span><span class="hs-comment">--   shared by all subelements, so there could not be more</span><span>
+</span><span id="line-79"></span><span class="hs-comment">--   than \(W\) levels.</span><span>
+</span><span id="line-80"></span><span class="hs-comment">--</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- If all \(n\) keys in the tree are between 0 and \(N\) (or, say, between \(-N\) and \(N\)),</span><span>
+</span><span id="line-82"></span><span class="hs-comment">-- the estimate can be refined to \(O(\min(n, \log N))\). If the set of keys</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- is sufficiently &quot;dense&quot;, this becomes \(O(\min(n, \log n))\) or simply</span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- the familiar \(O(\log n)\), matching balanced binary trees.</span><span>
+</span><span id="line-85"></span><span class="hs-comment">--</span><span>
+</span><span id="line-86"></span><span class="hs-comment">-- The most performant scenario for 'IntMap' are keys from a contiguous subset,</span><span>
+</span><span id="line-87"></span><span class="hs-comment">-- in which case the complexity is proportional to \(\log n\), capped by \(W\).</span><span>
+</span><span id="line-88"></span><span class="hs-comment">-- The worst scenario are exponentially growing keys \(1,2,4,\ldots,2^n\),</span><span>
+</span><span id="line-89"></span><span class="hs-comment">-- for which complexity grows as fast as \(n\) but again is capped by \(W\).</span><span>
+</span><span id="line-90"></span><span class="hs-comment">--</span><span>
+</span><span id="line-91"></span><span class="hs-comment">-- Binary set operations like 'union' and 'intersection' take</span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- \(O(\min(n, m \log \frac{2^W}{m}))\) time, where \(m\) and \(n\)</span><span>
+</span><span id="line-93"></span><span class="hs-comment">-- are the sizes of the smaller and larger input maps respectively.</span><span>
+</span><span id="line-94"></span><span class="hs-comment">--</span><span>
+</span><span id="line-95"></span><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-96"></span><span>
+</span><span id="line-97"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.IntMap.html"><span class="hs-identifier">Data.IntMap</span></a></span><span>
+</span><span id="line-98"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.IntMap.Lazy.html"><span class="hs-identifier">Data.IntMap.Lazy</span></a></span><span>
+</span><span id="line-99"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-100"></span><span>
+</span><span id="line-101"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.IntMap.Lazy.html"><span class="hs-identifier">Data.IntMap.Lazy</span></a></span><span>
+</span><span id="line-102"></span></pre></body></html>

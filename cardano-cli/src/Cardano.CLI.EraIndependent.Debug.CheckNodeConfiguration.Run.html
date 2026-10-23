@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run.html#runCheckNodeConfig"><span class="hs-identifier">runCheckNodeConfig</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.DebugCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.DebugCmdError</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- | Check a node configuration file by reading it the way 'readNodeConfig'</span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- does: every genesis file it names must exist, decode, and match the hash the</span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- configuration gives for it.</span><span>
+</span><span id="line-18"></span><span id="local-6989586621682332903"><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run.html#runCheckNodeConfig"><span class="hs-identifier hs-type">runCheckNodeConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command.html#CheckNodeConfigCmdArgs"><span class="hs-identifier hs-type">CheckNodeConfigCmdArgs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682332903"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-19"></span><span id="runCheckNodeConfig"><span class="annot"><span class="annottext">runCheckNodeConfig :: forall e. CheckNodeConfigCmdArgs -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run.html#runCheckNodeConfig"><span class="hs-identifier hs-var hs-var">runCheckNodeConfig</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command.html#CheckNodeConfigCmdArgs"><span class="hs-identifier hs-type">CheckNodeConfigCmdArgs</span></a></span><span> </span><span id="local-6989586621682332988"><span class="annot"><span class="annottext">NodeConfigFile 'In
+</span><a href="#local-6989586621682332988"><span class="hs-identifier hs-var">configFile</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-20"></span><span>  </span><span class="annot"><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">ExceptT DebugCmdError IO (NodeConfig, [ConfigWarning])
+-&gt; RIO e (NodeConfig, [ConfigWarning])
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT DebugCmdError IO (NodeConfig, [ConfigWarning])
+ -&gt; RIO e (NodeConfig, [ConfigWarning]))
+-&gt; (ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+    -&gt; ExceptT DebugCmdError IO (NodeConfig, [ConfigWarning]))
+-&gt; ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+-&gt; RIO e (NodeConfig, [ConfigWarning])
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">(NodeConfigError -&gt; DebugCmdError)
+-&gt; ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+-&gt; ExceptT DebugCmdError IO (NodeConfig, [ConfigWarning])
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; NodeConfigError -&gt; DebugCmdError
+</span><a href="Cardano.CLI.Type.Error.DebugCmdError.html#DebugNodeConfigReadCmdError"><span class="hs-identifier hs-var">DebugNodeConfigReadCmdError</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682332993"><span class="hs-identifier hs-var">configFilePath</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+ -&gt; RIO e (NodeConfig, [ConfigWarning]))
+-&gt; ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+-&gt; RIO e (NodeConfig, [ConfigWarning])
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-22"></span><span>      </span><span class="annot"><span class="annottext">NodeConfigFile 'In
+-&gt; ExceptT NodeConfigError IO (NodeConfig, [ConfigWarning])
+forall (m :: * -&gt; *).
+(MonadError NodeConfigError m, MonadIO m) =&gt;
+NodeConfigFile 'In -&gt; m (NodeConfig, [ConfigWarning])
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.LedgerState.html#readNodeConfig"><span class="hs-identifier hs-var">readNodeConfig</span></a></span><span> </span><span class="annot"><span class="annottext">NodeConfigFile 'In
+</span><a href="#local-6989586621682332988"><span class="hs-identifier hs-var">configFile</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-type">liftIO</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.Handle.Text.html#hPutStrLn"><span class="hs-identifier hs-type">IO.hPutStrLn</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.IO.StdHandles.html#stderr"><span class="hs-identifier hs-type">IO.stderr</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-25"></span><span>      </span><span class="annot"><span class="hs-string">&quot;Successfully checked node configuration file: &quot;</span></span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-type">&lt;&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682332993"><span class="hs-identifier hs-type">configFilePath</span></a></span><span>
+</span><span id="line-26"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621682332993"><span class="annot"><span class="annottext">configFilePath :: String
+</span><a href="#local-6989586621682332993"><span class="hs-identifier hs-var hs-var">configFilePath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NodeConfigFile 'In -&gt; String
+forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.10.0.0-366627c39233e372ba636ca96b024fc9bd1d7f0a49c2432f932093bc49e7e69e/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">NodeConfigFile 'In
+</span><a href="#local-6989586621682332988"><span class="hs-identifier hs-var">configFile</span></a></span><span>
+</span><span id="line-28"></span></pre></body></html>
