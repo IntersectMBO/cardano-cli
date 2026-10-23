@@ -216,6 +216,8 @@ pTransactionBuildCmd envCli = do
         <*> many (pCertificateFileForEra (Exp.useEra @era) AutoBalance)
         <*> many (pWithdrawalForEra (Exp.useEra @era) AutoBalance)
         <*> pDirectDeposits (Exp.useEra @era)
+        <*> pAccountBalanceIntervals (Exp.useEra @era)
+        <*> pStartingAccountBalanceIntervals (Exp.useEra @era)
         <*> pTxMetadataJsonSchema
         <*> many
           ( pScriptFor
@@ -279,6 +281,8 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
         <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
         <*> pDirectDeposits (Exp.useEra @era)
+        <*> pAccountBalanceIntervals (Exp.useEra @era)
+        <*> pStartingAccountBalanceIntervals (Exp.useEra @era)
         <*> optional pTotalCollateral
         <*> optional pReferenceScriptSize
         <*> pTxMetadataJsonSchema
@@ -325,6 +329,8 @@ pTransactionBuildRaw =
       <*> many (pCertificateFileForEra (Exp.useEra @era) ManualBalance)
       <*> many (pWithdrawalForEra (Exp.useEra @era) ManualBalance)
       <*> pDirectDeposits (Exp.useEra @era)
+      <*> pAccountBalanceIntervals (Exp.useEra @era)
+      <*> pStartingAccountBalanceIntervals (Exp.useEra @era)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

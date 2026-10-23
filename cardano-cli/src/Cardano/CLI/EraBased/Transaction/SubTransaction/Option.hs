@@ -113,6 +113,7 @@ pSubTransactionBuildRaw =
             ManualBalance
         )
       <*> pDirectDeposits Exp.DijkstraEra
+      <*> pAccountBalanceIntervals Exp.DijkstraEra
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

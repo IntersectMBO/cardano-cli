@@ -48,6 +48,7 @@ import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
+import Cardano.Ledger.Dijkstra.TxBody qualified as L
 import Cardano.Ledger.Keys (coerceKeyRole)
 
 import Control.Applicative ((<|>))
@@ -198,7 +199,40 @@ dijkstraBodyPairs
 dijkstraBodyPairs era body = case era of
   Exp.ConwayEra -> []
   Exp.DijkstraEra ->
-    ["direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)]
+    [ "direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)
+    , "account balance intervals"
+        .= friendlyAccountBalanceIntervals (body ^. L.accountBalanceIntervalsTxBodyL)
+    , "starting account balance intervals"
+        .= friendlyAccountBalanceIntervals (body ^. L.startingAccountBalanceIntervalsTxBodyL)
+    , "sub-transactions" .= renderSubTransactions body
+    ]
+
+renderSubTransactions
+  :: L.TxBody C.TopTx (Exp.LedgerEra Exp.DijkstraEra)
+  -> Aeson.Value
+renderSubTransactions body =
+  array
+    [ object
+        [ "id" .= serialiseToRawBytesHexText (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
+        , "account balance intervals"
+            .= friendlyAccountBalanceIntervals (subTx ^. L.bodyTxL . L.accountBalanceIntervalsTxBodyL)
+        ]
+    | subTx <- toList (body ^. L.subTransactionsTxBodyL)
+    ]
+
+friendlyAccountBalanceIntervals :: L.AccountBalanceIntervals era -> Aeson.Value
+friendlyAccountBalanceIntervals (L.AccountBalanceIntervals intervals)
+  | Map.null intervals = Null
+  | otherwise =
+      array
+        [ object $
+            [ "address" .= serialiseAddress addr
+            , "interval" .= interval
+            ]
+              <> friendlyStakeAddress addr
+        | (account, interval) <- Map.toList intervals
+        , let addr = fromShelleyStakeAddr account
+        ]
 
 renderCollateralInputs
   :: L.AlonzoEraTxBody (Exp.LedgerEra era)

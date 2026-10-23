@@ -15,12 +15,14 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFile)
+import Cardano.Ledger.Dijkstra.Scripts qualified as L
 
 import Vary (Vary)
 
@@ -52,6 +54,8 @@ data SubTransactionBuildRawCmdArgs = SubTransactionBuildRawCmdArgs
   , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   , directDeposits :: ![(StakeAddress, Coin)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  , accountBalanceIntervals
+      :: ![(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra Exp.DijkstraEra))]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
