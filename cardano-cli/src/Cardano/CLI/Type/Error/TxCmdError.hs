@@ -87,6 +87,7 @@ data TxCmdError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
   | TxCmdDuplicateDirectDeposits ![StakeAddress]
+  | TxCmdDuplicateAccountBalanceIntervals !String ![StakeAddress]
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
   | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
@@ -220,6 +221,11 @@ renderTxCmdError = \case
     "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
+  TxCmdDuplicateAccountBalanceIntervals option addresses ->
+    "Duplicate accounts in --"
+      <> pretty option
+      <> ": "
+      <> hsep (map (pretty . serialiseAddress) addresses)
   TxCmdDuplicateDirectDeposits addresses ->
     "Duplicate direct-deposit accounts: "
       <> hsep (map (pretty . serialiseAddress) addresses)
