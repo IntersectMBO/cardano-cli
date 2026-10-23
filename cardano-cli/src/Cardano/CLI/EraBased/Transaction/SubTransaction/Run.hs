@@ -58,7 +58,6 @@ import RIO hiding (toList)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Foldable qualified as Foldable
-import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.OSet.Strict (OSet)
 import Data.OSet.Strict qualified as OSet
@@ -81,7 +80,7 @@ readSignedSubTransactions subTransactionFiles = do
   signedSubTxs <- forM subTransactionFiles $ \(File subTxPath) -> do
     subTxFile <- liftIO $ fileOrPipe subTxPath
     fromEitherIOCli $ first TxCmdTextEnvError <$> readFileSignedSubTx subTxFile
-  case [i | (i : _ : _) <- List.group (List.sort (map Exp.getSignedSubTxId signedSubTxs))] of
+  case findDuplicates (map Exp.getSignedSubTxId signedSubTxs) of
     duplicateId : _ -> throwCliError $ TxCmdDuplicateSubTransaction duplicateId
     [] -> pure signedSubTxs
 
@@ -99,6 +98,7 @@ runSubTransactionBuildRawCmd
     , certificates
     , withdrawals
     , directDeposits
+    , accountBalanceIntervals
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -156,14 +156,11 @@ runSubTransactionBuildRawCmd
 
     guardWitnesses <- mapM readGuard guards
     let guardCredentials = [credential | (credential, _, _) <- guardWitnesses]
-        duplicates = [credential | credential : _ : _ <- List.group (List.sort guardCredentials)]
+        duplicates = findDuplicates guardCredentials
     unless (null duplicates) $ throwCliError $ TxCmdDuplicateGuards duplicates
 
     topLevelGuardEntries <- mapM readTopLevelGuard topLevelGuards
-    let duplicateTopLevelGuards =
-          [ credential
-          | credential : _ : _ <- List.group (List.sort (map fst topLevelGuardEntries))
-          ]
+    let duplicateTopLevelGuards = findDuplicates (map fst topLevelGuardEntries)
     unless (null duplicateTopLevelGuards) $
       throwCliError $
         TxCmdDuplicateTopLevelGuards duplicateTopLevelGuards
@@ -182,6 +179,7 @@ runSubTransactionBuildRawCmd
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
           directDeposits
+          accountBalanceIntervals
           txAuxScripts
           txMetadata
           votingProceduresAndMaybeScriptWits
@@ -353,6 +351,7 @@ constructSubTx
   -- ^ Withdrawals
   -> [(StakeAddress, Lovelace)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
@@ -377,6 +376,7 @@ constructSubTx
   certsAndMaybeScriptWits
   withdrawals
   directDeposits
+  accountBalanceIntervals
   txAuxScripts
   txMetadata
   votingProcedures
@@ -423,6 +423,8 @@ constructSubTx
             TxMetadataInEra _ mDat -> mDat
 
       validatedDirectDeposits <- convertDirectDeposits directDeposits
+      validatedIntervals <-
+        convertAccountBalanceIntervals "account-balance-interval" accountBalanceIntervals
       validatedMintValue <- createTxMintValue valuesWithScriptWits
       validatedVotingProcedures <-
         first (TxCmdVotingError . TxVotingError) $
@@ -439,6 +441,7 @@ constructSubTx
             & Exp.setTxAuxScripts auxScripts
             & Exp.setTxWithdrawals (convertWithdrawals withdrawals)
             & Exp.setTxDirectDeposits validatedDirectDeposits
+            & Exp.setTxAccountBalanceIntervals validatedIntervals
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
               (Exp.mkTxCertificates Exp.useEra certsAndMaybeScriptWits)

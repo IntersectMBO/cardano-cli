@@ -116,6 +116,8 @@ Usage: cardano-cli dijkstra transaction build-estimate --shelley-key-witnesses I
                                                              --withdrawal-reference-tx-in-execution-units (INT, INT)
                                                            ]]
                                                          [--direct-deposit STAKE_ADDRESS+LOVELACE]
+                                                         [--account-balance-interval 'STAKE_ADDRESS{=N|>=L|<U|>=L,<U}']
+                                                         [--starting-account-balance-interval 'STAKE_ADDRESS{=N|>=L|<U|>=L,<U}']
                                                          [--tx-total-collateral INTEGER]
                                                          [--reference-script-size NATURAL]
                                                          [ --json-metadata-no-schema
@@ -437,6 +439,25 @@ Available options:
   --direct-deposit STAKE_ADDRESS+LOVELACE
                            Deposit ADA into a registered account. Amount in
                            lovelace; each account may occur once.
+  --account-balance-interval 'STAKE_ADDRESS{=N|>=L|<U|>=L,<U}'
+                           Require the account balance to satisfy this interval
+                           before applying this transaction's withdrawals,
+                           certificates, or direct deposits. Top-level
+                           transactions check the balance after all
+                           sub-transactions; each sub-transaction checks the
+                           balance after any preceding sub-transactions. Amounts
+                           in lovelace; lower bounds inclusive, upper bounds
+                           exclusive. Quote the argument to protect < and > from
+                           the shell, e.g. 'stake_test1...>=100,<200'. Each
+                           account may occur once per option.
+  --starting-account-balance-interval 'STAKE_ADDRESS{=N|>=L|<U|>=L,<U}'
+                           Check the account balance before the entire
+                           transaction, including all sub-transactions.
+                           Top-level only. Amounts in lovelace; lower bounds
+                           inclusive, upper bounds exclusive. Quote the argument
+                           to protect < and > from the shell, e.g.
+                           'stake_test1...>=100,<200'. Each account may occur
+                           once per option.
   --tx-total-collateral INTEGER
                            The total amount of collateral that will be collected
                            as fees in the event of a Plutus script failure. Must

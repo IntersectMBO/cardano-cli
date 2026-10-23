@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1483
+kind:
+  - feature
+description: Add comparison-based account balance interval options to Dijkstra transaction builders and expose ordinary, starting, and embedded sub-transaction intervals in JSON and YAML debug views.
