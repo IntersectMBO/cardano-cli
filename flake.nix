@@ -298,6 +298,21 @@
                   --replace-fail 'void scalar_add_no_overflow(' 'static void scalar_add_no_overflow('
               '';
             }
+            ({
+              lib,
+              pkgs,
+              ...
+            }:
+              lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
+                # unix-compat, which cardano-config brings in through trace-dispatcher,
+                # asks for msvcrt on Windows, but the toolchain links ucrt: the two C
+                # runtimes define the same symbols (__getmainargs, _onexit, tzset, ...),
+                # so no executable links. cardano-node (nix/haskell.nix) and cardano-api
+                # carry the same fix. Remove once unix-compat stops asking for msvcrt
+                packages.unix-compat.postPatch = ''
+                  sed -i 's/msvcrt//g' unix-compat.cabal
+                '';
+              })
             # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
             ({
               pkgs,
