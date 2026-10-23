@@ -15,6 +15,8 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Run
   ( runSubTransactionCmds
   , runSubTransactionBuildRawCmd
   , runSubTransactionSignCmd
+  , runSubTransactionWitnessCmd
+  , runSubTransactionAssembleCmd
   , runSubTransactionTxIdCmd
   , readSignedSubTransactions
   , validateCanonicalSubTransactions
@@ -69,6 +71,8 @@ runSubTransactionCmds :: Cmd.SubTransactionCmds -> CIO e ()
 runSubTransactionCmds = \case
   Cmd.SubTransactionBuildRawCmd args -> runSubTransactionBuildRawCmd args
   Cmd.SubTransactionSignCmd args -> runSubTransactionSignCmd args
+  Cmd.SubTransactionWitnessCmd args -> runSubTransactionWitnessCmd args
+  Cmd.SubTransactionAssembleCmd args -> runSubTransactionAssembleCmd args
   Cmd.SubTransactionTxIdCmd args -> runSubTransactionTxIdCmd args
 
 -- | Read the signed sub-transactions named on the command line, checking that
@@ -478,6 +482,56 @@ runSubTransactionSignCmd
         signed = Exp.signSubTx [] keyWits unsigned
 
     fromEitherIOCli $ writeFileTextEnvelope outFile Nothing signed
+
+runSubTransactionWitnessCmd
+  :: Cmd.SubTransactionWitnessCmdArgs
+  -> CIO e ()
+runSubTransactionWitnessCmd
+  Cmd.SubTransactionWitnessCmdArgs
+    { subTxFile = File subTxFilePath
+    , witnessSigningData
+    , outFile
+    } = do
+    subTxFile <- liftIO $ fileOrPipe subTxFilePath
+    unsigned <-
+      fromEitherIOCli $ first TxCmdTextEnvError <$> readFileUnsignedSubTx subTxFile
+    signingWitness <-
+      fromEitherIOCli $
+        first TxCmdReadWitnessSigningDataError <$> readWitnessSigningData witnessSigningData
+    key <- case categoriseSomeSigningWitness signingWitness of
+      AByronWitness _ -> throwCliError TxCmdSubTxByronWitnessUnsupported
+      AShelleyKeyWitness key -> pure key
+    let witness = ShelleyKeyWitness ShelleyBasedEraDijkstra $ Exp.makeSubTxKeyWitness unsigned key
+    fromEitherIOCli $
+      first TxCmdWriteFileError <$> writeTxWitnessFileTextEnvelope ShelleyBasedEraDijkstra outFile witness
+
+runSubTransactionAssembleCmd
+  :: Cmd.SubTransactionAssembleCmdArgs
+  -> CIO e ()
+runSubTransactionAssembleCmd
+  Cmd.SubTransactionAssembleCmdArgs
+    { subTxFile = File subTxFilePath
+    , witnessFiles
+    , outFile
+    } = do
+    subTxFile <- liftIO $ fileOrPipe subTxFilePath
+    unsigned <-
+      fromEitherIOCli $ first TxCmdTextEnvError <$> readFileUnsignedSubTx subTxFile
+    keyWits <- forM witnessFiles $ \witnessFile@(WitnessFile path) -> do
+      InAnyShelleyBasedEra era witness <-
+        fromEitherIOCli $ first TxCmdTextEnvError <$> readFileTxKeyWitness path
+      case era of
+        ShelleyBasedEraDijkstra -> case witness of
+          ShelleyKeyWitness _ keyWit -> pure keyWit
+          ShelleyBootstrapWitness{} -> throwCliError TxCmdSubTxByronWitnessUnsupported
+        _ ->
+          throwCliError $
+            TxCmdWitnessEraMismatch
+              (AnyCardanoEra DijkstraEra)
+              (AnyCardanoEra $ toCardanoEra era)
+              witnessFile
+    -- Preserve the body bytes covered by the signatures, as in 'sign'.
+    fromEitherIOCli $ writeFileTextEnvelope outFile Nothing $ Exp.signSubTx [] keyWits unsigned
 
 runSubTransactionTxIdCmd
   :: Cmd.SubTransactionTxIdCmdArgs

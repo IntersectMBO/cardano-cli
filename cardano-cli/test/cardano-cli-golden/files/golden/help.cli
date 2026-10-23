@@ -5261,7 +5261,14 @@ Usage: cardano-cli dijkstra stake-pool metadata-hash
   Calculate the hash of a stake pool metadata file, optionally checking the
   obtained hash against an expected value.
 
-Usage: cardano-cli dijkstra sub-transaction (build-raw | sign | txid) 
+Usage: cardano-cli dijkstra sub-transaction 
+                                              ( build-raw
+                                              | sign
+                                              | witness
+                                              | assemble
+                                              | txid
+                                              )
+                                              
 
   Sub-transaction commands. A sub-transaction is built and signed on its own,
   then embedded in a top-level transaction.
@@ -5443,6 +5450,21 @@ Usage: cardano-cli dijkstra sub-transaction sign --sub-tx-file FILEPATH
                                                    
 
   Sign a sub-transaction
+
+Usage: cardano-cli dijkstra sub-transaction witness --sub-tx-file FILEPATH
+                                                      --signing-key-file FILEPATH
+                                                      --out-file FILEPATH
+                                                      
+
+  Create a sub-transaction key witness
+
+Usage: cardano-cli dijkstra sub-transaction assemble --sub-tx-file FILEPATH
+                                                       [--witness-file FILEPATH]
+                                                       --out-file FILEPATH
+                                                       
+
+  Assemble an unsigned sub-transaction and key witnesses into a signed
+  sub-transaction
 
 Usage: cardano-cli dijkstra sub-transaction txid 
                                                    ( --sub-tx-file FILEPATH
