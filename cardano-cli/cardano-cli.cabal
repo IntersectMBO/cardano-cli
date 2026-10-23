@@ -186,11 +186,11 @@ library
     Cardano.CLI.Legacy.Option
     Cardano.CLI.Legacy.Run
     Cardano.CLI.LocalStateQuery
-    Cardano.CLI.OS.Posix
     Cardano.CLI.Option
     Cardano.CLI.Option.Flag
     Cardano.CLI.Option.Flag.Type
     Cardano.CLI.Orphan
+    Cardano.CLI.OS.Posix
     Cardano.CLI.Parser
     Cardano.CLI.Read
     Cardano.CLI.Read.Committee.ColdKey
@@ -250,7 +250,7 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=11.9,
+    cardano-api ^>=11.11,
     cardano-binary,
     cardano-crypto,
     cardano-crypto-class ^>=2.6,

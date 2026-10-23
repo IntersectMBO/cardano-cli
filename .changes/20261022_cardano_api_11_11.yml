@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1482
+kind:
+  - maintenance
+description: Update to cardano-api 11.11 and adapt sub-transaction guards and node configuration hash checks to the new API types.

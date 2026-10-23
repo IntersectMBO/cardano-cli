@@ -60,8 +60,7 @@ hprop_check_node_configuration_failure = do
 
   watchdogProp . propertyOnce $ forM_ supplyValues $ \(nodeConfigPath, fiddleKind) -> H.moduleWorkspace "tmp" $ \tempDir -> do
     let finalInputConfig = tempDir </> "node-config-changed.json"
-        -- TODO why is that writing to "AlonzoGenesisHash" writes one more 0 than specified here? (and hence the need for this hack)
-        wrongHash = Text.pack $ replicate (case fiddleKind of FiddleByron -> 65; FiddleNonByron -> 64) '0'
+        wrongHash = Text.replicate 64 "0"
 
     -- Install the genesis files in the sandbox
     forM_
@@ -106,9 +105,8 @@ hprop_check_node_configuration_failure = do
           , "--node-configuration-file"
           , finalInputConfig
           ]
-    --  H.success -- Temporarily disabled.
     H.assertWith exitCode (ExitSuccess /=)
-    H.assertWith stderr ("Wrong genesis hash" `isInfixOf`)
+    H.assertWith stderr ("GenesisHashMismatch" `isInfixOf`)
 
 -- | The JSON key of the genesis hash for the given era.
 eraToGenesisHashKey :: AnyCardanoEra -> Text.Text

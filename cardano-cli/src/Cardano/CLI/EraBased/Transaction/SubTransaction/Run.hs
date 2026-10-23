@@ -260,8 +260,8 @@ validateGuardRedeemer credential script hasRedeemer
   | otherwise =
       unless hasRedeemer $ Left $ TxCmdPlutusGuardMissingRedeemer credential
 
--- | The API currently collects witnesses for the six pre-Dijkstra purposes.
--- Add guarding witnesses before canonicalisation/signing and update the script
+-- | Guard credentials are passed to the API without witnesses below.
+-- Add their witnesses before canonicalisation/signing and update the script
 -- integrity hash to cover the complete redeemer set. Guard indices include key
 -- and native-script guards, and preserve the body's OSet order.
 addGuardWitnesses
@@ -423,6 +423,10 @@ constructSubTx
             TxMetadataInEra _ mDat -> mDat
 
       validatedDirectDeposits <- convertDirectDeposits directDeposits
+      validatedGuards <-
+        first TxCmdGuardsError $
+          obtainCommonConstraints (Exp.useEra @era) $
+            Exp.mkTxGuards [(credential, Nothing) | credential <- Foldable.toList guards]
       validatedMintValue <- createTxMintValue valuesWithScriptWits
       validatedVotingProcedures <-
         first (TxCmdVotingError . TxVotingError) $
@@ -448,7 +452,7 @@ constructSubTx
             & maybe id (Exp.setTxCurrentTreasuryValue . unTxCurrentTreasuryValue) mCurrentTreasury
             & maybe id (Exp.setTxTreasuryDonation . unTxTreasuryDonation) mTreasuryDonation
             & Exp.setTxSupplementalDatums suppDatums
-            & Exp.setTxGuards guards
+            & Exp.setTxGuards validatedGuards
             & Exp.setTxRequiredTopLevelGuards requiredTopLevelGuards
         )
 
