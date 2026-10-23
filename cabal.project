@@ -162,12 +162,12 @@ source-repository-package
   tag: 0d02985b030317be91c5422020d1ed3565fe3ee3
   --sha256: sha256-TAVzwcNlaqen5oUzFMFCZXkoZ861lY8ri7Hw1UDcMt4=
 
--- https://github.com/IntersectMBO/cardano-api/pull/TODO
+-- https://github.com/IntersectMBO/cardano-api/pull/1383
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: 10ed945ae1cc1a9e761319eed64e84335dc08458
-  --sha256: sha256-NBS5H3bonzSbrOn6HIBKd3Z9sjJiF40djOvfZV8Ck/Q=
+  tag: 7d25e7858cf45cd68c5374df8a5e819fe46f2dca
+  --sha256: sha256-9oLXyZ2goonKXd8dPEcK18qx8UTEUvpUsjr69xnejPc=
   subdir:
     cardano-api
 
