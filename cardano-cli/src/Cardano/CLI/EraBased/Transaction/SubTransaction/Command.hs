@@ -6,6 +6,8 @@ module Cardano.CLI.EraBased.Transaction.SubTransaction.Command
   ( SubTransactionCmds (..)
   , SubTransactionBuildRawCmdArgs (..)
   , SubTransactionSignCmdArgs (..)
+  , SubTransactionWitnessCmdArgs (..)
+  , SubTransactionAssembleCmdArgs (..)
   , SubTransactionTxIdCmdArgs (..)
   , Guard (..)
   , GuardScript (..)
@@ -32,6 +34,8 @@ import Vary (Vary)
 data SubTransactionCmds
   = SubTransactionBuildRawCmd !SubTransactionBuildRawCmdArgs
   | SubTransactionSignCmd !SubTransactionSignCmdArgs
+  | SubTransactionWitnessCmd !SubTransactionWitnessCmdArgs
+  | SubTransactionAssembleCmd !SubTransactionAssembleCmdArgs
   | SubTransactionTxIdCmd !SubTransactionTxIdCmdArgs
 
 -- | Like 'TransactionBuildRawCmdArgs' for a sub-transaction body. A
@@ -99,6 +103,20 @@ data SubTransactionSignCmdArgs = SubTransactionSignCmdArgs
   }
   deriving Show
 
+data SubTransactionWitnessCmdArgs = SubTransactionWitnessCmdArgs
+  { subTxFile :: !(UnsignedSubTxFile In)
+  , witnessSigningData :: !WitnessSigningData
+  , outFile :: !(File () Out)
+  }
+  deriving Show
+
+data SubTransactionAssembleCmdArgs = SubTransactionAssembleCmdArgs
+  { subTxFile :: !(UnsignedSubTxFile In)
+  , witnessFiles :: ![WitnessFile]
+  , outFile :: !(SignedSubTxFile Out)
+  }
+  deriving Show
+
 data SubTransactionTxIdCmdArgs = SubTransactionTxIdCmdArgs
   { inputSubTxFile :: !InputSubTxFile
   , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
@@ -109,4 +127,6 @@ renderSubTransactionCmds :: SubTransactionCmds -> Text
 renderSubTransactionCmds = \case
   SubTransactionBuildRawCmd{} -> "sub-transaction build-raw"
   SubTransactionSignCmd{} -> "sub-transaction sign"
+  SubTransactionWitnessCmd{} -> "sub-transaction witness"
+  SubTransactionAssembleCmd{} -> "sub-transaction assemble"
   SubTransactionTxIdCmd{} -> "sub-transaction txid"
