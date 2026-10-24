@@ -48,6 +48,7 @@ import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
+import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 import Cardano.Ledger.Keys (coerceKeyRole)
 
 import Control.Applicative ((<|>))
@@ -407,8 +408,8 @@ renderPurpose era purpose = case era of
       ]
 
   dijkstraView
-    :: Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
-  dijkstraView _ = error "TODO Dijkstra"
+    :: Ledger.PlutusPurpose L.AsIxItem (Exp.LedgerEra DijkstraEra) -> Maybe Aeson.Value
+  dijkstraView p = labelPurpose "guarding script" . unAsIxItem <$> Dijkstra.toGuardingPurpose p
 
 renderScriptData
   :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)

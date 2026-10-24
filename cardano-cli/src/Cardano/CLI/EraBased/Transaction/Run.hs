@@ -48,6 +48,7 @@ import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
+import Cardano.CLI.EraBased.Script.Guard.Read
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
@@ -87,6 +88,7 @@ import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Data ((:~:) (..))
 import Data.Map.Strict qualified as Map
+import Data.OSet.Strict qualified as OSet
 import Data.Set qualified as Set
 import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
@@ -138,6 +140,7 @@ runTransactionBuildCmd
     , txins
     , readOnlyReferenceInputs
     , requiredSigners = reqSigners
+    , guardScripts
     , txinsc
     , mReturnCollateral = mReturnColl
     , mTotalCollateral
@@ -159,6 +162,7 @@ runTransactionBuildCmd
     , isCborOutCanonical
     , buildOutputOptions
     } = do
+    guardWitnesses <- readGuardScriptWitnesses currentEra guardScripts
     -- Reject invalid deposits before any node queries, including the network check.
     void $ fromEitherCli $ convertDirectDeposits directDeposits
     checkNodeNetworkId nodeConnInfo
@@ -270,7 +274,7 @@ runTransactionBuildCmd
             (map (\(_, _, wit) -> wit) withdrawalsAndMaybeScriptWits)
             (map snd votingProceduresAndMaybeScriptWits)
             (map snd proposals)
-            readOnlyReferenceInputs
+            (readOnlyReferenceInputs ++ mapMaybe (Exp.getAnyWitnessReferenceInput . snd) guardWitnesses)
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
@@ -313,6 +317,7 @@ runTransactionBuildCmd
           withdrawalsAndMaybeScriptWits
           directDeposits
           requiredSigners
+          guardWitnesses
           txAuxScripts
           txMetadata
           mOverrideWitnesses
@@ -388,6 +393,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txins
     , readOnlyReferenceInputs = readOnlyRefIns
     , requiredSigners = reqSigners
+    , guardScripts
     , txinsc = txInsCollateral
     , mReturnCollateral = mReturnColl
     , txouts
@@ -410,6 +416,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , isCborOutCanonical
     , txBodyOutFile
     } = do
+    guardWitnesses <- readGuardScriptWitnesses currentEra guardScripts
     let sbe = convert currentEra
 
     ledgerPParams <-
@@ -492,6 +499,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           withdrawalsAndMaybeScriptWits
           directDeposits
           requiredSigners
+          guardWitnesses
           0
           txAuxScripts
           txMetadata
@@ -598,6 +606,7 @@ runTransactionBuildRawCmd
     , mReturnCollateral = mReturnColl
     , mTotalCollateral
     , requiredSigners = reqSigners
+    , guardScripts
     , txouts
     , mMintedAssets
     , mValidityLowerBound
@@ -618,6 +627,7 @@ runTransactionBuildRawCmd
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
+    guardWitnesses <- readGuardScriptWitnesses eon guardScripts
     signedSubTxs <- readSignedSubTransactions subTransactionFiles
 
     txInsAndMaybeScriptWits <-
@@ -697,6 +707,7 @@ runTransactionBuildRawCmd
           withdrawalsAndMaybeScriptWits
           directDeposits
           requiredSigners
+          guardWitnesses
           txAuxScripts
           txMetadata
           mLedgerPParams
@@ -745,6 +756,8 @@ runTxBuildRaw
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
+  -> [(L.Credential L.Guard, Exp.AnyWitness (Exp.LedgerEra era))]
+  -- ^ Dijkstra guard witnesses
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
@@ -772,6 +785,7 @@ runTxBuildRaw
   withdrawals
   directDeposits
   reqSigners
+  guardWitnesses
   txAuxScripts
   txMetadata
   mpparams
@@ -798,6 +812,7 @@ runTxBuildRaw
         withdrawals
         directDeposits
         reqSigners
+        guardWitnesses
         fee
         txAuxScripts
         txMetadata
@@ -842,6 +857,8 @@ constructTxBodyContent
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
+  -> [(L.Credential L.Guard, Exp.AnyWitness (Exp.LedgerEra era))]
+  -- ^ Dijkstra guard witnesses
   -> Lovelace
   -- ^ Tx fee
   -> TxAuxScripts era
@@ -873,6 +890,7 @@ constructTxBodyContent
   withdrawals
   directDeposits
   reqSigners
+  guardWitnesses
   fee
   txAuxScripts
   txMetadata
@@ -890,7 +908,7 @@ constructTxBodyContent
               (map (\(_, _, mSwit) -> mSwit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              (readOnlyRefIns ++ mapMaybe (Exp.getAnyWitnessReferenceInput . snd) guardWitnesses)
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       -- TODO: Figure how to expose resolved datums
@@ -937,6 +955,8 @@ constructTxBodyContent
             & Exp.setTxWithdrawals validatedWithdrawals
             & Exp.setTxDirectDeposits validatedDirectDeposits
             & Exp.setTxExtraKeyWits (Exp.TxExtraKeyWitnesses reqSigners)
+            & Exp.setTxGuards (OSet.fromList (map fst guardWitnesses))
+            & Exp.setTxGuardWitnesses (Map.fromList guardWitnesses)
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
               (Exp.mkTxCertificates Exp.useEra certsAndMaybeScriptWits)
@@ -993,6 +1013,8 @@ runTxBuild
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [Hash PaymentKey]
   -- ^ Required signers
+  -> [(L.Credential L.Guard, Exp.AnyWitness (Exp.LedgerEra era))]
+  -- ^ Dijkstra guard witnesses
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe Word
@@ -1022,6 +1044,7 @@ runTxBuild
   withdrawals
   directDeposits
   reqSigners
+  guardWitnesses
   txAuxScripts
   txMetadata
   mOverrideWits
@@ -1044,7 +1067,7 @@ runTxBuild
               (map (\(_, _, wit) -> wit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              (readOnlyRefIns ++ mapMaybe (Exp.getAnyWitnessReferenceInput . snd) guardWitnesses)
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
           localNodeConnInfo =
@@ -1091,6 +1114,7 @@ runTxBuild
             withdrawals
             directDeposits
             reqSigners
+            guardWitnesses
             0
             txAuxScripts
             txMetadata
