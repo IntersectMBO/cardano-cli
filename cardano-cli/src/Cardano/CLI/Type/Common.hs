@@ -398,11 +398,11 @@ mkPoolStates
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
       { poolParameters =
-          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
+          (\deposit -> L.mkStakePoolState currentEpoch L.SNothing deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
           -- Future parameters only take effect at the next epoch boundary.
-          (\deposit -> L.mkStakePoolState (succ currentEpoch) deposit stakingCredentials futurePp)
+          (\deposit -> L.mkStakePoolState (succ currentEpoch) L.SNothing deposit stakingCredentials futurePp)
             <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
