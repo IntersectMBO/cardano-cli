@@ -113,7 +113,7 @@ scripts:
     type: plutus
   script hash: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
 starting account balance intervals: null
-sub-transactions: []
+sub-transactions: null
 total collateral: null
 treasuryDonation: 0
 validity range:

@@ -25,6 +25,8 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionWitnessCmdArgs (..)
   , TxCborFormat (..)
   , IncludeCurrentTreasuryValue (..)
+  , accountBalanceIntervalOptionName
+  , startingAccountBalanceIntervalOptionName
   , renderTransactionCmds
   )
 where
@@ -41,6 +43,12 @@ import Cardano.Ledger.Dijkstra.Scripts qualified as L
 
 import Data.Universe (Some)
 import Vary (Vary)
+
+accountBalanceIntervalOptionName :: String
+accountBalanceIntervalOptionName = "account-balance-interval"
+
+startingAccountBalanceIntervalOptionName :: String
+startingAccountBalanceIntervalOptionName = "starting-account-balance-interval"
 
 data TransactionCmds era
   = TransactionBuildRawCmd !(TransactionBuildRawCmdArgs era)

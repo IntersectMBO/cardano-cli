@@ -38,6 +38,7 @@ import Cardano.CLI.EraBased.Script.Read.Common (readScriptDataOrFile)
 import Cardano.CLI.EraBased.Script.Spend.Read
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
+import Cardano.CLI.EraBased.Transaction.Command (accountBalanceIntervalOptionName)
 import Cardano.CLI.EraBased.Transaction.Internal.Common
 import Cardano.CLI.EraBased.Transaction.SubTransaction.Command qualified as Cmd
 import Cardano.CLI.Json.Encode qualified as Json
@@ -424,7 +425,7 @@ constructSubTx
 
       validatedDirectDeposits <- convertDirectDeposits directDeposits
       validatedIntervals <-
-        convertAccountBalanceIntervals "account-balance-interval" accountBalanceIntervals
+        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
       validatedGuards <-
         first TxCmdGuardsError $
           obtainCommonConstraints (Exp.useEra @era) $

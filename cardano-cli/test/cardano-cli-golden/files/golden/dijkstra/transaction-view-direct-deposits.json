@@ -47,7 +47,7 @@
     "return collateral": null,
     "scripts": [],
     "starting account balance intervals": null,
-    "sub-transactions": [],
+    "sub-transactions": null,
     "total collateral": null,
     "treasuryDonation": 0,
     "validity range": {
