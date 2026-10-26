@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1486
+kind:
+  - compatible
+description: Update to cardano-api 11.11 and adapt Dijkstra sub-transaction construction to validated, insertion-ordered TxGuards while preserving existing guard witness handling. Add TxCmdGuardsError to the exposed TxCmdError type to report API guard-validation failures.
