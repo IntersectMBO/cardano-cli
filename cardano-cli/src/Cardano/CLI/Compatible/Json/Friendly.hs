@@ -46,6 +46,7 @@ import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
+import Cardano.Ledger.BaseTypes (Exclusive (..), Inclusive (..))
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
@@ -204,20 +205,19 @@ dijkstraBodyPairs era body = case era of
         .= friendlyAccountBalanceIntervals (body ^. L.accountBalanceIntervalsTxBodyL)
     , "starting account balance intervals"
         .= friendlyAccountBalanceIntervals (body ^. L.startingAccountBalanceIntervalsTxBodyL)
-    , "sub-transactions" .= renderSubTransactions body
+    , "sub-transactions" .= case toList (body ^. L.subTransactionsTxBodyL) of
+        [] -> Null
+        subTransactions -> array $ map renderSubTransaction subTransactions
     ]
 
-renderSubTransactions
-  :: L.TxBody C.TopTx (Exp.LedgerEra Exp.DijkstraEra)
+renderSubTransaction
+  :: L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -> Aeson.Value
-renderSubTransactions body =
-  array
-    [ object
-        [ "id" .= serialiseToRawBytesHexText (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
-        , "account balance intervals"
-            .= friendlyAccountBalanceIntervals (subTx ^. L.bodyTxL . L.accountBalanceIntervalsTxBodyL)
-        ]
-    | subTx <- toList (body ^. L.subTransactionsTxBodyL)
+renderSubTransaction subTx =
+  object
+    [ "id" .= serialiseToRawBytesHexText (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
+    , "account balance intervals"
+        .= friendlyAccountBalanceIntervals (subTx ^. L.bodyTxL . L.accountBalanceIntervalsTxBodyL)
     ]
 
 friendlyAccountBalanceIntervals :: L.AccountBalanceIntervals era -> Aeson.Value
@@ -227,12 +227,36 @@ friendlyAccountBalanceIntervals (L.AccountBalanceIntervals intervals)
       array
         [ object $
             [ "address" .= serialiseAddress addr
-            , "interval" .= interval
+            , "interval" .= friendlyAccountBalanceInterval interval
             ]
               <> friendlyStakeAddress addr
         | (account, interval) <- Map.toList intervals
         , let addr = fromShelleyStakeAddr account
         ]
+
+friendlyAccountBalanceInterval :: L.AccountBalanceInterval era -> Aeson.Value
+friendlyAccountBalanceInterval = \case
+  L.AccountBalanceLowerBound (Inclusive lower) ->
+    object
+      [ "kind" .= String "lowerBound"
+      , "lower" .= friendlyLovelace lower
+      ]
+  L.AccountBalanceUpperBound (Exclusive upper) ->
+    object
+      [ "kind" .= String "upperBound"
+      , "upper" .= friendlyLovelace upper
+      ]
+  L.AccountBalanceBothBounds (Inclusive lower) (Exclusive upper) ->
+    object
+      [ "kind" .= String "bothBounds"
+      , "lower" .= friendlyLovelace lower
+      , "upper" .= friendlyLovelace upper
+      ]
+  L.AccountBalanceExact coin ->
+    object
+      [ "kind" .= String "exact"
+      , "coin" .= friendlyLovelace coin
+      ]
 
 renderCollateralInputs
   :: L.AlonzoEraTxBody (Exp.LedgerEra era)

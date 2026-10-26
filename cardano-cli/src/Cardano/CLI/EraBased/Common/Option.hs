@@ -30,7 +30,11 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as ScriptT
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
-import Cardano.CLI.EraBased.Transaction.Command (IncludeCurrentTreasuryValue (..))
+import Cardano.CLI.EraBased.Transaction.Command
+  ( IncludeCurrentTreasuryValue (..)
+  , accountBalanceIntervalOptionName
+  , startingAccountBalanceIntervalOptionName
+  )
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Option.Flag.Type qualified as Z
 import Cardano.CLI.Orphan ()
@@ -1523,13 +1527,22 @@ parseAccountBalanceInterval :: P.Parser (StakeAddress, L.AccountBalanceInterval 
 parseAccountBalanceInterval = do
   address <- parseAddressAny
   interval <-
-    (L.AccountBalanceExact <$> (P.char '=' *> parseLovelace))
-      <|> (L.AccountBalanceUpperBound . Exclusive <$> (P.char '<' *> parseLovelace))
+    (L.AccountBalanceExact <$> parseExact)
+      <|> (L.AccountBalanceUpperBound . Exclusive <$> parseUpperBound)
       <|> do
-        lower <- Inclusive <$> (P.string ">=" *> parseLovelace)
-        upper <- optional (P.string ",<" *> (Exclusive <$> parseLovelace))
-        pure $ maybe (L.AccountBalanceLowerBound lower) (L.AccountBalanceBothBounds lower) upper
+        lower <- parseLowerBound
+        upper <- optional (P.char ',' *> parseUpperBound)
+        case upper of
+          Nothing -> pure $ L.AccountBalanceLowerBound (Inclusive lower)
+          Just upperBound
+            | lower < upperBound ->
+                pure $ L.AccountBalanceBothBounds (Inclusive lower) (Exclusive upperBound)
+            | otherwise -> fail "The lower bound must be strictly less than the upper bound"
   pure (address, interval)
+ where
+  parseExact = P.char '=' *> parseLovelace
+  parseLowerBound = P.string ">=" *> parseLovelace
+  parseUpperBound = P.char '<' *> parseLovelace
 
 pAccountBalanceIntervals
   :: Exp.Era era
@@ -1537,7 +1550,7 @@ pAccountBalanceIntervals
 pAccountBalanceIntervals era =
   pBalanceIntervals
     era
-    "account-balance-interval"
+    accountBalanceIntervalOptionName
     "Require the account balance to satisfy this interval before applying this transaction's withdrawals, certificates, or direct deposits. Top-level transactions check the balance after all sub-transactions; each sub-transaction checks the balance after any preceding sub-transactions."
 
 pStartingAccountBalanceIntervals
@@ -1546,7 +1559,7 @@ pStartingAccountBalanceIntervals
 pStartingAccountBalanceIntervals era =
   pBalanceIntervals
     era
-    "starting-account-balance-interval"
+    startingAccountBalanceIntervalOptionName
     "Check the account balance before the entire transaction, including all sub-transactions. Top-level only."
 
 pBalanceIntervals
@@ -1560,11 +1573,11 @@ pBalanceIntervals era optionName timing = case era of
     many $
       Opt.option (readerFromParsecParser parseAccountBalanceInterval) $
         Opt.long optionName
-          <> Opt.metavar "'STAKE_ADDRESS{=N|>=L|<U|>=L,<U}'"
+          <> Opt.metavar "STAKE_ADDRESS{=LOVELACE|>=LOWER|<UPPER|>=LOWER,<UPPER}"
           <> Opt.help
             ( timing
                 <> " Amounts in lovelace; lower bounds inclusive, upper bounds exclusive."
-                <> " Quote the argument to protect < and > from the shell, e.g. 'stake_test1...>=100,<200'."
+                <> " Quote the argument so the shell treats < and > as literal characters, e.g. 'stake_test1...>=100,<200'."
                 <> " Each account may occur once per option."
             )
 

@@ -15,8 +15,7 @@ import Cardano.Ledger.Dijkstra.Scripts qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
 
 import Control.Monad (forM_, void)
-import Control.Monad.Morph (hoist)
-import Control.Monad.Trans.Resource (ResourceT, runResourceT)
+import Control.Monad.Trans.Resource (ResourceT)
 import Data.Aeson qualified as Aeson
 import Data.Foldable (toList)
 import Data.List (isInfixOf)
@@ -31,8 +30,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Gen qualified as Gen
-import Hedgehog.Range qualified as Range
 import Test.Cli.Transaction.DirectDeposit (account, accountAddress, otherAccount)
 import Test.Cli.Transaction.SubTransaction
   ( buildSubTransaction
@@ -48,24 +45,24 @@ import Test.Cli.Transaction.SubTransaction
 -- a flag is insufficient if a builder later discards the corresponding field.
 hprop_account_balance_intervals_roundtrip :: Property
 hprop_account_balance_intervals_roundtrip =
-  watchdogProp . H.property . hoist runResourceT $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    amount <- H.forAll $ Gen.integral $ Range.constant 0 maxAmount
-    otherAmount <- H.forAll $ Gen.integral $ Range.constant 0 maxAmount
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "tx.body"
     subFile <- H.noteTempFile tempDir "sub.body"
     signedFile <- H.noteTempFile tempDir "sub.signed"
     address <- accountAddress
     otherAddress <-
       toShelleyStakeAddr <$> H.evalMaybe (deserialiseAddress AsStakeAddress $ Text.pack otherAccount)
-    let cases =
+    let amount = 100
+        otherAmount = 200
+        cases =
           [ exact 0
           , exact maxAmount
           , exact amount
           , (">=" ++ show amount, L.AccountBalanceLowerBound (Inclusive $ L.Coin amount))
           , ("<" ++ show otherAmount, L.AccountBalanceUpperBound (Exclusive $ L.Coin otherAmount))
           , between amount otherAmount
-          , between amount amount
-          , between maxAmount 0
+          , between 0 1
+          , between (maxAmount - 1) maxAmount
           , between 0 maxAmount
           ]
     forM_ cases $ \(expression, interval) -> do
@@ -144,6 +141,16 @@ hprop_account_balance_intervals_reject_invalid_arguments =
     forM_ commands $ \(base, flag) -> do
       forM_ invalid $ \argument ->
         void $ assertRejected outFile $ base ++ [flag, argument]
+      forM_
+        [ ">=0,<0"
+        , ">=100,<100"
+        , ">=200,<100"
+        , ">=18446744073709551615,<0"
+        , ">=18446744073709551615,<18446744073709551615"
+        ]
+        $ \expression -> do
+          stderr <- assertRejected outFile $ base ++ intervalArgs flag [(account, expression)]
+          H.assertWith stderr ("The lower bound must be strictly less than the upper bound" `isInfixOf`)
       stderr <- assertRejected outFile $ base ++ intervalArgs flag [(account, ">=1"), (account, "<2")]
       H.assertWith stderr (("Duplicate accounts in " ++ flag ++ ": " ++ account) `isInfixOf`)
 

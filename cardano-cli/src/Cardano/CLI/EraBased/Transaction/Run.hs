@@ -166,10 +166,12 @@ runTransactionBuildCmd
     void $ fromEitherCli $ convertDirectDeposits directDeposits
     void $
       fromEitherCli $
-        convertAccountBalanceIntervals "account-balance-interval" accountBalanceIntervals
+        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
     void $
       fromEitherCli $
-        convertAccountBalanceIntervals "starting-account-balance-interval" startingAccountBalanceIntervals
+        convertAccountBalanceIntervals
+          startingAccountBalanceIntervalOptionName
+          startingAccountBalanceIntervals
     checkNodeNetworkId nodeConnInfo
 
     let eon = convert currentEra
@@ -950,9 +952,11 @@ constructTxBodyContent
           validatedTreasuryDonation = unTxTreasuryDonation <$> mTreasuryDonation
       validatedDirectDeposits <- convertDirectDeposits directDeposits
       validatedIntervals <-
-        convertAccountBalanceIntervals "account-balance-interval" accountBalanceIntervals
+        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
       validatedStartingIntervals <-
-        convertAccountBalanceIntervals "starting-account-balance-interval" startingAccountBalanceIntervals
+        convertAccountBalanceIntervals
+          startingAccountBalanceIntervalOptionName
+          startingAccountBalanceIntervals
       let validatedWithdrawals = convertWithdrawals withdrawals
       return
         ( Exp.defaultTxBodyContent
