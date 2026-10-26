@@ -88,6 +88,7 @@ data TxCmdError
   | TxCmdSubTxByronWitnessUnsupported
   | TxCmdDuplicateDirectDeposits ![StakeAddress]
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
+  | TxCmdGuardsError !Exp.TxGuardsError
   | TxCmdPlutusGuardMissingRedeemer !(L.Credential L.Guard)
   | TxCmdNativeGuardWithRedeemer !(L.Credential L.Guard)
   | TxCmdTopLevelGuardMissingDatum !FilePath
@@ -225,6 +226,7 @@ renderTxCmdError = \case
       <> hsep (map (pretty . serialiseAddress) addresses)
   TxCmdDuplicateGuards credentials ->
     "Duplicate guards: " <> hsep (map (pretty . L.credToText) credentials)
+  TxCmdGuardsError err -> prettyError err
   TxCmdPlutusGuardMissingRedeemer credential ->
     "Plutus guard "
       <> pretty (L.credToText credential)
