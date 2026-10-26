@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 11.6.0.0 -- 2026-10-26
+
+- Update to cardano-api 11.11 and adapt Dijkstra sub-transaction construction to validated, insertion-ordered TxGuards while preserving existing guard witness handling. Add TxCmdGuardsError to the exposed TxCmdError type to report API guard-validation failures.
+  (compatible)
+  [PR 1486](https://github.com/intersectmbo/cardano-cli/pull/1486)
+
 ## 11.5.0.0 -- 2026-10-23
 
 - `debug check-node-configuration` now reads the configuration with cardano-config. It accepts both the old flat format and the new cardano-config format.
