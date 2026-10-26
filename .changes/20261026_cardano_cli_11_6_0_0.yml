@@ -1,0 +1,5 @@
+description: Release cardano-cli 11.6.0.0
+kind:
+- release
+pr: 1486
+project: cardano-cli
