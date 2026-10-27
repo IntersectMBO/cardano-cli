@@ -74,6 +74,7 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import Cardano.Ledger.Dijkstra.Scripts qualified as L
 import Cardano.Ledger.Hashes (DataHash)
 import Cardano.Prelude (putLByteString)
 
@@ -149,6 +150,8 @@ runTransactionBuildCmd
     , certificates
     , withdrawals
     , directDeposits
+    , accountBalanceIntervals
+    , startingAccountBalanceIntervals
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -159,8 +162,16 @@ runTransactionBuildCmd
     , isCborOutCanonical
     , buildOutputOptions
     } = do
-    -- Reject invalid deposits before any node queries, including the network check.
+    -- Reject duplicate deposits and interval assertions before any node queries.
     void $ fromEitherCli $ convertDirectDeposits directDeposits
+    void $
+      fromEitherCli $
+        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
+    void $
+      fromEitherCli $
+        convertAccountBalanceIntervals
+          startingAccountBalanceIntervalOptionName
+          startingAccountBalanceIntervals
     checkNodeNetworkId nodeConnInfo
 
     let eon = convert currentEra
@@ -312,6 +323,8 @@ runTransactionBuildCmd
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
           directDeposits
+          accountBalanceIntervals
+          startingAccountBalanceIntervals
           requiredSigners
           txAuxScripts
           txMetadata
@@ -398,6 +411,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , certificates
     , withdrawals
     , directDeposits
+    , accountBalanceIntervals
+    , startingAccountBalanceIntervals
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -491,6 +506,8 @@ runTransactionBuildEstimateCmd -- TODO change type
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
           directDeposits
+          accountBalanceIntervals
+          startingAccountBalanceIntervals
           requiredSigners
           0
           txAuxScripts
@@ -606,6 +623,8 @@ runTransactionBuildRawCmd
     , certificates
     , withdrawals
     , directDeposits
+    , accountBalanceIntervals
+    , startingAccountBalanceIntervals
     , metadataSchema
     , scriptFiles
     , metadataFiles
@@ -696,6 +715,8 @@ runTransactionBuildRawCmd
           certsAndMaybeScriptWits
           withdrawalsAndMaybeScriptWits
           directDeposits
+          accountBalanceIntervals
+          startingAccountBalanceIntervals
           requiredSigners
           txAuxScripts
           txMetadata
@@ -743,6 +764,8 @@ runTxBuildRaw
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(StakeAddress, Lovelace)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -771,6 +794,8 @@ runTxBuildRaw
   certsAndMaybeSriptWits
   withdrawals
   directDeposits
+  accountBalanceIntervals
+  startingAccountBalanceIntervals
   reqSigners
   txAuxScripts
   txMetadata
@@ -797,6 +822,8 @@ runTxBuildRaw
         certsAndMaybeSriptWits
         withdrawals
         directDeposits
+        accountBalanceIntervals
+        startingAccountBalanceIntervals
         reqSigners
         fee
         txAuxScripts
@@ -840,6 +867,8 @@ constructTxBodyContent
   -- ^ Withdrawals
   -> [(StakeAddress, Lovelace)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> Lovelace
@@ -872,6 +901,8 @@ constructTxBodyContent
   certsAndMaybeScriptWits
   withdrawals
   directDeposits
+  accountBalanceIntervals
+  startingAccountBalanceIntervals
   reqSigners
   fee
   txAuxScripts
@@ -920,6 +951,12 @@ constructTxBodyContent
       let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue <$> mCurrentTreasury
           validatedTreasuryDonation = unTxTreasuryDonation <$> mTreasuryDonation
       validatedDirectDeposits <- convertDirectDeposits directDeposits
+      validatedIntervals <-
+        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
+      validatedStartingIntervals <-
+        convertAccountBalanceIntervals
+          startingAccountBalanceIntervalOptionName
+          startingAccountBalanceIntervals
       let validatedWithdrawals = convertWithdrawals withdrawals
       return
         ( Exp.defaultTxBodyContent
@@ -936,6 +973,8 @@ constructTxBodyContent
             & Exp.setTxAuxScripts auxScripts
             & Exp.setTxWithdrawals validatedWithdrawals
             & Exp.setTxDirectDeposits validatedDirectDeposits
+            & Exp.setTxAccountBalanceIntervals validatedIntervals
+            & Exp.setTxStartingAccountBalanceIntervals validatedStartingIntervals
             & Exp.setTxExtraKeyWits (Exp.TxExtraKeyWitnesses reqSigners)
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
@@ -991,6 +1030,8 @@ runTxBuild
   -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(StakeAddress, Lovelace)]
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
+  -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -1021,6 +1062,8 @@ runTxBuild
   certsAndMaybeScriptWits
   withdrawals
   directDeposits
+  accountBalanceIntervals
+  startingAccountBalanceIntervals
   reqSigners
   txAuxScripts
   txMetadata
@@ -1090,6 +1133,8 @@ runTxBuild
             certsAndMaybeScriptWits
             withdrawals
             directDeposits
+            accountBalanceIntervals
+            startingAccountBalanceIntervals
             reqSigners
             0
             txAuxScripts

@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1483
+kind:
+  - feature
+description: Add CIP-159 `--account-balance-interval` and `--starting-account-balance-interval` to Dijkstra `transaction build`, `build-raw`, and `build-estimate`; `sub-transaction build-raw` supports only the former. Values use `STAKE_ADDRESS{=N|>=L|<U|>=L,<U}` in lovelace, with inclusive lower bounds, exclusive upper bounds, and `L < U`. Add matching builder argument fields and always display intervals and sub-transactions in JSON/YAML views, with interval amounts in Lovelace.

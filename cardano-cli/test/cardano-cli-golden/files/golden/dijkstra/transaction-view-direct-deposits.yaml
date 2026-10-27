@@ -1,3 +1,4 @@
+account balance intervals: null
 auxiliary scripts: null
 certificates: null
 collateral inputs: []
@@ -34,6 +35,8 @@ reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 scripts: []
+starting account balance intervals: null
+sub-transactions: null
 total collateral: null
 treasuryDonation: 0
 validity range:
