@@ -101,7 +101,8 @@ hprop_account_balance_intervals_roundtrip =
 
 hprop_account_balance_intervals_reject_invalid_arguments :: Property
 hprop_account_balance_intervals_reject_invalid_arguments =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  -- Allow time for the many CLI invocations under QEMU and Wine on Hydra.
+  propertyOnce . H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = 90} $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "unused"
     address <- accountAddress
     let hexAddress = Text.unpack $ serialiseToRawBytesHexText (fromShelleyStakeAddr address)
