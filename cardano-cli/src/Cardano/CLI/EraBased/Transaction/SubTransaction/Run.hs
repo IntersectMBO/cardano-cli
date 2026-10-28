@@ -52,9 +52,10 @@ import Cardano.CLI.Type.Key (readVerificationKeyOrHashOrTextEnvFile)
 import Cardano.Ledger.Core qualified as L (fromNativeScript)
 import Cardano.Ledger.Dijkstra.Scripts qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
-import Cardano.Ledger.Hashes (DataHash, originalBytes)
+import Cardano.Ledger.Hashes (DataHash, hashAnnotated, originalBytes)
 import Cardano.Ledger.Keys (coerceKeyRole)
 import Cardano.Ledger.Plutus.Language qualified as L
+import Cardano.Ledger.State (verifyWitVKey)
 
 import RIO hiding (toList)
 
@@ -525,6 +526,8 @@ runSubTransactionAssembleCmd
     subTxFile <- liftIO $ fileOrPipe subTxFilePath
     unsigned <-
       fromEitherIOCli $ first TxCmdTextEnvError <$> readFileUnsignedSubTx subTxFile
+    let Exp.UnsignedSubTx unsignedTx = unsigned
+        bodyHash = L.extractHash $ hashAnnotated (unsignedTx ^. L.bodyTxL)
     keyWits <- forM witnessFiles $ \(WitnessFile path) -> do
       witnessFile <- liftIO $ fileOrPipe path
       witness <-
@@ -532,7 +535,11 @@ runSubTransactionAssembleCmd
           first TxCmdTextEnvError
             <$> readFileOrPipeTextEnvelopeAnyOf [FromSomeType (AsKeyWitness AsDijkstraEra) id] witnessFile
       case witness of
-        ShelleyKeyWitness _ keyWit -> pure keyWit
+        ShelleyKeyWitness _ keyWit -> do
+          unless (verifyWitVKey bodyHash keyWit) $
+            throwCliError $
+              TxCmdSubTxInvalidWitness (WitnessFile path)
+          pure keyWit
         ShelleyBootstrapWitness{} -> throwCliError TxCmdSubTxByronWitnessUnsupported
     -- Preserve the body bytes covered by the signatures, as in 'sign'.
     fromEitherIOCli $ writeFileTextEnvelope outFile Nothing $ Exp.signSubTx [] keyWits unsigned
