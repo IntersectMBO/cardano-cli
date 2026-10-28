@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1488
+kind:
+  - feature
+description: Add `debug certificate view`, which prints a certificate file as JSON or YAML.
