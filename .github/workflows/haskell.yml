@@ -88,7 +88,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Cache and install Cabal dependencies
-      uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.0
+      uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.1
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
         # Do not reuse macOS 26 dependencies on the pinned macOS 15 runner.

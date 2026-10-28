@@ -7,6 +7,7 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Data.Coerce (coerce)
 import Data.List (find, isInfixOf, isPrefixOf)
 import System.Exit (ExitCode (..))
 
@@ -43,6 +44,10 @@ richRegistrationCertificateInput :: FilePath
 richRegistrationCertificateInput =
   "test/cardano-cli-golden/files/input/dijkstra/stake_pool/registration_certificate_rich_params.json"
 
+conwayRegistrationCertificateInput :: FilePath
+conwayRegistrationCertificateInput =
+  "test/cardano-cli-golden/files/input/conway/stake_pool/registration_certificate_rich_params.json"
+
 -- | Rotating the BLS key of a certificate with a margin, two relays of different kinds and pool
 -- metadata keeps every other parameter.
 hprop_golden_dijkstra_stake_pool_bls_registration_certificate :: Property
@@ -64,6 +69,48 @@ hprop_golden_dijkstra_stake_pool_bls_registration_certificate =
       H.note "test/cardano-cli-golden/files/golden/dijkstra/stake_pool/bls_registration_certificate.json"
 
     H.diffFileVsGoldenFile outFile goldenFile
+
+-- | Right after the hard fork a pool only has a Conway registration certificate, which has no BLS key.
+-- The result is a Dijkstra certificate that keeps every other parameter.
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_from_conway :: Property
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_from_conway =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    conwayCertFile <- noteInputFile conwayRegistrationCertificateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $ blsRegistrationCertificateArgs conwayCertFile blsSigningKeyFile outFile
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("Old BLS key: none (first registration)" `isInfixOf`)
+
+    conwayParams <- readPoolParams @Exp.ConwayEra conwayCertFile
+    newParams <- readPoolParams @TestEra outFile
+    newParams{L.sppBlsKey = L.SNothing} H.=== coerce conwayParams
+    H.assertWith (L.sppBlsKey newParams) (/= L.SNothing)
+
+    -- Same parameters and BLS key as the Dijkstra input, so the same golden file applies.
+    goldenFile <-
+      H.note "test/cardano-cli-golden/files/golden/dijkstra/stake_pool/bls_registration_certificate.json"
+
+    H.diffFileVsGoldenFile outFile goldenFile
+
+-- | Certificates written by earlier releases carry the text envelope type "CertificateShelley".
+hprop_dijkstra_stake_pool_bls_registration_certificate_legacy_envelope_type :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_legacy_envelope_type =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    legacyCertFile <-
+      noteInputFile
+        "test/cardano-cli-golden/files/input/shelley/certificates/stake_pool_registration_certificate"
+    blsSigningKeyFile <- noteInputFile blsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $ blsRegistrationCertificateArgs legacyCertFile blsSigningKeyFile outFile
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("Old BLS key: none (first registration)" `isInfixOf`)
 
 -- | A certificate without a BLS key (a pool's first registration of one) gets the new key, and
 -- every other parameter stays.
