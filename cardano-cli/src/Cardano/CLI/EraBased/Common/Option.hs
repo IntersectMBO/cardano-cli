@@ -2498,6 +2498,9 @@ pInputTxOrTxBodyFile =
     , InputTxFile <$> pTxFileIn
     ]
 
+pCertificateFileIn :: Parser CertificateFile
+pCertificateFileIn = CertificateFile <$> parseFilePath "certificate-file" "Input filepath of the certificate."
+
 pTxInCountDeprecated :: Parser TxInCount
 pTxInCountDeprecated =
   fmap TxInCount $

@@ -17,6 +17,7 @@ module Cardano.CLI.Compatible.Json.Friendly
   , friendlyTxBody
   , friendlyProposal
   , friendlyDRep
+  , friendlyCertificate
 
     -- * Functions that are not in IO
 
@@ -295,7 +296,7 @@ basePairs era body mAuxData =
         , "certificates"
             .= if null certs
               then Null
-              else array [friendlyCertificate era (Exp.Certificate cert) | cert <- certs]
+              else array [friendlyCertificateImpl era (Exp.Certificate cert) | cert <- certs]
         , "era" .= (convert era :: CardanoEra era)
         , "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
         , "inputs" .= toJSON (map fromShelleyTxIn (toList (body ^. L.inputsTxBodyL)))
@@ -617,8 +618,19 @@ friendlyStakeReference = \case
   StakeAddressByPointer ptr -> String (textShow ptr)
   StakeAddressByValue cred -> object [friendlyStakeCredential $ toShelleyStakeCredential cred]
 
-friendlyCertificate :: Exp.Era era -> Exp.Certificate (Exp.LedgerEra era) -> Aeson.Value
-friendlyCertificate era =
+friendlyCertificate
+  :: MonadIO m
+  => Exp.Era era
+  -> Vary [FormatJson, FormatYaml]
+  -> Maybe (File () Out)
+  -> Exp.Certificate (Exp.LedgerEra era)
+  -> m (Either (FileError e) ())
+friendlyCertificate era format mOutFile cert = do
+  let certValue = friendlyCertificateImpl era cert
+  friendly format mOutFile certValue
+
+friendlyCertificateImpl :: Exp.Era era -> Exp.Certificate (Exp.LedgerEra era) -> Aeson.Value
+friendlyCertificateImpl era =
   Exp.obtainCommonConstraints era $
     object . (: []) . renderCertificate era
 
