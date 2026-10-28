@@ -29,11 +29,11 @@ import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 import Test.Cli.Transaction.SubTransaction
-  ( buildSubTransaction
+  ( buildRawSubTxArgs
+  , buildSubTransaction
   , readDijkstraTransaction
   , signSubTransaction
   , signingKey
-  , subTransactionArgs
   , transactionArgs
   , txIn
   )
@@ -91,7 +91,7 @@ hprop_rejects_invalid_direct_deposits =
           | value <- ["-1", "18446744073709551616", "1garbage", "1+1 token", ""]
           ]
             ++ [["--direct-deposit", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+1"]]
-    forM_ [transactionArgs "dijkstra", subTransactionArgs] $ \base -> do
+    forM_ [transactionArgs "dijkstra", buildRawSubTxArgs] $ \base -> do
       forM_ invalid $ \args -> do
         H.noteShow_ args
         (exitCode, _, _) <- execDetailCardanoCLI $ base ++ args ++ ["--out-file", outFile]
