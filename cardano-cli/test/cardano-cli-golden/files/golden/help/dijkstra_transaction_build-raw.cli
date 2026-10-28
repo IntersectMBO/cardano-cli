@@ -34,6 +34,16 @@ Usage: cardano-cli dijkstra transaction build-raw (--tx-in TX_IN
                                                     [--tx-total-collateral INTEGER]
                                                     [ --required-signer FILEPATH
                                                     | --required-signer-hash HASH
+                                                    | ( --guard-script-file FILEPATH
+                                                      | --guard-tx-in-reference TX_IN
+                                                        --guard-script-hash HASH
+                                                      )
+                                                      [
+                                                        ( --guard-redeemer-cbor-file CBOR_FILE
+                                                        | --guard-redeemer-file JSON_FILE
+                                                        | --guard-redeemer-value JSON_VALUE
+                                                        )
+                                                        --guard-execution-units (INT, INT)]
                                                     ]
                                                     [--tx-out ADDRESS VALUE
                                                       [ --tx-out-datum-hash HASH
@@ -257,6 +267,31 @@ Available options:
   --required-signer-hash HASH
                            Hash of the verification key (zero or more) whose
                            signature is required.
+  --guard-script-file FILEPATH
+                           Native or Plutus V4 script whose approval this
+                           transaction requires. Plutus guards require a
+                           redeemer; native guards accept neither redeemers nor
+                           execution units.
+  --guard-tx-in-reference TX_IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a native or Plutus V4 reference
+                           script attached.
+  --guard-script-hash HASH Hash of the guard script at the preceding reference
+                           input. Supply a redeemer for Plutus V4; omit it for a
+                           native script.
+  --guard-redeemer-cbor-file CBOR_FILE
+                           Redeemer file for the preceding Plutus V4 guard. The
+                           file has to be in CBOR format.
+  --guard-redeemer-file JSON_FILE
+                           Redeemer file for the preceding Plutus V4 guard. The
+                           file must follow the detailed JSON schema for script
+                           data.
+  --guard-redeemer-value JSON_VALUE
+                           Redeemer for the preceding Plutus V4 guard. There is
+                           no schema: (almost) any JSON value is supported,
+                           including top-level strings and numbers.
+  --guard-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
                            in the multi-asset syntax (including simply

@@ -5550,6 +5550,16 @@ Usage: cardano-cli dijkstra transaction build-raw (--tx-in TX_IN
                                                     [--tx-total-collateral INTEGER]
                                                     [ --required-signer FILEPATH
                                                     | --required-signer-hash HASH
+                                                    | ( --guard-script-file FILEPATH
+                                                      | --guard-tx-in-reference TX_IN
+                                                        --guard-script-hash HASH
+                                                      )
+                                                      [
+                                                        ( --guard-redeemer-cbor-file CBOR_FILE
+                                                        | --guard-redeemer-file JSON_FILE
+                                                        | --guard-redeemer-value JSON_VALUE
+                                                        )
+                                                        --guard-execution-units (INT, INT)]
                                                     ]
                                                     [--tx-out ADDRESS VALUE
                                                       [ --tx-out-datum-hash HASH
@@ -5724,6 +5734,14 @@ Usage: cardano-cli dijkstra transaction build
                                                 [--read-only-tx-in-reference TX_IN]
                                                 [ --required-signer FILEPATH
                                                 | --required-signer-hash HASH
+                                                | ( --guard-script-file FILEPATH
+                                                  | --guard-tx-in-reference TX_IN
+                                                    --guard-script-hash HASH
+                                                  )
+                                                  [ --guard-redeemer-cbor-file CBOR_FILE
+                                                  | --guard-redeemer-file JSON_FILE
+                                                  | --guard-redeemer-value JSON_VALUE
+                                                  ]
                                                 ]
                                                 [--tx-in-collateral TX_IN]
                                                 [--tx-out-return-collateral ADDRESS VALUE]
@@ -5884,6 +5902,16 @@ Usage: cardano-cli dijkstra transaction build-estimate --shelley-key-witnesses I
                                                          [--read-only-tx-in-reference TX_IN]
                                                          [ --required-signer FILEPATH
                                                          | --required-signer-hash HASH
+                                                         | ( --guard-script-file FILEPATH
+                                                           | --guard-tx-in-reference TX_IN
+                                                             --guard-script-hash HASH
+                                                           )
+                                                           [
+                                                             ( --guard-redeemer-cbor-file CBOR_FILE
+                                                             | --guard-redeemer-file JSON_FILE
+                                                             | --guard-redeemer-value JSON_VALUE
+                                                             )
+                                                             --guard-execution-units (INT, INT)]
                                                          ]
                                                          [--tx-in-collateral TX_IN]
                                                          [--tx-out-return-collateral ADDRESS VALUE]

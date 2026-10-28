@@ -437,6 +437,7 @@ test-suite cardano-cli-test
     Test.Cli.Transaction.AccountBalanceInterval
     Test.Cli.Transaction.Build
     Test.Cli.Transaction.DirectDeposit
+    Test.Cli.Transaction.Guard
     Test.Cli.Transaction.SubTransaction
     Test.Cli.VerificationKey
 
