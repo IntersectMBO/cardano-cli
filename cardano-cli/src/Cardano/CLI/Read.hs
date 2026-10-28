@@ -140,7 +140,7 @@ import Data.Text.Encoding qualified as Text
 import Data.Text.Encoding.Error qualified as Text
 import Data.Validation (Validation (Failure, Success))
 import GHC.IO.Handle (hClose, hIsSeekable)
-import GHC.IO.Handle.FD (openFileBlocking)
+import GHC.IO.Handle.FD (openFileBlocking, stdin)
 import GHC.Stack
 import Options.Applicative qualified as Opt
 import System.IO (IOMode (ReadMode))
@@ -664,11 +664,17 @@ fileOrPipeCache (FileOrPipe _ c) = readIORef c
 
 -- | Get the contents of a file or pipe. This function reads the entire
 -- contents of the file or pipe, and is blocking.
+-- The path @-@ reads standard input.
 readFileOrPipe :: FileOrPipe -> IO LBS.ByteString
 readFileOrPipe (FileOrPipe fp cacheRef) = do
   cached <- readIORef cacheRef
   case cached of
     Just dat -> pure dat
+    Nothing
+      | fp == "-" -> do
+          dat <- LBS.fromStrict <$> BS.hGetContents stdin
+          writeIORef cacheRef (Just dat)
+          pure dat
     Nothing ->
       bracket
         (openFileBlocking fp ReadMode)
