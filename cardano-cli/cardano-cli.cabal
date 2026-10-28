@@ -500,6 +500,7 @@ test-suite cardano-cli-golden
     Test.Golden.Conway.Transaction.ReferenceScript
     Test.Golden.CreateStaked
     Test.Golden.CreateTestnetData
+    Test.Golden.Debug.CertificateView
     Test.Golden.Debug.TransactionView
     Test.Golden.Dijkstra.StakePool.BlsRegistrationCertificate
     Test.Golden.Dijkstra.StakePool.RegistrationCertificate

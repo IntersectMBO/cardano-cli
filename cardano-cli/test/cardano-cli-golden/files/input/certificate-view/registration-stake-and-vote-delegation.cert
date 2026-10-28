@@ -1,0 +1,5 @@
+{
+    "type": "Certificate",
+    "description": "Stake address registration and vote delegation certificate",
+    "cborHex": "850d8200581c854163c740659a98bc415ea11b3c4f2ffc20f3e558a0c1f431a76564581ceed8c16b012555a39a8e2eeb984fd9c4fc531cb77fdfa95b8bce4d248200581ce74684cae6b87ac425573d2451ec8c07abc3a7accad58124b651162d1a001e8480"
+}
