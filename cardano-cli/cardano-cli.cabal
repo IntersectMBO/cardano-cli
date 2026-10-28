@@ -112,6 +112,7 @@ library
     Cardano.CLI.EraBased.Run
     Cardano.CLI.EraBased.Script.Certificate.Read
     Cardano.CLI.EraBased.Script.Certificate.Type
+    Cardano.CLI.EraBased.Script.Guard.Type
     Cardano.CLI.EraBased.Script.Mint.Read
     Cardano.CLI.EraBased.Script.Mint.Type
     Cardano.CLI.EraBased.Script.Proposal.Read
