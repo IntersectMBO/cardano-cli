@@ -32,11 +32,11 @@ import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 import Test.Cli.Transaction.DirectDeposit (account, accountAddress, otherAccount)
 import Test.Cli.Transaction.SubTransaction
-  ( buildSubTransaction
+  ( buildRawSubTxArgs
+  , buildSubTransaction
   , readDijkstraTransaction
   , signSubTransaction
   , signingKey
-  , subTransactionArgs
   , transactionArgs
   , txIn
   )
@@ -137,7 +137,7 @@ hprop_account_balance_intervals_reject_invalid_arguments =
         commands =
           [ (transactionArgs "dijkstra", "--account-balance-interval")
           , (transactionArgs "dijkstra", "--starting-account-balance-interval")
-          , (subTransactionArgs, "--account-balance-interval")
+          , (buildRawSubTxArgs, "--account-balance-interval")
           ]
     forM_ commands $ \(base, flag) -> do
       forM_ invalid $ \argument ->
@@ -164,7 +164,7 @@ hprop_account_balance_intervals_gating =
         H.assertWith help (flag `isInfixOf`)
         forM_ ["conway", "latest"] $ \era ->
           assertInvalidOption flag [era, "transaction", command]
-    assertInvalidOption "--starting-account-balance-interval" subTransactionArgs
+    assertInvalidOption "--starting-account-balance-interval" buildRawSubTxArgs
 
 hprop_account_balance_intervals_validate_before_node_query :: Property
 hprop_account_balance_intervals_validate_before_node_query =

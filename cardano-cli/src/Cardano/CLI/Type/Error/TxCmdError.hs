@@ -86,6 +86,7 @@ data TxCmdError
   | TxCmdSubTxCborError !DecoderError
   | TxCmdSubTxUnsupportedPlutusLanguage !L.Language
   | TxCmdSubTxByronWitnessUnsupported
+  | TxCmdSubTxInvalidWitness !WitnessFile
   | TxCmdDuplicateDirectDeposits ![StakeAddress]
   | TxCmdDuplicateAccountBalanceIntervals !String ![StakeAddress]
   | TxCmdDuplicateGuards ![L.Credential L.Guard]
@@ -222,6 +223,10 @@ renderTxCmdError = \case
     "Sub-transactions require Plutus V4 for script execution; found " <> pshow language <> "."
   TxCmdSubTxByronWitnessUnsupported ->
     "Byron (bootstrap) witnesses are not supported for sub-transactions."
+  TxCmdSubTxInvalidWitness (WitnessFile path) ->
+    "The signature in witness file "
+      <> pretty path
+      <> " is invalid for the supplied sub-transaction body. Create the witness using sub-transaction witness with the same --sub-tx-file."
   TxCmdDuplicateAccountBalanceIntervals option addresses ->
     "Duplicate accounts in --"
       <> pretty option

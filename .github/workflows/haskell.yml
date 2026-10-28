@@ -31,7 +31,10 @@ jobs:
           # We want a single job, because macOS runners are scarce.
           - ghc: *ghc-stable
             cabal: *cabal-version
-            os: macos-latest
+            # Avoid macOS 26's mismatched SDK/toolchain: tests still terminate
+            # without diagnostics after the Command Line Tools workaround.
+            # Restore macos-latest once actions/runner-images#14940 is resolved.
+            os: macos-15
           - ghc: *ghc-latest
             cabal: *cabal-version
             os: windows-latest
@@ -67,16 +70,6 @@ jobs:
         f+${{ matrix.os }}
         g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
 
-    # The macos-26-arm64 image 20261013 ships Command Line Tools 27 (SDK 27.0)
-    # next to Xcode 26.6, whose ld cannot read the SDK 27 .tbd stubs
-    # ("tapi error: malformed file ... unknown architecture arm64e.x1").
-    # Use the Command Line Tools toolchain so ld and SDK match.
-    # Remove once https://github.com/actions/runner-images/issues/14940 is fixed
-    # in the image (its README lists Command Line Tools 26.x again).
-    - name: Use Command Line Tools toolchain on macOS
-      if: runner.os == 'macOS'
-      run: sudo xcode-select -s /Library/Developer/CommandLineTools
-
     - name: Install Haskell
       uses: input-output-hk/actions/haskell@latest
       id: setup-haskell
@@ -98,7 +91,8 @@ jobs:
       uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.0
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
-        cache-version: ${{ env.CABAL_CACHE_VERSION }}
+        # Do not reuse macOS 26 dependencies on the pinned macOS 15 runner.
+        cache-version: ${{ runner.os == 'macOS' && format('{0}-{1}', env.CABAL_CACHE_VERSION, matrix.os) || env.CABAL_CACHE_VERSION }}
 
     # Now we build.
     - name: Build all

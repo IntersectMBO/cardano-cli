@@ -75,6 +75,16 @@ pSubTransactionCmds =
                   Opt.progDesc "Sign a sub-transaction"
         , Just $
             Opt.hsubparser $
+              commandWithMetavar "witness" $
+                Opt.info pSubTransactionWitness $
+                  Opt.progDesc "Create a sub-transaction key witness"
+        , Just $
+            Opt.hsubparser $
+              commandWithMetavar "assemble" $
+                Opt.info pSubTransactionAssemble $
+                  Opt.progDesc "Assemble an unsigned sub-transaction and key witnesses into a signed sub-transaction"
+        , Just $
+            Opt.hsubparser $
               commandWithMetavar "txid" $
                 Opt.info pSubTransactionTxId $
                   Opt.progDesc "Print a sub-transaction identifier."
@@ -143,6 +153,22 @@ pSubTransactionSign =
     SubTransactionSignCmdArgs
       <$> pUnsignedSubTxFileIn
       <*> many pSubTransactionSigningData
+      <*> pSignedSubTxFileOut
+
+pSubTransactionWitness :: Parser SubTransactionCmds
+pSubTransactionWitness =
+  fmap SubTransactionWitnessCmd $
+    SubTransactionWitnessCmdArgs
+      <$> pUnsignedSubTxFileIn
+      <*> pSubTransactionSigningData
+      <*> pOutputFile
+
+pSubTransactionAssemble :: Parser SubTransactionCmds
+pSubTransactionAssemble =
+  fmap SubTransactionAssembleCmd $
+    SubTransactionAssembleCmdArgs
+      <$> pUnsignedSubTxFileIn
+      <*> many pWitnessFile
       <*> pSignedSubTxFileOut
 
 pSubTransactionTxId :: Parser SubTransactionCmds

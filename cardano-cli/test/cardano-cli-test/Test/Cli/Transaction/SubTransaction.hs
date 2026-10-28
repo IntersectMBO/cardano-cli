@@ -43,6 +43,243 @@ txIn = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
 txOut :: String
 txOut = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
 
+-- | Detached signing preserves every payload and agrees with direct signing,
+-- including empty witness sets, multiple key roles and duplicate witnesses.
+hprop_dijkstra_sub_transaction_witness_assemble :: Property
+hprop_dijkstra_sub_transaction_witness_assemble =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    assembledFile <- H.noteTempFile tempDir "sub.assembled"
+    paramsFile <- H.noteTempFile tempDir "params.json"
+    metadataFile <- H.noteTempFile tempDir "metadata.json"
+    stakeKeyFile <- H.noteTempFile tempDir "stake.skey"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    H.evalIO $ writeFile metadataFile "{\"0\":42}"
+    stakeKey <- H.evalIO $ generateSigningKey AsStakeKey
+    H.evalEither =<< H.evalIO (writeFileTextEnvelope (File stakeKeyFile) Nothing stakeKey)
+    let runSubTransactionCommand :: String -> FilePath -> [String] -> H.PropertyT (ResourceT IO) ()
+        runSubTransactionCommand command output args =
+          void $
+            execCardanoCLI $
+              ["dijkstra", "sub-transaction", command, "--sub-tx-file", unsignedFile]
+                ++ ["--out-file", output]
+                ++ args
+    -- These bodies describe the same transaction but use different CBOR encodings.
+    -- With canonical=False, 24 outputs force the default encoder to use an
+    -- indefinite-length list. With canonical=True, --out-canonical-cbor normalises
+    -- the body before signing. Witnessing and assembly must preserve whichever
+    -- encoding was chosen: signatures cover the body bytes, not just its contents.
+    forM_ [False, True] $ \canonical -> do
+      H.noteShow_ canonical
+      void $
+        execCardanoCLI $
+          buildRawSubTxArgs
+            ++ [ "--tx-in-script-file"
+               , plutusScriptFile 4
+               , "--tx-in-datum-value"
+               , "0"
+               , "--tx-in-redeemer-value"
+               , "0"
+               , "--tx-in-execution-units"
+               , "(0,0)"
+               , "--guard-script-file"
+               , nativeScriptFile
+               , "--metadata-json-file"
+               , metadataFile
+               , "--protocol-params-file"
+               , paramsFile
+               , "--out-file"
+               , unsignedFile
+               ]
+            ++ concat (replicate 24 ["--tx-out", txOut])
+            ++ ["--out-canonical-cbor" | canonical]
+      unsigned@(Exp.UnsignedSubTx unsignedTx) <-
+        H.evalEither =<< H.evalIO (readFileTextEnvelope (File unsignedFile))
+      let bodyBytes = L.originalBytes (unsignedTx ^. L.bodyTxL)
+      canonicalBytes <- H.evalEither $ canonicaliseCborBs bodyBytes
+      -- Check that the fixture really exercises both encodings: normalisation
+      -- must change the default body (False) and leave the canonical body alone
+      -- (True). Otherwise both iterations could silently test canonical input.
+      (bodyBytes == canonicalBytes) H.=== canonical
+      -- Payment and stake keys exercise distinct signing-key roles.
+      witnesses <- forM (zip ["payment", "stake"] [signingKey, stakeKeyFile]) $ \(name, key) -> do
+        witnessFile <- H.noteTempFile tempDir (name ++ ".witness")
+        runSubTransactionCommand "witness" witnessFile ["--signing-key-file", key]
+        pure witnessFile
+      -- No witnesses, one, two distinct keys, then a repeated payment witness.
+      forM_ [0, 1, 2, 3] $ \count -> do
+        H.noteShow_ count
+        let keys = take count [signingKey, stakeKeyFile, signingKey]
+            files = take count (witnesses ++ witnesses)
+        runSubTransactionCommand "sign" signedFile $ concatMap (\key -> ["--signing-key-file", key]) keys
+        runSubTransactionCommand "assemble" assembledFile $
+          concatMap (\file -> ["--witness-file", file]) files
+        signedBytes <- H.evalIO $ BS.readFile signedFile
+        assembledBytes <- H.evalIO $ BS.readFile assembledFile
+        -- Collecting witnesses separately must produce exactly the same signed
+        -- envelope as signing directly with those keys, for either body encoding.
+        assembledBytes H.=== signedBytes
+        assembled@(Exp.SignedSubTx assembledTx) <-
+          H.evalEither =<< H.evalIO (readFileTextEnvelope (File assembledFile))
+        -- Adding key witnesses must not change the sub-transaction's identifier,
+        -- which is the hash of the original unsigned body.
+        Exp.getSignedSubTxId assembled H.=== Exp.getUnsignedSubTxId unsigned
+        -- Preserve the exact signed body bytes. In particular, assembly must not
+        -- normalise a non-canonical body: that would invalidate its witnesses.
+        L.originalBytes (assembledTx ^. L.bodyTxL) H.=== bodyBytes
+        -- Signing and assembly must retain the metadata attached to the fixture.
+        assembledTx ^. L.auxDataTxL H.=== unsignedTx ^. L.auxDataTxL
+        -- Compare payloads separately: the whole witness set also caches its encoding,
+        -- which can change when key witnesses are added or removed.
+        -- Both the native guard script and Plutus spending script must survive.
+        assembledTx ^. L.witsTxL . L.scriptTxWitsL H.=== unsignedTx ^. L.witsTxL . L.scriptTxWitsL
+        -- Retain the spending datum supplied by --tx-in-datum-value.
+        assembledTx ^. L.witsTxL . L.datsTxWitsL H.=== unsignedTx ^. L.witsTxL . L.datsTxWitsL
+        -- Retain the spending redeemer, its index and its execution-unit budget.
+        assembledTx ^. L.witsTxL . L.rdmrsTxWitsL H.=== unsignedTx ^. L.witsTxL . L.rdmrsTxWitsL
+        -- The cases supply zero, one, two, then three witness files. The third
+        -- repeats the payment witness, so only two distinct key witnesses remain.
+        Set.size (assembledTx ^. L.witsTxL . L.addrTxWitsL) H.=== min count 2
+
+-- | Bad inputs fail before creating output; assembly accepts only Dijkstra witnesses.
+hprop_dijkstra_sub_transaction_witness_assemble_rejects_invalid_inputs :: Property
+hprop_dijkstra_sub_transaction_witness_assemble_rejects_invalid_inputs =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    malformedFile <- H.noteTempFile tempDir "malformed.json"
+    missingFile <- H.noteTempFile tempDir "missing.json"
+    bodyFile <- H.noteTempFile tempDir "conway.body"
+    witnessFile <- H.noteTempFile tempDir "conway.witness"
+    outFile <- H.noteTempFile tempDir "output"
+    H.evalIO $ writeFile malformedFile "{}"
+    void $ execCardanoCLI $ buildRawSubTxArgs ++ ["--out-file", unsignedFile]
+    void $
+      execCardanoCLI $
+        ["dijkstra", "sub-transaction", "sign", "--sub-tx-file", unsignedFile] ++ ["--out-file", signedFile]
+    -- A valid witness from another era must fail at the envelope boundary.
+    void $
+      execCardanoCLI
+        ["conway", "transaction", "build-raw", "--tx-in", txIn, "--fee", "0", "--out-file", bodyFile]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "transaction"
+        , "witness"
+        , "--tx-body-file"
+        , bodyFile
+        , "--signing-key-file"
+        , signingKey
+        , "--out-file"
+        , witnessFile
+        ]
+    let assertSubTransactionCommandFails
+          :: String -> FilePath -> [String] -> H.PropertyT (ResourceT IO) String
+        assertSubTransactionCommandFails command input args = do
+          (exitCode, _, stderr) <-
+            execDetailCardanoCLI $
+              ["dijkstra", "sub-transaction", command, "--sub-tx-file", input] ++ args ++ ["--out-file", outFile]
+          -- Invalid bodies, keys, witnesses or argument counts must fail the command.
+          exitCode H.=== ExitFailure 1
+          -- A rejected request must not leave a witness or signed sub-transaction file.
+          H.evalIO (doesFileExist outFile) >>= (H.=== False)
+          pure stderr
+    stderr <- assertSubTransactionCommandFails "assemble" unsignedFile ["--witness-file", witnessFile]
+    H.assertWith stderr ("TxWitness DijkstraEra" `isInfixOf`)
+    H.assertWith stderr ("TxWitness ConwayEra" `isInfixOf`)
+    -- Both commands require an unsigned, readable sub-transaction.
+    forM_ [signedFile, malformedFile, missingFile] $ \input -> do
+      void $ assertSubTransactionCommandFails "witness" input ["--signing-key-file", signingKey]
+      void $ assertSubTransactionCommandFails "assemble" input []
+    -- A valid body does not excuse missing or malformed key/witness files.
+    forM_ [malformedFile, missingFile] $ \input -> do
+      void $ assertSubTransactionCommandFails "witness" unsignedFile ["--signing-key-file", input]
+      void $ assertSubTransactionCommandFails "assemble" unsignedFile ["--witness-file", input]
+    -- Detached witnessing takes exactly one key; neither command exists in Conway.
+    forM_ [[], [signingKey, signingKey]] $ \keys ->
+      void $
+        assertSubTransactionCommandFails "witness" unsignedFile $
+          concatMap (\key -> ["--signing-key-file", key]) keys
+    forM_ ["witness", "assemble"] $ \command -> do
+      (exitCode, _, conwayError) <- execDetailCardanoCLI ["conway", "sub-transaction", command]
+      -- Neither witness nor assemble is available before Dijkstra.
+      exitCode H.=== ExitFailure 1
+      H.assertWith conwayError ("Invalid argument `sub-transaction'" `isInfixOf`)
+
+-- | Same-era witnesses must cover the exact supplied body, including its encoding.
+hprop_dijkstra_sub_transaction_assemble_rejects_wrong_body_witnesses :: Property
+hprop_dijkstra_sub_transaction_assemble_rejects_wrong_body_witnesses =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    otherSubFile <- H.noteTempFile tempDir "other.unsigned"
+    canonicalFile <- H.noteTempFile tempDir "canonical.unsigned"
+    topLevelFile <- H.noteTempFile tempDir "top-level.body"
+    validWitnessFile <- H.noteTempFile tempDir "valid.witness"
+    let outputs = concat $ replicate 24 ["--tx-out", txOut]
+    void $ execCardanoCLI $ buildRawSubTxArgs ++ outputs ++ ["--out-file", unsignedFile]
+    void $ execCardanoCLI $ buildRawSubTxArgs ++ ["--out-file", otherSubFile]
+    void $
+      execCardanoCLI $
+        buildRawSubTxArgs ++ outputs ++ ["--out-canonical-cbor", "--out-file", canonicalFile]
+    void $
+      execCardanoCLI $
+        transactionArgs "dijkstra" ++ ["--out-file", topLevelFile]
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "sub-transaction"
+        , "witness"
+        , "--sub-tx-file"
+        , unsignedFile
+        , "--signing-key-file"
+        , signingKey
+        , "--out-file"
+        , validWitnessFile
+        ]
+    -- Even equivalent bodies with different encodings have different signing hashes.
+    unsigned <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File unsignedFile))
+    canonical <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File canonicalFile))
+    H.assert $ Exp.getUnsignedSubTxId unsigned /= Exp.getUnsignedSubTxId canonical
+    forM_
+      [ ("other-sub", "sub-transaction", "--sub-tx-file", otherSubFile)
+      , ("canonical-sub", "sub-transaction", "--sub-tx-file", canonicalFile)
+      , ("top-level", "transaction", "--tx-body-file", topLevelFile)
+      ]
+      $ \(name, command, inputOption, input) -> do
+        witnessFile <- H.noteTempFile tempDir (name ++ ".witness")
+        void $
+          execCardanoCLI
+            [ "dijkstra"
+            , command
+            , "witness"
+            , inputOption
+            , input
+            , "--signing-key-file"
+            , signingKey
+            , "--out-file"
+            , witnessFile
+            ]
+        -- A valid witness preceding the bad one must not hide the mismatch.
+        forM_ [False, True] $ \includeValid -> do
+          outFile <- H.noteTempFile tempDir (name ++ show includeValid ++ ".assembled")
+          (exitCode, _, stderr) <-
+            execDetailCardanoCLI $
+              [ "dijkstra"
+              , "sub-transaction"
+              , "assemble"
+              , "--sub-tx-file"
+              , unsignedFile
+              , "--out-file"
+              , outFile
+              ]
+                ++ (if includeValid then ["--witness-file", validWitnessFile] else [])
+                ++ ["--witness-file", witnessFile]
+          exitCode H.=== ExitFailure 1
+          H.assertWith stderr ("is invalid for the supplied sub-transaction body" `isInfixOf`)
+          H.assertWith stderr (witnessFile `isInfixOf`)
+          H.evalIO (doesFileExist outFile) >>= (H.=== False)
+
 -- | Sub-transaction signing rejects the Byron-only address option at parse time.
 hprop_dijkstra_sub_transaction_sign_rejects_address :: Property
 hprop_dijkstra_sub_transaction_sign_rejects_address =
@@ -126,7 +363,7 @@ hprop_dijkstra_build_raw_rejects_duplicate_sub_transaction =
     void $
       execCardanoCLI
         ["address", "key-gen", "--signing-key-file", secondKey, "--verification-key-file", secondVKey]
-    void $ execCardanoCLI $ subTransactionArgs ++ ["--out-file", unsignedFile]
+    void $ execCardanoCLI $ buildRawSubTxArgs ++ ["--out-file", unsignedFile]
     forM_ [(firstFile, signingKey), (secondFile, secondKey)] $ \(path, key) ->
       signSubTransaction unsignedFile key path
     first <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File firstFile))
@@ -569,7 +806,7 @@ hprop_dijkstra_canonical_sub_transaction_preserves_payload_hashes =
     H.evalIO $ writeDijkstraProtocolParams paramsFile
     void $
       execCardanoCLI $
-        subTransactionArgs
+        buildRawSubTxArgs
           ++ [ "--tx-in-script-file"
              , plutusScriptFile 4
              , "--tx-in-datum-value"
@@ -617,7 +854,7 @@ assertCanonicalSubTxRejected tempDir component extraArgs = do
   txFile <- H.noteTempFile tempDir "tx.signed"
   witnessFile <- H.noteTempFile tempDir "tx.witness"
   outFile <- H.noteTempFile tempDir "canonical.out"
-  let buildSub = subTransactionArgs ++ extraArgs
+  let buildSub = buildRawSubTxArgs ++ extraArgs
       -- Require the payload-hash error and leave no output file.
       reject args = do
         (exitCode, _, stderr) <-
@@ -683,7 +920,7 @@ hprop_dijkstra_sub_transaction_rejects_older_plutus_scripts =
       forM_ (scriptFileCases (plutusScriptFile version) (replicate 56 '0')) $ \(purpose, witnessArgs) -> do
         H.note_ $ purpose ++ ": Plutus V" ++ show version
         (exitCode, _, stderr) <-
-          execDetailCardanoCLI $ subTransactionArgs ++ witnessArgs ++ ["--out-file", outFile]
+          execDetailCardanoCLI $ buildRawSubTxArgs ++ witnessArgs ++ ["--out-file", outFile]
         exitCode H.=== ExitFailure 1
         H.assertWith stderr ("Sub-transactions require Plutus V4 for script execution" `isInfixOf`)
         H.assertWith stderr (("PlutusV" ++ show version) `isInfixOf`)
@@ -701,7 +938,7 @@ hprop_dijkstra_sub_transaction_rejects_older_plutus_reference_scripts =
         let flag = referenceLanguageFlag purpose version
         H.note_ flag
         (exitCode, _, stderr) <-
-          execDetailCardanoCLI $ subTransactionArgs ++ witnessArgs ++ ["--out-file", outFile]
+          execDetailCardanoCLI $ buildRawSubTxArgs ++ witnessArgs ++ ["--out-file", outFile]
         exitCode H.=== ExitFailure 1
         H.assertWith stderr (("Invalid option `" ++ flag ++ "'") `isInfixOf`)
         exists <- H.evalIO $ doesFileExist outFile
@@ -723,7 +960,7 @@ hprop_dijkstra_sub_transaction_accepts_v4_script =
       H.note_ purpose
       void $
         execCardanoCLI $
-          subTransactionArgs ++ witnessArgs ++ ["--protocol-params-file", paramsFile, "--out-file", outFile]
+          buildRawSubTxArgs ++ witnessArgs ++ ["--protocol-params-file", paramsFile, "--out-file", outFile]
       Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
       tx ^. L.witsTxL . L.scriptTxWitsL H.=== Map.singleton scriptHash expectedScript
       assertV4Redeemer purpose tx
@@ -735,7 +972,7 @@ hprop_dijkstra_sub_transaction_accepts_native_script =
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     void $
       execCardanoCLI $
-        subTransactionArgs
+        buildRawSubTxArgs
           ++ [ "--tx-in-script-file"
              , "test/cardano-cli-test/files/input/shelley/multisig/scripts/all"
              , "--out-file"
@@ -764,7 +1001,7 @@ hprop_dijkstra_sub_transaction_accepts_require_guard_script =
           H.noteShow_ witnessArgs
           void $
             execCardanoCLI $
-              subTransactionArgs
+              buildRawSubTxArgs
                 ++ witnessArgs
                 ++ ["--guard-key-hash", BSC.unpack $ serialiseToRawBytesHex keyHash, "--out-file", outFile]
           Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
@@ -777,7 +1014,7 @@ hprop_dijkstra_sub_transaction_can_store_v3_reference_script =
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     void $
       execCardanoCLI $
-        subTransactionArgs
+        buildRawSubTxArgs
           ++ [ "--tx-out"
              , txOut
              , "--tx-out-reference-script-file"
@@ -803,7 +1040,7 @@ hprop_dijkstra_sub_transaction_key_guard_forms =
       ]
       $ \guardArgs -> do
         H.noteShow_ guardArgs
-        void $ execCardanoCLI $ subTransactionArgs ++ guardArgs ++ ["--out-file", outFile]
+        void $ execCardanoCLI $ buildRawSubTxArgs ++ guardArgs ++ ["--out-file", outFile]
         Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
         toList (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== [expectedGuard]
 
@@ -816,7 +1053,7 @@ hprop_dijkstra_sub_transaction_script_hash_guard =
     scriptHash <- H.evalEither $ deserialiseFromRawBytesHex hashHex
     void $
       execCardanoCLI $
-        subTransactionArgs ++ ["--guard-script-hash", BSC.unpack hashHex, "--out-file", outFile]
+        buildRawSubTxArgs ++ ["--guard-script-hash", BSC.unpack hashHex, "--out-file", outFile]
     Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
     toList (tx ^. L.bodyTxL . L.guardsTxBodyL) H.=== [L.ScriptHashObj $ toShelleyScriptHash scriptHash]
     tx ^. L.witsTxL . L.scriptTxWitsL H.=== mempty
@@ -829,7 +1066,7 @@ hprop_dijkstra_sub_transaction_native_guard =
     outFile <- H.noteTempFile tempDir "sub.unsigned"
     void $
       execCardanoCLI $
-        subTransactionArgs ++ ["--guard-script-file", nativeScriptFile, "--out-file", outFile]
+        buildRawSubTxArgs ++ ["--guard-script-file", nativeScriptFile, "--out-file", outFile]
     Exp.UnsignedSubTx tx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
     let scripts = tx ^. L.witsTxL . L.scriptTxWitsL
     length scripts H.=== 1
@@ -844,7 +1081,7 @@ hprop_dijkstra_sub_transaction_guard_requires_redeemer_and_units =
     forM_ [[], ["--guard-redeemer-value", "0"], ["--guard-execution-units", "(0,0)"]] $ \args -> do
       (exitCode, _, stderr) <-
         execDetailCardanoCLI $
-          subTransactionArgs ++ ["--guard-script-file", plutusScriptFile 4] ++ args ++ ["--out-file", outFile]
+          buildRawSubTxArgs ++ ["--guard-script-file", plutusScriptFile 4] ++ args ++ ["--out-file", outFile]
       exitCode H.=== ExitFailure 1
       H.assertWith stderr ("--guard-" `isInfixOf`)
       H.evalIO (doesFileExist outFile) >>= (H.=== False)
@@ -857,7 +1094,7 @@ hprop_dijkstra_sub_transaction_non_plutus_guard_rejects_redeemer =
     forM_ [["--guard-script-file", nativeScriptFile], ["--guard-key-hash", replicate 56 '0']] $ \guard -> do
       (exitCode, _, _) <-
         execDetailCardanoCLI $
-          subTransactionArgs
+          buildRawSubTxArgs
             ++ guard
             ++ ["--guard-redeemer-value", "0", "--guard-execution-units", "(0,0)", "--out-file", outFile]
       exitCode H.=== ExitFailure 1
@@ -875,7 +1112,7 @@ hprop_dijkstra_sub_transaction_guard_redeemer_index =
     forM_ [(firstFile, "42"), (secondFile, "43")] $ \(outFile, redeemer) ->
       void $
         execCardanoCLI $
-          subTransactionArgs
+          buildRawSubTxArgs
             ++ [ "--tx-in-script-file"
                , plutusScriptFile 4
                , "--tx-in-redeemer-value"
@@ -920,7 +1157,7 @@ hprop_dijkstra_sub_transaction_hash_guard_requires_own_redeemer =
     scriptHash <- execCardanoCLI ["hash", "script", "--script-file", plutusScriptFile 4]
     (exitCode, _, stderr) <-
       execDetailCardanoCLI $
-        subTransactionArgs
+        buildRawSubTxArgs
           ++ [ "--tx-in-script-file"
              , plutusScriptFile 4
              , "--tx-in-redeemer-value"
@@ -946,7 +1183,7 @@ hprop_dijkstra_sub_transaction_rejects_duplicate_guards =
       filter (/= '\n') <$> execCardanoCLI ["hash", "script", "--script-file", nativeScriptFile]
     (exitCode, _, stderr) <-
       execDetailCardanoCLI $
-        subTransactionArgs
+        buildRawSubTxArgs
           ++ [ "--guard-script-file"
              , nativeScriptFile
              , "--guard-script-hash"
@@ -969,7 +1206,7 @@ hprop_dijkstra_v4_reference_script_flags =
     forM_ (referenceScriptCases 4) $ \(purpose, witnessArgs) -> do
       H.note_ purpose
       let args = witnessArgs ++ ["--tx-out", txOut, "--protocol-params-file", paramsFile, "--out-file", outFile]
-      void $ execCardanoCLI $ subTransactionArgs ++ args
+      void $ execCardanoCLI $ buildRawSubTxArgs ++ args
       Exp.UnsignedSubTx subTx <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
       assertV4ReferenceWitness purpose subTx
       void $ execCardanoCLI $ transactionArgs "dijkstra" ++ args
@@ -1343,14 +1580,14 @@ topLevelGuardHashArgs (digit, datum) =
 buildSubTransaction
   :: FilePath -> [String] -> H.PropertyT (ResourceT IO) Exp.UnsignedSubTx
 buildSubTransaction outFile args = do
-  void $ execCardanoCLI $ subTransactionArgs ++ args ++ ["--out-file", outFile]
+  void $ execCardanoCLI $ buildRawSubTxArgs ++ args ++ ["--out-file", outFile]
   H.evalEither =<< H.evalIO (readFileTextEnvelope (File outFile))
 
 expectSubTransactionFailure
   :: FilePath -> [String] -> H.PropertyT (ResourceT IO) String
 expectSubTransactionFailure outFile args = do
   (exitCode, _, stderr) <-
-    execDetailCardanoCLI $ subTransactionArgs ++ args ++ ["--out-file", outFile]
+    execDetailCardanoCLI $ buildRawSubTxArgs ++ args ++ ["--out-file", outFile]
   exitCode H.=== ExitFailure 1
   exists <- H.evalIO $ doesFileExist outFile
   exists H.=== False
@@ -1359,8 +1596,8 @@ expectSubTransactionFailure outFile args = do
 guardDatum :: HashableScriptData
 guardDatum = unsafeHashableScriptData $ ScriptDataNumber 42
 
-subTransactionArgs :: [String]
-subTransactionArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
+buildRawSubTxArgs :: [String]
+buildRawSubTxArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
 
 transactionArgs :: String -> [String]
 transactionArgs era = [era, "transaction", "build-raw", "--tx-in", txIn, "--fee", "200000"]

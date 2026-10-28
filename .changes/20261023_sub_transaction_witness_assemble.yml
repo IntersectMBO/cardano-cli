@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1485
+kind:
+  - feature
+description: Add Dijkstra sub-transaction witness and assemble commands to create key witnesses separately and combine them with an unsigned sub-transaction, rejecting witnesses whose signatures do not match its body.
