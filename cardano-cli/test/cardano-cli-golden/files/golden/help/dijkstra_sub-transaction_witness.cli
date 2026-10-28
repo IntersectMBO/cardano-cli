@@ -1,0 +1,13 @@
+Usage: cardano-cli dijkstra sub-transaction witness --sub-tx-file FILEPATH
+                                                      --signing-key-file FILEPATH
+                                                      --out-file FILEPATH
+                                                      
+
+  Create a sub-transaction key witness
+
+Available options:
+  --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text
