@@ -1,0 +1,12 @@
+{
+    "DRep registration certificate": {
+        "DRep credential": {
+            "keyHash": "e74684cae6b87ac425573d2451ec8c07abc3a7accad58124b651162d"
+        },
+        "anchor": {
+            "dataHash": "e286ebea22c788d5196f7b2d92ffd91a0507acca57935519b7757e20bfc73fdc",
+            "url": "https://example.com/drep-metadata.json"
+        },
+        "deposit": 500000000
+    }
+}

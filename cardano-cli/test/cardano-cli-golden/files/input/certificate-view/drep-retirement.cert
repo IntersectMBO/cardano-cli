@@ -1,0 +1,5 @@
+{
+    "type": "Certificate",
+    "description": "DRep Key Retirement Certificate",
+    "cborHex": "83118200581ce74684cae6b87ac425573d2451ec8c07abc3a7accad58124b651162d1a1dcd6500"
+}

@@ -1,0 +1,16 @@
+Pool registration:
+  pool params:
+    cost: 340000000
+    margin: 1/50
+    metadata: null
+    owners:
+    - 854163c740659a98bc415ea11b3c4f2ffc20f3e558a0c1f431a76564
+    pledge: 10000000000
+    pool id: pool1amvvz6cpy4268x5w9m4esn7ecn79x89h0l06jkuteexjg45yhq4
+    relays:
+    - single host address:
+        IPv4: null
+        IPv6: 2001:db8::1
+        port: 3001
+    reward account: stake_test1uzz5zc78gpje4x9ug902zxeufuhlcg8nu4v2ps05xxnk2eqe6wl9q
+    vrf key hash: d8766100ec808275223e24412c7b5155e7afd014034bd0ed8dca01fa7d2144ea
