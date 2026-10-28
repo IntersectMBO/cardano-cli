@@ -241,7 +241,7 @@ renderTxCmdError = \case
   TxCmdPlutusGuardMissingRedeemer credential ->
     "Plutus guard "
       <> pretty (L.credToText credential)
-      <> " requires --guard-redeemer-* and --guard-execution-units."
+      <> " requires --guard-redeemer-* and --guard-execution-units (transaction build calculates execution units automatically)."
   TxCmdNativeGuardWithRedeemer credential ->
     "Native script guard "
       <> pretty (L.credToText credential)

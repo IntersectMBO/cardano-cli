@@ -48,6 +48,8 @@ import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
+import Cardano.CLI.EraBased.Script.Guard.Read
+import Cardano.CLI.EraBased.Script.Guard.Type (TxGuardArguments (..), TxGuardRequirements (..))
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
@@ -138,7 +140,7 @@ runTransactionBuildCmd
     , mOverrideWitnesses = mOverrideWitnesses
     , txins
     , readOnlyReferenceInputs
-    , requiredSigners = reqSigners
+    , guardArguments
     , txinsc
     , mReturnCollateral = mReturnColl
     , mTotalCollateral
@@ -162,6 +164,9 @@ runTransactionBuildCmd
     , isCborOutCanonical
     , buildOutputOptions
     } = do
+    guardRequirements <- case guardArguments of
+      ConwayRequiredSignerArguments signers -> ConwayRequiredSigners <$> readConwayRequiredSigners signers
+      DijkstraGuardArguments guards -> DijkstraGuards <$> readDijkstraGuards guards
     -- Reject duplicate deposits and interval assertions before any node queries.
     void $ fromEitherCli $ convertDirectDeposits directDeposits
     void $
@@ -211,8 +216,6 @@ runTransactionBuildCmd
     txAuxScripts <-
       fromEitherCli $ validateTxAuxScripts scripts
 
-    requiredSigners <-
-      mapM (fromEitherIOCli . readRequiredSigner) reqSigners
     mReturnCollateralAndDatums <-
       forM mReturnColl toTxOutInShelleyBasedEra
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
@@ -281,7 +284,9 @@ runTransactionBuildCmd
             (map (\(_, _, wit) -> wit) withdrawalsAndMaybeScriptWits)
             (map snd votingProceduresAndMaybeScriptWits)
             (map snd proposals)
-            readOnlyReferenceInputs
+            ( readOnlyReferenceInputs
+                ++ getTxGuardReferenceInputs guardRequirements
+            )
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
@@ -325,7 +330,7 @@ runTransactionBuildCmd
           directDeposits
           accountBalanceIntervals
           startingAccountBalanceIntervals
-          requiredSigners
+          guardRequirements
           txAuxScripts
           txMetadata
           mOverrideWitnesses
@@ -400,7 +405,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , totalUTxOValue
     , txins
     , readOnlyReferenceInputs = readOnlyRefIns
-    , requiredSigners = reqSigners
+    , guardArguments
     , txinsc = txInsCollateral
     , mReturnCollateral = mReturnColl
     , txouts
@@ -425,6 +430,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     , isCborOutCanonical
     , txBodyOutFile
     } = do
+    guardRequirements <- case guardArguments of
+      ConwayRequiredSignerArguments signers -> ConwayRequiredSigners <$> readConwayRequiredSigners signers
+      DijkstraGuardArguments guards -> DijkstraGuards <$> readDijkstraGuards guards
     let sbe = convert currentEra
 
     ledgerPParams <-
@@ -450,9 +458,6 @@ runTransactionBuildEstimateCmd -- TODO change type
       mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $ validateTxAuxScripts scripts
-
-    requiredSigners <-
-      mapM (fromEitherIOCli . readRequiredSigner) reqSigners
 
     mReturnCollateralAndDatums <- mapM toTxOutInShelleyBasedEra mReturnColl
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
@@ -508,7 +513,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           directDeposits
           accountBalanceIntervals
           startingAccountBalanceIntervals
-          requiredSigners
+          guardRequirements
           0
           txAuxScripts
           txMetadata
@@ -614,7 +619,7 @@ runTransactionBuildRawCmd
     , txInsCollateral
     , mReturnCollateral = mReturnColl
     , mTotalCollateral
-    , requiredSigners = reqSigners
+    , guardArguments
     , txouts
     , mMintedAssets
     , mValidityLowerBound
@@ -637,6 +642,9 @@ runTransactionBuildRawCmd
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
+    guardRequirements <- case guardArguments of
+      ConwayRequiredSignerArguments signers -> ConwayRequiredSigners <$> readConwayRequiredSigners signers
+      DijkstraGuardArguments guards -> DijkstraGuards <$> readDijkstraGuards guards
     signedSubTxs <- readSignedSubTransactions subTransactionFiles
 
     txInsAndMaybeScriptWits <-
@@ -665,9 +673,6 @@ runTransactionBuildRawCmd
       fromExceptTCli (readProtocolParameters ppf)
 
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
-
-    requiredSigners <-
-      mapM (fromEitherIOCli . readRequiredSigner) reqSigners
 
     mReturnCollateralAndDatums <- mapM toTxOutInShelleyBasedEra mReturnColl
     let mReturnCollateral = fst <$> mReturnCollateralAndDatums
@@ -717,7 +722,7 @@ runTransactionBuildRawCmd
           directDeposits
           accountBalanceIntervals
           startingAccountBalanceIntervals
-          requiredSigners
+          guardRequirements
           txAuxScripts
           txMetadata
           mLedgerPParams
@@ -766,8 +771,8 @@ runTxBuildRaw
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
-  -> [Hash PaymentKey]
-  -- ^ Required signers
+  -> TxGuardRequirements era
+  -- ^ Conway required signers or Dijkstra key and script guards
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
@@ -796,7 +801,7 @@ runTxBuildRaw
   directDeposits
   accountBalanceIntervals
   startingAccountBalanceIntervals
-  reqSigners
+  guardRequirements
   txAuxScripts
   txMetadata
   mpparams
@@ -824,7 +829,7 @@ runTxBuildRaw
         directDeposits
         accountBalanceIntervals
         startingAccountBalanceIntervals
-        reqSigners
+        guardRequirements
         fee
         txAuxScripts
         txMetadata
@@ -835,6 +840,15 @@ runTxBuildRaw
         suppDatums
 
     first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
+
+-- | Apply the era-specific requirements when constructing the transaction body.
+setTxGuardRequirements
+  :: TxGuardRequirements era
+  -> Exp.TxBodyContent (Exp.LedgerEra era)
+  -> Exp.TxBodyContent (Exp.LedgerEra era)
+setTxGuardRequirements (ConwayRequiredSigners keys) =
+  Exp.setTxExtraKeyWits (Exp.TxExtraKeyWitnesses keys)
+setTxGuardRequirements (DijkstraGuards guards) = Exp.setTxGuards guards
 
 constructTxBodyContent
   :: forall era
@@ -869,8 +883,8 @@ constructTxBodyContent
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
-  -> [Hash PaymentKey]
-  -- ^ Required signers
+  -> TxGuardRequirements era
+  -- ^ Conway required signers or Dijkstra key and script guards
   -> Lovelace
   -- ^ Tx fee
   -> TxAuxScripts era
@@ -903,7 +917,7 @@ constructTxBodyContent
   directDeposits
   accountBalanceIntervals
   startingAccountBalanceIntervals
-  reqSigners
+  guardRequirements
   fee
   txAuxScripts
   txMetadata
@@ -921,7 +935,9 @@ constructTxBodyContent
               (map (\(_, _, mSwit) -> mSwit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              ( readOnlyRefIns
+                  ++ getTxGuardReferenceInputs guardRequirements
+              )
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       -- TODO: Figure how to expose resolved datums
@@ -975,7 +991,7 @@ constructTxBodyContent
             & Exp.setTxDirectDeposits validatedDirectDeposits
             & Exp.setTxAccountBalanceIntervals validatedIntervals
             & Exp.setTxStartingAccountBalanceIntervals validatedStartingIntervals
-            & Exp.setTxExtraKeyWits (Exp.TxExtraKeyWitnesses reqSigners)
+            & setTxGuardRequirements guardRequirements
             & maybe id (Exp.setTxProtocolParams . Exp.obtainCommonConstraints (Exp.useEra @era)) mPparams
             & Exp.setTxCertificates
               (Exp.mkTxCertificates Exp.useEra certsAndMaybeScriptWits)
@@ -1032,8 +1048,8 @@ runTxBuild
   -- ^ Direct ADA deposits as recipient stake addresses and amounts in lovelace.
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
   -> [(StakeAddress, L.AccountBalanceInterval (Exp.LedgerEra era))]
-  -> [Hash PaymentKey]
-  -- ^ Required signers
+  -> TxGuardRequirements era
+  -- ^ Conway required signers or Dijkstra key and script guards
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe Word
@@ -1064,7 +1080,7 @@ runTxBuild
   directDeposits
   accountBalanceIntervals
   startingAccountBalanceIntervals
-  reqSigners
+  guardRequirements
   txAuxScripts
   txMetadata
   mOverrideWits
@@ -1087,7 +1103,9 @@ runTxBuild
               (map (\(_, _, wit) -> wit) withdrawals)
               (map snd votingProcedures)
               (map snd proposals)
-              readOnlyRefIns
+              ( readOnlyRefIns
+                  ++ getTxGuardReferenceInputs guardRequirements
+              )
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
           localNodeConnInfo =
@@ -1135,7 +1153,7 @@ runTxBuild
             directDeposits
             accountBalanceIntervals
             startingAccountBalanceIntervals
-            reqSigners
+            guardRequirements
             0
             txAuxScripts
             txMetadata
