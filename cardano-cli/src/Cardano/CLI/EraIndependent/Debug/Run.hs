@@ -11,6 +11,7 @@ where
 import Cardano.Api
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.EraIndependent.Debug.CertificateView.Run (runCertificateViewCmd)
 import Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run (runCheckNodeConfig)
 import Cardano.CLI.EraIndependent.Debug.Command
 import Cardano.CLI.EraIndependent.Debug.LogEpochState.Run
@@ -22,3 +23,4 @@ runDebugCmds = \case
   DebugCheckNodeConfigurationCmd cmd -> runCheckNodeConfig cmd
   DebugLogEpochStateCmd cmd -> liftIO $ runLogEpochStateCmd cmd
   DebugTransactionViewCmd cmd -> runTransactionViewCmd cmd
+  DebugCertificateViewCmd cmd -> runCertificateViewCmd cmd
