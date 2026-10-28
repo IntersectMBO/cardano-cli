@@ -43,6 +43,165 @@ txIn = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
 txOut :: String
 txOut = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
 
+-- | Detached signing preserves every payload and agrees with direct signing,
+-- including empty witness sets, multiple key roles and duplicate witnesses.
+hprop_dijkstra_sub_transaction_witness_assemble :: Property
+hprop_dijkstra_sub_transaction_witness_assemble =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    assembledFile <- H.noteTempFile tempDir "sub.assembled"
+    paramsFile <- H.noteTempFile tempDir "params.json"
+    metadataFile <- H.noteTempFile tempDir "metadata.json"
+    stakeKeyFile <- H.noteTempFile tempDir "stake.skey"
+    H.evalIO $ writeDijkstraProtocolParams paramsFile
+    H.evalIO $ writeFile metadataFile "{\"0\":42}"
+    stakeKey <- H.evalIO $ generateSigningKey AsStakeKey
+    H.evalEither =<< H.evalIO (writeFileTextEnvelope (File stakeKeyFile) Nothing stakeKey)
+    let runSubTransactionCommand :: String -> FilePath -> [String] -> H.PropertyT (ResourceT IO) ()
+        runSubTransactionCommand command output args =
+          void $
+            execCardanoCLI $
+              subTransactionFileArgs command unsignedFile ++ ["--out-file", output] ++ args
+    -- These bodies describe the same transaction but use different CBOR encodings.
+    -- With canonical=False, 24 outputs force the default encoder to use an
+    -- indefinite-length list. With canonical=True, --out-canonical-cbor normalises
+    -- the body before signing. Witnessing and assembly must preserve whichever
+    -- encoding was chosen: signatures cover the body bytes, not just its contents.
+    forM_ [False, True] $ \canonical -> do
+      H.noteShow_ canonical
+      void $
+        execCardanoCLI $
+          subTransactionArgs
+            ++ [ "--tx-in-script-file"
+               , plutusScriptFile 4
+               , "--tx-in-datum-value"
+               , "0"
+               , "--tx-in-redeemer-value"
+               , "0"
+               , "--tx-in-execution-units"
+               , "(0,0)"
+               , "--guard-script-file"
+               , nativeScriptFile
+               , "--metadata-json-file"
+               , metadataFile
+               , "--protocol-params-file"
+               , paramsFile
+               , "--out-file"
+               , unsignedFile
+               ]
+            ++ concat (replicate 24 ["--tx-out", txOut])
+            ++ ["--out-canonical-cbor" | canonical]
+      unsigned@(Exp.UnsignedSubTx unsignedTx) <-
+        H.evalEither =<< H.evalIO (readFileTextEnvelope (File unsignedFile))
+      let bodyBytes = L.originalBytes (unsignedTx ^. L.bodyTxL)
+      canonicalBytes <- H.evalEither $ canonicaliseCborBs bodyBytes
+      -- Check that the fixture really exercises both encodings: normalisation
+      -- must change the default body (False) and leave the canonical body alone
+      -- (True). Otherwise both iterations could silently test canonical input.
+      (bodyBytes == canonicalBytes) H.=== canonical
+      -- Payment and stake keys exercise distinct signing-key roles.
+      witnesses <- forM (zip ["payment", "stake"] [signingKey, stakeKeyFile]) $ \(name, key) -> do
+        witnessFile <- H.noteTempFile tempDir (name ++ ".witness")
+        runSubTransactionCommand "witness" witnessFile ["--signing-key-file", key]
+        pure witnessFile
+      -- No witnesses, one, two distinct keys, then a repeated payment witness.
+      forM_ [0, 1, 2, 3] $ \count -> do
+        H.noteShow_ count
+        let keys = take count [signingKey, stakeKeyFile, signingKey]
+            files = take count (witnesses ++ witnesses)
+        runSubTransactionCommand "sign" signedFile $ concatMap (\key -> ["--signing-key-file", key]) keys
+        runSubTransactionCommand "assemble" assembledFile $
+          concatMap (\file -> ["--witness-file", file]) files
+        signedBytes <- H.evalIO $ BS.readFile signedFile
+        assembledBytes <- H.evalIO $ BS.readFile assembledFile
+        -- Collecting witnesses separately must produce exactly the same signed
+        -- envelope as signing directly with those keys, for either body encoding.
+        assembledBytes H.=== signedBytes
+        assembled@(Exp.SignedSubTx assembledTx) <-
+          H.evalEither =<< H.evalIO (readFileTextEnvelope (File assembledFile))
+        -- Adding key witnesses must not change the sub-transaction's identifier,
+        -- which is the hash of the original unsigned body.
+        Exp.getSignedSubTxId assembled H.=== Exp.getUnsignedSubTxId unsigned
+        -- Preserve the exact signed body bytes. In particular, assembly must not
+        -- normalise a non-canonical body: that would invalidate its witnesses.
+        L.originalBytes (assembledTx ^. L.bodyTxL) H.=== bodyBytes
+        -- Signing and assembly must retain the metadata attached to the fixture.
+        assembledTx ^. L.auxDataTxL H.=== unsignedTx ^. L.auxDataTxL
+        -- Compare payloads separately: the whole witness set also caches its encoding,
+        -- which can change when key witnesses are added or removed.
+        -- Both the native guard script and Plutus spending script must survive.
+        assembledTx ^. L.witsTxL . L.scriptTxWitsL H.=== unsignedTx ^. L.witsTxL . L.scriptTxWitsL
+        -- Retain the spending datum supplied by --tx-in-datum-value.
+        assembledTx ^. L.witsTxL . L.datsTxWitsL H.=== unsignedTx ^. L.witsTxL . L.datsTxWitsL
+        -- Retain the spending redeemer, its index and its execution-unit budget.
+        assembledTx ^. L.witsTxL . L.rdmrsTxWitsL H.=== unsignedTx ^. L.witsTxL . L.rdmrsTxWitsL
+        -- The cases supply zero, one, two, then three witness files. The third
+        -- repeats the payment witness, so only two distinct key witnesses remain.
+        Set.size (assembledTx ^. L.witsTxL . L.addrTxWitsL) H.=== min count 2
+
+-- | Bad inputs fail before creating output; assembly accepts only Dijkstra witnesses.
+hprop_dijkstra_sub_transaction_witness_assemble_rejects_invalid_inputs :: Property
+hprop_dijkstra_sub_transaction_witness_assemble_rejects_invalid_inputs =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    malformedFile <- H.noteTempFile tempDir "malformed.json"
+    missingFile <- H.noteTempFile tempDir "missing.json"
+    bodyFile <- H.noteTempFile tempDir "conway.body"
+    witnessFile <- H.noteTempFile tempDir "conway.witness"
+    outFile <- H.noteTempFile tempDir "output"
+    H.evalIO $ writeFile malformedFile "{}"
+    void $ execCardanoCLI $ subTransactionArgs ++ ["--out-file", unsignedFile]
+    void $ execCardanoCLI $ subTransactionFileArgs "sign" unsignedFile ++ ["--out-file", signedFile]
+    -- A valid witness from another era must fail at the envelope boundary.
+    void $
+      execCardanoCLI
+        ["conway", "transaction", "build-raw", "--tx-in", txIn, "--fee", "0", "--out-file", bodyFile]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "transaction"
+        , "witness"
+        , "--tx-body-file"
+        , bodyFile
+        , "--signing-key-file"
+        , signingKey
+        , "--out-file"
+        , witnessFile
+        ]
+    let assertSubTransactionCommandFails
+          :: String -> FilePath -> [String] -> H.PropertyT (ResourceT IO) String
+        assertSubTransactionCommandFails command input args = do
+          (exitCode, _, stderr) <-
+            execDetailCardanoCLI $ subTransactionFileArgs command input ++ args ++ ["--out-file", outFile]
+          -- Invalid bodies, keys, witnesses or argument counts must fail the command.
+          exitCode H.=== ExitFailure 1
+          -- A rejected request must not leave a witness or signed sub-transaction file.
+          H.evalIO (doesFileExist outFile) >>= (H.=== False)
+          pure stderr
+    stderr <- assertSubTransactionCommandFails "assemble" unsignedFile ["--witness-file", witnessFile]
+    H.assertWith stderr ("TxWitness DijkstraEra" `isInfixOf`)
+    H.assertWith stderr ("TxWitness ConwayEra" `isInfixOf`)
+    -- Both commands require an unsigned, readable sub-transaction.
+    forM_ [signedFile, malformedFile, missingFile] $ \input -> do
+      void $ assertSubTransactionCommandFails "witness" input ["--signing-key-file", signingKey]
+      void $ assertSubTransactionCommandFails "assemble" input []
+    -- A valid body does not excuse missing or malformed key/witness files.
+    forM_ [malformedFile, missingFile] $ \input -> do
+      void $ assertSubTransactionCommandFails "witness" unsignedFile ["--signing-key-file", input]
+      void $ assertSubTransactionCommandFails "assemble" unsignedFile ["--witness-file", input]
+    -- Detached witnessing takes exactly one key; neither command exists in Conway.
+    forM_ [[], [signingKey, signingKey]] $ \keys ->
+      void $
+        assertSubTransactionCommandFails "witness" unsignedFile $
+          concatMap (\key -> ["--signing-key-file", key]) keys
+    forM_ ["witness", "assemble"] $ \command -> do
+      (exitCode, _, conwayError) <- execDetailCardanoCLI ["conway", "sub-transaction", command]
+      -- Neither witness nor assemble is available before Dijkstra.
+      exitCode H.=== ExitFailure 1
+      H.assertWith conwayError ("Invalid argument `sub-transaction'" `isInfixOf`)
+
 -- | Sub-transaction signing rejects the Byron-only address option at parse time.
 hprop_dijkstra_sub_transaction_sign_rejects_address :: Property
 hprop_dijkstra_sub_transaction_sign_rejects_address =
@@ -1361,6 +1520,9 @@ guardDatum = unsafeHashableScriptData $ ScriptDataNumber 42
 
 subTransactionArgs :: [String]
 subTransactionArgs = ["dijkstra", "sub-transaction", "build-raw", "--tx-in", txIn]
+
+subTransactionFileArgs :: String -> FilePath -> [String]
+subTransactionFileArgs command input = ["dijkstra", "sub-transaction", command, "--sub-tx-file", input]
 
 transactionArgs :: String -> [String]
 transactionArgs era = [era, "transaction", "build-raw", "--tx-in", txIn, "--fee", "200000"]
