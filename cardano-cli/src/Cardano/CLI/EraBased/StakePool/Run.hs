@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.StakePool.Run
   , runStakePoolIdCmd
   , runStakePoolMetadataHashCmd
   , runStakePoolRegistrationCertificateCmd
+  , runStakePoolBlsRegistrationCertificateCmd
   , runStakePoolDeregistrationCertificateCmd
   )
 where
@@ -36,6 +37,7 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
   , getByteStringFromURL
   )
+import Cardano.CLI.Helper (printWarning)
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read (getVerificationKeyFromStakePoolVerificationKeySource)
 import Cardano.CLI.Type.Common
@@ -47,14 +49,21 @@ import Control.Monad (forM, when)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
+import Data.Text qualified as T
 import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as T
+import System.IO (stderr)
 import Vary qualified
+
+registrationCertDesc :: TextEnvelopeDescr
+registrationCertDesc = "Stake Pool Registration Certificate"
 
 runStakePoolCmds
   :: IsEra era
   => StakePoolCmds era
   -> CIO e ()
 runStakePoolCmds = \case
+  StakePoolBlsRegistrationCertificateCmd args -> runStakePoolBlsRegistrationCertificateCmd args
   StakePoolDeregistrationCertificateCmd args -> runStakePoolDeregistrationCertificateCmd args
   StakePoolIdCmd args -> runStakePoolIdCmd args
   StakePoolMetadataHashCmd args -> runStakePoolMetadataHashCmd args
@@ -144,9 +153,50 @@ runStakePoolRegistrationCertificateCmd
       fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile outFile $
           textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+
+-- | Create a stake pool registration certificate that keeps every parameter of
+-- an existing one and replaces only its BLS key.
+runStakePoolBlsRegistrationCertificateCmd
+  :: forall era e
+   . IsEra era
+  => StakePoolBlsRegistrationCertificateCmdArgs era
+  -> CIO e ()
+runStakePoolBlsRegistrationCertificateCmd
+  Cmd.StakePoolBlsRegistrationCertificateCmdArgs
+    { era
+    , poolParametersSource = StakePoolParametersFromCertificate (CertificateFile certFile)
+    , blsSkeyFile
+    , outFile
+    } =
+    obtainCommonConstraints era $ do
+      Certificate cert <-
+        fromEitherIOCli @(FileError TextEnvelopeError) $
+          readFileTextEnvelope @(Certificate (LedgerEra era)) (File certFile)
+      oldParams <-
+        fromMaybeCli (StakePoolCmdNotRegistrationCertificateError certFile) $
+          L.getRegPoolTxCert cert
+
+      blsSkey <-
+        fromEitherIOCli @(FileError TextEnvelopeError) $
+          readFileTextEnvelope @(SigningKey BlsKey) blsSkeyFile
+      let newBlsKey = toLedgerBlsKey blsSkey
+          mOldBlsKey = L.strictMaybeToMaybe $ L.sppBlsKey oldParams
+          newParams = oldParams{L.sppBlsKey = L.SJust newBlsKey}
+          registrationCert = makeStakePoolRegistrationCertificate newParams :: Certificate (LedgerEra era)
+
+      liftIO $ do
+        T.hPutStrLn stderr $ "Pool ID: " <> serialiseToBech32 (StakePoolKeyHash $ L.sppId oldParams)
+        T.hPutStrLn stderr $ "Old BLS key: " <> maybe "none (first registration)" renderBlsKey mOldBlsKey
+        T.hPutStrLn stderr $ "New BLS key: " <> renderBlsKey newBlsKey
+      when (mOldBlsKey == Just newBlsKey) $
+        printWarning "The new BLS key is the same as the registered one."
+
+      fromEitherIOCli @(FileError ()) $
+        writeLazyByteStringFile outFile $
+          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
    where
-    registrationCertDesc :: TextEnvelopeDescr
-    registrationCertDesc = "Stake Pool Registration Certificate"
+    renderBlsKey :: L.BlsKey -> T.Text
+    renderBlsKey = serialiseToBech32 . BlsVerificationKey . L.blsPubKey
 
 runStakePoolDeregistrationCertificateCmd
   :: forall era e

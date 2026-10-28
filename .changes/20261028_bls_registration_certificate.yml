@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1489
+kind:
+  - feature
+description: |
+  Add `cardano-cli dijkstra stake-pool bls-registration-certificate offline` with `--registration-certificate-file`, `--bls-signing-key-file` and `--out-file`. It reads an existing stake pool registration certificate and writes a new one that keeps every pool parameter and replaces only the pool's BLS key and its proof of possession, both derived from the given BLS signing key. Use it to register a BLS key for a pool for the first time or to rotate it later, without re-entering pool parameters, so they cannot change by accident. The command prints the pool ID and the old and new BLS keys, and warns when the new key equals the old one.

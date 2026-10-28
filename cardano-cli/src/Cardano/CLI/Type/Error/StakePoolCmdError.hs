@@ -34,6 +34,7 @@ data StakePoolCmdError
   | StakePoolCmdFetchURLError !FetchURLError
   | StakePoolCmdRelayPingErrors ![PingException]
   | StakePoolCmdInvalidRelayError !StakePoolRelay
+  | StakePoolCmdNotRegistrationCertificateError !FilePath
   deriving Show
 
 instance Error StakePoolCmdError where
@@ -65,3 +66,5 @@ instance Error StakePoolCmdError where
         , "A relay given by IP address must specify a port and at least one of an"
             <+> "IPv4 or IPv6 address."
         ]
+    StakePoolCmdNotRegistrationCertificateError file ->
+      pretty file <+> "is not a stake pool registration certificate"

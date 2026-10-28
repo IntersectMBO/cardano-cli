@@ -5182,6 +5182,7 @@ Usage: cardano-cli dijkstra stake-address registration-stake-and-vote-delegation
 
 Usage: cardano-cli dijkstra stake-pool 
                                          ( registration-certificate
+                                         | bls-registration-certificate
                                          | deregistration-certificate
                                          | id
                                          | metadata-hash
@@ -5226,6 +5227,19 @@ Usage: cardano-cli dijkstra stake-pool registration-certificate
                                                                   
 
   Create a stake pool registration certificate
+
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline 
+
+  Create a stake pool registration certificate that keeps the pool's existing
+  parameters and replaces only its BLS key and proof of possession.
+
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline --registration-certificate-file FILEPATH
+                                                                              --bls-signing-key-file FILEPATH
+                                                                              --out-file FILEPATH
+                                                                              
+
+  Create the certificate from the parameters in an existing stake pool
+  registration certificate file. No node connection is needed.
 
 Usage: cardano-cli dijkstra stake-pool deregistration-certificate 
                                                                     ( --stake-pool-verification-key STRING
