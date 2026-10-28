@@ -8,6 +8,8 @@ module Cardano.CLI.EraBased.StakePool.Command
   , StakePoolDeregistrationCertificateCmdArgs (..)
   , StakePoolIdCmdArgs (..)
   , StakePoolMetadataHashCmdArgs (..)
+  , StakePoolBlsRegistrationCertificateCmdArgs (..)
+  , StakePoolParametersSource (..)
   , StakePoolRegistrationCertificateCmdArgs (..)
   , StakePoolMetadataSource (..)
   )
@@ -31,10 +33,28 @@ import Prelude
 import Vary
 
 data StakePoolCmds era
-  = StakePoolDeregistrationCertificateCmd !(StakePoolDeregistrationCertificateCmdArgs era)
+  = StakePoolBlsRegistrationCertificateCmd !(StakePoolBlsRegistrationCertificateCmdArgs era)
+  | StakePoolDeregistrationCertificateCmd !(StakePoolDeregistrationCertificateCmdArgs era)
   | StakePoolIdCmd !(StakePoolIdCmdArgs era)
   | StakePoolMetadataHashCmd !(StakePoolMetadataHashCmdArgs era)
   | StakePoolRegistrationCertificateCmd !(StakePoolRegistrationCertificateCmdArgs era)
+  deriving Show
+
+data StakePoolBlsRegistrationCertificateCmdArgs era
+  = StakePoolBlsRegistrationCertificateCmdArgs
+  { era :: !(Exp.Era era)
+  , poolParametersSource :: !StakePoolParametersSource
+  -- ^ Where to take the current pool parameters from.
+  , blsSkeyFile :: !(SigningKeyFile In)
+  -- ^ BLS signing key, from which the new voting key and its proof of possession are derived.
+  , outFile :: !(File () Out)
+  }
+  deriving Show
+
+-- | Where the pool parameters to keep are read from.
+newtype StakePoolParametersSource
+  = -- | An existing stake pool registration certificate.
+    StakePoolParametersFromCertificate CertificateFile
   deriving Show
 
 data StakePoolDeregistrationCertificateCmdArgs era
@@ -101,6 +121,8 @@ data StakePoolRegistrationCertificateCmdArgs era
 
 renderStakePoolCmds :: StakePoolCmds era -> Text
 renderStakePoolCmds = \case
+  StakePoolBlsRegistrationCertificateCmd{} ->
+    "stake-pool bls-registration-certificate"
   StakePoolDeregistrationCertificateCmd{} ->
     "stake-pool deregistration-certificate"
   StakePoolIdCmd{} ->
