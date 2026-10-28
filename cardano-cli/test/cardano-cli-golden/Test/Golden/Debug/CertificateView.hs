@@ -16,6 +16,7 @@ certificates :: [FilePath]
 certificates =
   [ "cc-cold-key-resignation"
   , "cc-hot-key-authorization"
+  , "dijkstra-pool-registration"
   , "drep-registration"
   , "drep-retirement"
   , "drep-update"
@@ -31,6 +32,7 @@ certificates =
   , "stake-delegation"
   , "stake-deregistration"
   , "stake-registration"
+  , "stake-registration-no-deposit"
   , "vote-delegation-abstain"
   , "vote-delegation-key"
   , "vote-delegation-noconfidence"
