@@ -66,6 +66,7 @@ import Data.Foldable (asum)
 import Data.Function ((&))
 import Data.Map.Strict qualified as Map
 import Data.Maybe
+import Data.Ratio (denominator, numerator)
 import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Text qualified as Text
@@ -620,12 +621,12 @@ friendlyStakeReference = \case
 
 friendlyCertificate
   :: MonadIO m
-  => Exp.Era era
-  -> Vary [FormatJson, FormatYaml]
+  => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
+  -> Exp.Era era
   -> Exp.Certificate (Exp.LedgerEra era)
   -> m (Either (FileError e) ())
-friendlyCertificate era format mOutFile cert = do
+friendlyCertificate format mOutFile era cert = do
   let certValue = friendlyCertificateImpl era cert
   friendly format mOutFile certValue
 
@@ -667,32 +668,49 @@ delegateeJson =
       , "DRep" .= drep
       ]
 
+friendlyPoolParams :: L.StakePoolParams era -> Aeson.Value
+friendlyPoolParams params =
+  object $
+    [ "pool id" .= serialiseToBech32 (StakePoolKeyHash (L.sppId params))
+    , "vrf key hash" .= L.sppVrf params
+    , "pledge" .= L.sppPledge params
+    , "cost" .= L.sppCost params
+    , "margin" .= (textShow (numerator margin) <> "/" <> textShow (denominator margin))
+    , "reward account" .= serialiseAddress (fromShelleyStakeAddr (L.sppAccountAddress params))
+    , "owners" .= L.sppOwners params
+    , "relays" .= L.sppRelays params
+    , "metadata" .= L.sppMetadata params
+    ]
+      <> ["bls key" .= blsKey | L.SJust blsKey <- [L.sppBlsKey params]]
+ where
+  margin = L.unboundRational (L.sppMargin params)
+
 renderConwayCertificate
   :: Ledger.ConwayTxCert (Exp.LedgerEra ConwayEra) -> (Aeson.Key, Aeson.Value)
 renderConwayCertificate cert =
   case cert of
     L.RegDRepTxCert credential coin mAnchor ->
-      "Drep registration certificate"
+      "DRep registration certificate"
         .= object
           [ "deposit" .= coin
-          , "certificate" .= renderDrepCredential credential
+          , "DRep credential" .= renderDrepCredential credential
           , "anchor" .= mAnchor
           ]
     L.UnRegDRepTxCert credential coin ->
-      "Drep unregistration certificate"
+      "DRep unregistration certificate"
         .= object
           [ "refund" .= coin
-          , "certificate" .= renderDrepCredential credential
+          , "DRep credential" .= renderDrepCredential credential
           ]
     L.AuthCommitteeHotKeyTxCert coldCred hotCred
       | L.ScriptHashObj sh <- coldCred ->
           "Cold committee authorization"
             .= object
-              ["script hash" .= sh]
+              ["script hash" .= sh, "hot credential" .= hotCred]
       | L.ScriptHashObj sh <- hotCred ->
           "Hot committee authorization"
             .= object
-              ["script hash" .= sh]
+              ["script hash" .= sh, "cold credential" .= coldCred]
       | L.KeyHashObj ck@L.KeyHash{} <- coldCred
       , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
           "Constitutional committee member hot key registration"
@@ -711,6 +729,7 @@ renderConwayCertificate cert =
         "Constitutional committee cold key resignation"
           .= object
             [ "cold key hash" .= ck
+            , "anchor" .= anchor
             ]
     L.RegTxCert stakeCredential ->
       "Stake address registration"
@@ -750,7 +769,7 @@ renderConwayCertificate cert =
     L.RegPoolTxCert poolParams ->
       "Pool registration"
         .= object
-          [ "pool params" .= poolParams
+          [ "pool params" .= friendlyPoolParams poolParams
           ]
     L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
       "Pool retirement"
@@ -759,10 +778,10 @@ renderConwayCertificate cert =
           , "epoch" .= epoch
           ]
     L.UpdateDRepTxCert drepCredential mbAnchor ->
-      "Drep certificate update"
+      "DRep certificate update"
         .= object
-          [ "Drep credential" .= drepCredential
-          , "anchor " .= mbAnchor
+          [ "DRep credential" .= drepCredential
+          , "anchor" .= mbAnchor
           ]
     _ -> "unsupported certificate" .= String (T.pack $ show cert)
 
@@ -771,27 +790,27 @@ renderDijkstraCertificate
 renderDijkstraCertificate cert =
   case cert of
     L.RegDRepTxCert credential coin mAnchor ->
-      "Drep registration certificate"
+      "DRep registration certificate"
         .= object
           [ "deposit" .= coin
-          , "certificate" .= renderDrepCredential credential
+          , "DRep credential" .= renderDrepCredential credential
           , "anchor" .= mAnchor
           ]
     L.UnRegDRepTxCert credential coin ->
-      "Drep unregistration certificate"
+      "DRep unregistration certificate"
         .= object
           [ "refund" .= coin
-          , "certificate" .= renderDrepCredential credential
+          , "DRep credential" .= renderDrepCredential credential
           ]
     L.AuthCommitteeHotKeyTxCert coldCred hotCred
       | L.ScriptHashObj sh <- coldCred ->
           "Cold committee authorization"
             .= object
-              ["script hash" .= sh]
+              ["script hash" .= sh, "hot credential" .= hotCred]
       | L.ScriptHashObj sh <- hotCred ->
           "Hot committee authorization"
             .= object
-              ["script hash" .= sh]
+              ["script hash" .= sh, "cold credential" .= coldCred]
       | L.KeyHashObj ck@L.KeyHash{} <- coldCred
       , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
           "Constitutional committee member hot key registration"
@@ -810,6 +829,7 @@ renderDijkstraCertificate cert =
         "Constitutional committee cold key resignation"
           .= object
             [ "cold key hash" .= ck
+            , "anchor" .= anchor
             ]
     L.RegDepositTxCert stakeCredential deposit ->
       "Stake address registration"
@@ -839,7 +859,7 @@ renderDijkstraCertificate cert =
     L.RegPoolTxCert poolParams ->
       "Pool registration"
         .= object
-          [ "pool params" .= poolParams
+          [ "pool params" .= friendlyPoolParams poolParams
           ]
     L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
       "Pool retirement"
@@ -848,9 +868,9 @@ renderDijkstraCertificate cert =
           , "epoch" .= epoch
           ]
     L.UpdateDRepTxCert drepCredential mbAnchor ->
-      "Drep certificate update"
+      "DRep certificate update"
         .= object
-          [ "Drep credential" .= drepCredential
+          [ "DRep credential" .= drepCredential
           , "anchor" .= mbAnchor
           ]
     _ -> "unsupported certificate" .= String (T.pack $ show cert)

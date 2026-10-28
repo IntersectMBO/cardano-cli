@@ -1,7 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraIndependent.Debug.CertificateView.Run
@@ -38,7 +37,7 @@ runCertificateViewCmd
     AnyCertificate era certificate <-
       fromEitherIOCli $ readCertificate certificateFile
     fromEitherIOCli @(FileError ()) $
-      friendlyCertificate era outputFormat mOutFile certificate
+      friendlyCertificate outputFormat mOutFile era certificate
 
 data AnyCertificate where
   AnyCertificate
@@ -46,13 +45,21 @@ data AnyCertificate where
     -> Exp.Certificate (Exp.LedgerEra era)
     -> AnyCertificate
 
+-- | Every era writes the same text envelope type. Try Dijkstra first, then
+-- Conway, which also reads registration certificates without a deposit.
 readCertificate
   :: FileOrPipe
   -> IO (Either (FileError TextEnvelopeError) AnyCertificate)
-readCertificate =
-  readFileOrPipeTextEnvelopeAnyOf
-    [ Exp.obtainCommonConstraints Exp.ConwayEra $
-        FromSomeType Exp.AsCertificate (AnyCertificate Exp.ConwayEra)
-    , Exp.obtainCommonConstraints Exp.DijkstraEra $
-        FromSomeType Exp.AsCertificate (AnyCertificate Exp.DijkstraEra)
-    ]
+readCertificate file = do
+  result <- readAs Exp.DijkstraEra
+  case result of
+    Left (FileError _ (TextEnvelopeDecodeError _)) -> readAs Exp.ConwayEra
+    _ -> pure result
+ where
+  readAs :: Exp.Era era -> IO (Either (FileError TextEnvelopeError) AnyCertificate)
+  readAs era =
+    readFileOrPipeTextEnvelopeAnyOf
+      [ Exp.obtainCommonConstraints era $
+          FromSomeType Exp.AsCertificate (AnyCertificate era)
+      ]
+      file
