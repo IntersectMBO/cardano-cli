@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -17,6 +18,8 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraBased.Query.Command (QueryCommons (..))
+import Cardano.CLI.EraBased.Query.Option (pQueryCommons)
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.Parser
@@ -156,16 +159,61 @@ pStakePoolBlsRegistrationCertificateCmd envCli =
       Just
         . Opt.hsubparser
         . commandWithMetavar "bls-registration-certificate"
-        . Opt.info pOffline
+        . Opt.info (Opt.hsubparser (pOffline <> pOnline))
         $ Opt.progDesc
         $ mconcat
           [ "Create a stake pool registration certificate that keeps the pool's existing"
           , " parameters and replaces only its BLS key and proof of possession."
           ]
  where
+  pOnline =
+    commandWithMetavar "online"
+      . Opt.info pBlsRegistrationCertificateOnline
+      $ Opt.progDesc
+      $ mconcat
+        [ "Create the certificate from the pool parameters that a running node reports."
+        , " Needs a connection to the node."
+        ]
+
+  pBlsRegistrationCertificateOnline =
+    fmap Cmd.StakePoolBlsRegistrationCertificateCmd $
+      Cmd.StakePoolBlsRegistrationCertificateCmdArgs (convert $ useEra @era)
+        <$> pParametersFromNode
+        <*> pBlsSigningKeyFile
+        <*> pOutputFile
+
+  pParametersFromNode =
+    fromNode
+      <$> pQueryCommons @era envCli
+      <*> pStakePoolVerificationKeyHash Nothing
+      <*> pPoolStateParametersChoice
+   where
+    fromNode commons@QueryCommons{nodeConnInfo} poolId choice =
+      Cmd.StakePoolParametersFromNode commons poolId $ choice (localNodeNetworkId nodeConnInfo)
+
+  -- The current parameters need the network of the node connection.
+  pPoolStateParametersChoice =
+    F.asum
+      [ Cmd.PoolStateCurrentParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "current-params"
+                , Opt.help "Keep the current parameters of the pool."
+                ]
+            )
+      , const Cmd.PoolStatePendingParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "pending-params"
+                , Opt.help "Keep the parameters of the pending update of the pool."
+                ]
+            )
+      ]
+
   pOffline =
-    Opt.hsubparser
-      . commandWithMetavar "offline"
+    commandWithMetavar "offline"
       . Opt.info pBlsRegistrationCertificateOffline
       $ Opt.progDesc
       $ mconcat

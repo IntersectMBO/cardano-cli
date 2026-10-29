@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -7,9 +8,12 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Type.Error.StakePoolCmdError (PoolStateOrigin (..), StakePoolCmdError (..))
+
 import Control.Monad (void)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource (runResourceT)
+import Data.ByteString.Char8 qualified as BSC
 
 import Test.Gen.Cardano.Api.Typed (genSigningKey)
 
@@ -56,6 +60,16 @@ hprop_stake_pool_bls_registration_certificate_keeps_params =
     newParams <- readPoolParams @TestEra outFile
 
     newParams === oldParams{L.sppBlsKey = L.SJust (toLedgerBlsKey newSigningKey)}
+
+-- | The errors for a pool state from a node do not mention a pool state file.
+hprop_stake_pool_bls_registration_certificate_node_error_messages :: Property
+hprop_stake_pool_bls_registration_certificate_node_error_messages = H.propertyOnce $ do
+  poolId <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
+  let bech32 = serialiseToBech32 (poolId :: Hash StakePoolKey)
+  docToText (prettyError $ StakePoolCmdPoolNotInPoolStateError PoolStateFromNode poolId)
+    === "The pool " <> bech32 <> " is not registered on the node."
+  docToText (prettyError $ StakePoolCmdNoPendingParametersError PoolStateFromNode poolId)
+    === "The pool " <> bech32 <> " has no pending parameter update. Use --current-params."
 
 readPoolParams
   :: forall era m

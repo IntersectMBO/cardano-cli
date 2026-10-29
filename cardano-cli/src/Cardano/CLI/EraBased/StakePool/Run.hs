@@ -28,6 +28,8 @@ import Cardano.Api.Experimental.Certificate
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.EraBased.Query.Command (QueryCommons (..))
+import Cardano.CLI.EraBased.Query.Run (easyRunQuery)
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
@@ -54,6 +56,7 @@ import Data.Function ((&))
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Maybe.Strict (isSJust)
+import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as T
@@ -213,6 +216,49 @@ readStakePoolParameters (StakePoolParametersFromCertificate (CertificateFile cer
       L.getRegPoolTxCert cert
 readStakePoolParameters (StakePoolParametersFromPoolState (File poolStateFilePath) poolId choice) =
   obtainCommonConstraints (useEra @era) $ do
+    poolStates <-
+      fromEitherIOCli @(FileError JsonDecodeError) $
+        readFileJSON @(Map (L.KeyHash L.StakePool) (L.QueryResultStakePoolState (LedgerEra era)))
+          poolStateFilePath
+    selectPoolParameters @era (PoolStateFromFile poolStateFilePath) poolId choice poolStates
+readStakePoolParameters (StakePoolParametersFromNode QueryCommons{nodeConnInfo, target} poolId choice) =
+  obtainCommonConstraints (useEra @era) $ do
+    poolStates <-
+      fromEitherIOCli
+        ( executeLocalStateQueryExpr nodeConnInfo target $
+            runExceptT $
+              easyRunQuery $
+                queryStakePoolState
+                  (convert $ useEra @era)
+                  (Just . Set.singleton $ unStakePoolKeyHash poolId)
+                  NotIncludeDelegators
+        )
+        & fromEitherCIOCli
+    selectPoolParameters @era PoolStateFromNode poolId choice poolStates
+
+-- | Select the parameters of one pool from a pool state, which comes from
+-- @query pool-state@ output or a node query ('PoolStateOrigin' only names the
+-- source in error messages).
+--
+-- * 'PoolStateCurrentParameters': the pool's active parameters. The reward account
+--   gets the given network, because the pool state has none.
+-- * 'PoolStatePendingParameters': the parameters of the pool's pending update.
+--   Fails if there is no pending update.
+--
+-- Fails if the pool is not in the pool state. Prints a warning for everything the
+-- new registration certificate overrides: a pending update (current parameters
+-- only) and a scheduled retirement, which the ledger cancels when a registered
+-- pool registers again.
+selectPoolParameters
+  :: forall era e
+   . IsEra era
+  => PoolStateOrigin
+  -> Hash StakePoolKey
+  -> PoolStateParametersChoice
+  -> Map (L.KeyHash L.StakePool) (L.QueryResultStakePoolState (LedgerEra era))
+  -> CIO e (L.StakePoolParams (LedgerEra era))
+selectPoolParameters origin poolId choice poolStates =
+  obtainCommonConstraints (useEra @era) $ do
     let
       -- Re-registering a registered pool removes its scheduled retirement.
       warnAboutRetirement :: L.QueryResultStakePoolState (LedgerEra era) -> CIO e ()
@@ -241,12 +287,8 @@ readStakePoolParameters (StakePoolParametersFromPoolState (File poolStateFilePat
           , L.sppMetadata = L.qrspsMetadata poolState
           }
 
-    poolStates <-
-      fromEitherIOCli @(FileError JsonDecodeError) $
-        readFileJSON @(Map (L.KeyHash L.StakePool) (L.QueryResultStakePoolState (LedgerEra era)))
-          poolStateFilePath
     poolState <-
-      fromMaybeCli (StakePoolCmdPoolNotInPoolStateError poolStateFilePath poolId) $
+      fromMaybeCli (StakePoolCmdPoolNotInPoolStateError origin poolId) $
         Map.lookup (unStakePoolKeyHash poolId) poolStates
     case choice of
       PoolStateCurrentParameters network -> do
@@ -256,7 +298,7 @@ readStakePoolParameters (StakePoolParametersFromPoolState (File poolStateFilePat
         pure $ currentParameters network poolState
       PoolStatePendingParameters -> do
         pendingParams <-
-          fromMaybeCli (StakePoolCmdNoPendingParametersError poolStateFilePath poolId) $
+          fromMaybeCli (StakePoolCmdNoPendingParametersError origin poolId) $
             L.strictMaybeToMaybe $
               L.qrspsFutureStakePoolParams poolState
         warnAboutRetirement poolState

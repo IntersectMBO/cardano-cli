@@ -380,6 +380,34 @@ hprop_dijkstra_stake_pool_bls_registration_certificate_pending_params_with_netwo
     exitCode H.=== ExitFailure 1
     H.assertWith stderr ("Invalid option" `isInfixOf`)
 
+-- | The online command gets the pool state from the node, so it takes no pool state file.
+hprop_dijkstra_stake_pool_bls_registration_certificate_online_rejects_pool_state_file :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_online_rejects_pool_state_file =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI
+        [ "dijkstra"
+        , "stake-pool"
+        , "bls-registration-certificate"
+        , "online"
+        , "--pool-state-file"
+        , poolStateFile
+        , "--stake-pool-id"
+        , pendingUpdatePoolId
+        , "--pending-params"
+        , "--bls-signing-key-file"
+        , blsSigningKeyFile
+        , "--out-file"
+        , outFile
+        ]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Invalid option" `isInfixOf`)
+
 -- | The hex pool IDs in the pool state file: a pool with a pending update, a retiring pool, and a
 -- plain pool, which uses the hash of an owner of the first.
 pendingUpdatePoolId, retiringPoolId, plainPoolId :: String
