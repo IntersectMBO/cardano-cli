@@ -42,7 +42,8 @@ Available options:
                            Stake pool verification extended key (Bech32 or
                            hex-encoded).
   --cold-verification-key-file FILEPATH
-                           Filepath of the stake pool verification key.
+                           Filepath of the stake pool verification key. Use `-`
+                           to read from standard input.
   --vrf-verification-key STRING
                            VRF verification key (Bech32 or hex-encoded).
   --vrf-verification-key-file FILEPATH

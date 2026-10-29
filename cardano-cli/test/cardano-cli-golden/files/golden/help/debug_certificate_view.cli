@@ -10,5 +10,6 @@ Available options:
   --output-yaml            Format certificate view output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   --certificate-file FILEPATH
-                           Input filepath of the certificate.
+                           Input filepath of the certificate. Use `-` to read
+                           from standard input.
   -h,--help                Show this help text

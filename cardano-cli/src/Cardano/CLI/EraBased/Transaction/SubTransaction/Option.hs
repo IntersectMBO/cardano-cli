@@ -312,11 +312,17 @@ pSignedSubTxFileOut =
 
 pUnsignedSubTxFileIn :: Parser (UnsignedSubTxFile In)
 pUnsignedSubTxFileIn =
-  File <$> parseFilePath "sub-tx-file" "Input filepath of the JSON unsigned sub-transaction."
+  File
+    <$> parseFilePath
+      "sub-tx-file"
+      "Input filepath of the JSON unsigned sub-transaction. Use `-` to read from standard input."
 
 pSignedSubTxFileIn :: Parser (SignedSubTxFile In)
 pSignedSubTxFileIn =
-  File <$> parseFilePath "signed-sub-tx-file" "Input filepath of the JSON signed sub-transaction."
+  File
+    <$> parseFilePath
+      "signed-sub-tx-file"
+      "Input filepath of the JSON signed sub-transaction. Use `-` to read from standard input."
 
 -- | Sub-transactions use Shelley witnesses, so no Byron address is accepted.
 -- The signing-key file's type is checked when it is read.
@@ -341,4 +347,4 @@ pSubTransactionFiles = case Exp.useEra @era of
       File
         <$> parseFilePath
           "signed-sub-tx-file"
-          "Filepath of a signed sub-transaction to embed in this transaction (zero or more)."
+          "Filepath of a signed sub-transaction to embed in this transaction (zero or more). Use `-` to read from standard input."

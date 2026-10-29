@@ -30,6 +30,12 @@ Up to date command line help reference is available here:
 * [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)
 * [Description of each command's options](cardano-cli/test/cardano-cli-golden/files/golden/help)
 
+To read a file from standard input, use `-` as the file path. For example:
+
+```sh
+cat certificate.json | cardano-cli debug certificate view --certificate-file -
+```
+
 Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
 
 Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.org/

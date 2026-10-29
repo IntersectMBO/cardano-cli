@@ -14,8 +14,10 @@ Usage: cardano-cli conway transaction sign
   Sign a transaction
 
 Available options:
-  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
-  --tx-file FILEPATH       Input filepath of the JSON Tx.
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody. Use `-` to read
+                           from standard input.
+  --tx-file FILEPATH       Input filepath of the JSON Tx. Use `-` to read from
+                           standard input.
   --signing-key-file FILEPATH
                            Input filepath of the signing key (one or more).
   --address STRING         Byron address (Base58-encoded).

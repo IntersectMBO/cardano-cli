@@ -13,7 +13,7 @@ Usage: cardano-cli cip-format cip-129 committee-cold-key
 Available options:
   --committee-cold-key-file FILEPATH
                            Input hex/bech32/text envelope committee cold key
-                           file
+                           file. Use `-` to read from standard input.
   --committee-cold-key-hex HEX
                            Input hex encoded committee cold key
   --committee-cold-key-bech32 BECH32

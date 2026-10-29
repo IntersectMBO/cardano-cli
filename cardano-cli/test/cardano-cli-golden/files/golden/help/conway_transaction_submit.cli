@@ -25,5 +25,6 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
-  --tx-file FILEPATH       Filepath of the transaction you intend to submit.
+  --tx-file FILEPATH       Filepath of the transaction you intend to submit. Use
+                           `-` to read from standard input.
   -h,--help                Show this help text

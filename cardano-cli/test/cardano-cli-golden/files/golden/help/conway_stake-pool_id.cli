@@ -16,7 +16,8 @@ Available options:
                            Stake pool verification extended key (Bech32 or
                            hex-encoded).
   --cold-verification-key-file FILEPATH
-                           Filepath of the stake pool verification key.
+                           Filepath of the stake pool verification key. Use `-`
+                           to read from standard input.
   --output-bech32          Format pool-id output to BECH32 (default).
   --output-hex             Format pool-id output to BASE16.
   --output-format STRING   Optional pool id output format. Accepted output
