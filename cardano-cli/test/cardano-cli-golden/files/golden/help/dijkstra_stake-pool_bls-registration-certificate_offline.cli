@@ -1,0 +1,16 @@
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline --registration-certificate-file FILEPATH
+                                                                              --bls-signing-key-file FILEPATH
+                                                                              --out-file FILEPATH
+                                                                              
+
+  Create the certificate from the parameters in an existing stake pool
+  registration certificate file. No node connection is needed.
+
+Available options:
+  --registration-certificate-file FILEPATH
+                           Input filepath of the stake pool registration
+                           certificate to copy the parameters from.
+  --bls-signing-key-file FILEPATH
+                           Input filepath of the BLS signing key.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

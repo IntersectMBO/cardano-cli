@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.StakePool.Option
   ( pStakePoolCmds
@@ -19,7 +20,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.Parser
-import Cardano.CLI.Type.Common (SigningKeyFile)
+import Cardano.CLI.Type.Common (CertificateFile (..), SigningKeyFile)
 
 import Data.Foldable qualified as F
 import Options.Applicative hiding (help, str)
@@ -38,6 +39,7 @@ pStakePoolCmds envCli =
           ]
     )
     [ pStakePoolRegistrationCertificateCmd envCli
+    , pStakePoolBlsRegistrationCertificateCmd
     , pStakePoolDeregistrationCertificateCmd
     , Just $
         Opt.hsubparser $
@@ -140,6 +142,49 @@ pBlsSigningKeyFile =
     <$> parseFilePath
       "bls-signing-key-file"
       "Input filepath of the BLS signing key."
+
+-- | Dijkstra only: the BLS key is registered from that era onwards.
+pStakePoolBlsRegistrationCertificateCmd
+  :: forall era
+   . IsEra era
+  => Maybe (Parser (Cmd.StakePoolCmds era))
+pStakePoolBlsRegistrationCertificateCmd =
+  case useEra @era of
+    Exp.ConwayEra -> Nothing
+    Exp.DijkstraEra ->
+      Just
+        . Opt.hsubparser
+        . commandWithMetavar "bls-registration-certificate"
+        . Opt.info pOffline
+        $ Opt.progDesc
+        $ mconcat
+          [ "Create a stake pool registration certificate that keeps the pool's existing"
+          , " parameters and replaces only its BLS key and proof of possession."
+          ]
+ where
+  pOffline =
+    Opt.hsubparser
+      . commandWithMetavar "offline"
+      . Opt.info pBlsRegistrationCertificateOffline
+      $ Opt.progDesc
+      $ mconcat
+        [ "Create the certificate from the parameters in an existing stake pool registration certificate file."
+        , " No node connection is needed."
+        ]
+
+  pBlsRegistrationCertificateOffline =
+    fmap Cmd.StakePoolBlsRegistrationCertificateCmd $
+      Cmd.StakePoolBlsRegistrationCertificateCmdArgs (convert $ useEra @era)
+        <$> pStakePoolParametersFromCertificate
+        <*> pBlsSigningKeyFile
+        <*> pOutputFile
+
+pStakePoolParametersFromCertificate :: Parser Cmd.StakePoolParametersSource
+pStakePoolParametersFromCertificate =
+  Cmd.StakePoolParametersFromCertificate . CertificateFile
+    <$> parseFilePath
+      "registration-certificate-file"
+      "Input filepath of the stake pool registration certificate to copy the parameters from."
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))

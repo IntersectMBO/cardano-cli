@@ -1,5 +1,6 @@
 Usage: cardano-cli dijkstra stake-pool 
                                          ( registration-certificate
+                                         | bls-registration-certificate
                                          | deregistration-certificate
                                          | id
                                          | metadata-hash
@@ -13,6 +14,10 @@ Available options:
 
 Available commands:
   registration-certificate Create a stake pool registration certificate
+  bls-registration-certificate
+                           Create a stake pool registration certificate that
+                           keeps the pool's existing parameters and replaces
+                           only its BLS key and proof of possession.
   deregistration-certificate
                            Create a stake pool deregistration certificate
   id                       Build pool id from the offline key
