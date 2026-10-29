@@ -19,25 +19,39 @@ pTxGuardArguments Exp.DijkstraEra balance =
 
 pScriptGuard :: BalanceTxExecUnits -> Parser Guard
 pScriptGuard balance =
-  ScriptGuard
-    <$> ( GuardScriptOnDisk
-            <$> pScriptFor
-              "guard-script-file"
-              Nothing
-              "Native or Plutus V4 script whose approval this transaction requires. Plutus guards require a redeemer; native guards accept neither redeemers nor execution units."
-            <|> GuardScriptReference
-              <$> pReferenceTxIn "guard-" "native or Plutus V4"
-              <*> pScriptHash
-                "guard-script-hash"
-                "Hash of the guard script at the preceding reference input. Supply a redeemer for Plutus V4; omit it for a native script."
+  ( ScriptGuard . GuardScriptOnDisk
+      <$> pScriptFor
+        "guard-script-file"
+        Nothing
+        "Native or Plutus V4 script whose approval this transaction requires. Plutus guards require a redeemer; native guards accept neither redeemers nor execution units."
+      <*> optional pRedeemer
+  )
+    <|> ( ScriptGuard
+            <$> ( NativeGuardScriptReference
+                    <$> pReferenceTxIn "simple-guard-script-" "native"
+                    <*> pGuardScriptHash
+                )
+            <*> pure Nothing
         )
-    <*> optional
-      ( (,)
-          <$> pScriptDataOrFile
-            "guard-redeemer"
-            "Redeemer for the preceding Plutus V4 guard."
-            "Redeemer file for the preceding Plutus V4 guard."
-          <*> case balance of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits "guard"
-      )
+    <|> ( ScriptGuard
+            <$> ( PlutusGuardScriptReference
+                    <$> pReferenceTxIn "guard-" "Plutus V4"
+                    <* pPlutusV4ReferenceLanguage Exp.DijkstraEra "guard-"
+                    <*> pGuardScriptHash
+                )
+            <*> (Just <$> pRedeemer)
+        )
+ where
+  pGuardScriptHash =
+    pScriptHash
+      "guard-script-hash"
+      "Hash of the guard script at the preceding reference input."
+  pRedeemer =
+    (,)
+      <$> pScriptDataOrFile
+        "guard-redeemer"
+        "Redeemer for the preceding Plutus V4 guard."
+        "Redeemer file for the preceding Plutus V4 guard."
+      <*> case balance of
+        AutoBalance -> pure (ExecutionUnits 0 0)
+        ManualBalance -> pExecutionUnits "guard"
