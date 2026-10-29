@@ -100,14 +100,18 @@ readGuard (ScriptGuard source mRedeemer) = do
                   (throwCliError $ TxCmdPlutusGuardMissingRedeemer credential)
                   (\(datum, units) -> pure (credential, plutusWitness (P.PScript scriptInEra) datum units))
                   redeemer
-      GuardScriptReference input (ScriptHash scriptHash) ->
-        pure
-          ( L.ScriptHashObj scriptHash
-          , maybe
-              (Exp.NativeGuardWitness (Exp.SReferenceScript input))
-              (uncurry $ plutusWitness (P.PReferenceScript input))
-              redeemer
-          )
+      NativeGuardScriptReference input (ScriptHash scriptHash) -> do
+        let credential = L.ScriptHashObj scriptHash
+        maybe
+          (pure (credential, Exp.NativeGuardWitness (Exp.SReferenceScript input)))
+          (const $ throwCliError $ TxCmdNativeGuardWithRedeemer credential)
+          redeemer
+      PlutusGuardScriptReference input (ScriptHash scriptHash) -> do
+        let credential = L.ScriptHashObj scriptHash
+        maybe
+          (throwCliError $ TxCmdPlutusGuardMissingRedeemer credential)
+          (\(datum, units) -> pure (credential, plutusWitness (P.PReferenceScript input) datum units))
+          redeemer
   plutusWitness
     :: P.PlutusScriptOrReferenceInput L.PlutusV4 era
     -> HashableScriptData

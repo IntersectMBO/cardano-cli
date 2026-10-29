@@ -9,6 +9,8 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.EraBased.Script.Guard.Option (pTxGuardArguments)
+import Cardano.CLI.Type.Common (BalanceTxExecUnits (..))
 import Cardano.Ledger.Coin qualified as L
 import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
@@ -23,10 +25,13 @@ import Data.Aeson qualified as Aeson
 import Data.Foldable (toList)
 import Data.List (isInfixOf)
 import Data.Map.Strict qualified as Map
+import Data.Maybe (isJust)
 import Data.Set qualified as Set
 import Data.Text qualified as Text
 import Data.Time.Clock.POSIX qualified as Time
 import Lens.Micro ((&), (.~), (^.))
+import Options.Applicative qualified as Opt
+import System.Directory (removeFile)
 import System.Exit (ExitCode (..))
 
 import Test.Cardano.CLI.Util
@@ -64,6 +69,7 @@ hprop_top_level_key_guards = watchdogProp . propertyOnce $ H.moduleWorkspace "tm
           (readFileTextEnvelope (File bodyFile) :: IO (Either (FileError TextEnvelopeError) (Tx ConwayEra)))
     -- Conway still stores the key in required signers, even when supplied twice.
     conway ^. L.bodyTxL . L.reqSignerHashesTxBodyL === Set.singleton (L.coerceKeyRole ledgerKeyHash)
+    H.evalIO $ removeFile bodyFile
     void $ execCardanoCLI $ transactionArgs "dijkstra" ++ args ++ ["--out-file", bodyFile]
     ShelleyTx _ dijkstra <- readDijkstraTransaction bodyFile
     -- Both CLI forms produce one key guard in the unified Dijkstra collection.
@@ -87,6 +93,8 @@ hprop_top_level_key_guards = watchdogProp . propertyOnce $ H.moduleWorkspace "tm
     Set.size (signed ^. L.witsTxL . L.addrTxWitsL) === 1
     -- Adding that signature must preserve the body, including its guard requirement.
     signed ^. L.bodyTxL === dijkstra ^. L.bodyTxL
+    H.evalIO $ removeFile bodyFile
+    H.evalIO $ removeFile signedFile
 
 -- Native guards need no protocol parameters or Plutus witness data.
 hprop_top_level_native_guard :: Property
@@ -208,22 +216,64 @@ hprop_top_level_reference_guards = watchdogProp . propertyOnce $ H.moduleWorkspa
   input <-
     H.evalEither $
       deserialiseFromRawBytesHex "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981"
-  forM_ [[], ["--guard-redeemer-value", "42", "--guard-execution-units", "(3,4)"]] $ \redeemer -> do
-    void $
-      execCardanoCLI $
-        transactionArgs "dijkstra"
-          ++ ["--guard-tx-in-reference", reference, "--guard-script-hash", replicate 56 '0']
-          ++ redeemer
-          ++ ["--protocol-params-file", params, "--out-file", outFile]
-    ShelleyTx _ tx <- readDijkstraTransaction outFile
-    -- The guard's reference input must be included in the transaction body.
-    tx ^. L.bodyTxL . L.referenceInputsTxBodyL === Set.singleton (toShelleyTxIn $ TxIn input (TxIx 1))
-    -- Reference scripts must not also be embedded as inline witnesses.
-    Map.size (tx ^. L.witsTxL . L.scriptTxWitsL) === 0
-    -- Either reference-script form contributes one guard credential.
-    length (tx ^. L.bodyTxL . L.guardsTxBodyL) === 1
-    -- A native reference has no redeemer; the Plutus reference has exactly one.
-    Map.size (L.unRedeemers $ tx ^. L.witsTxL . L.rdmrsTxWitsL) === if null redeemer then 0 else 1
+  forM_
+    [ ("--simple-guard-script-tx-in-reference", [])
+    ,
+      ( "--guard-tx-in-reference"
+      , ["--guard-plutus-script-v4", "--guard-redeemer-value", "42", "--guard-execution-units", "(3,4)"]
+      )
+    ]
+    $ \(referenceFlag, redeemer) -> do
+      void $
+        execCardanoCLI $
+          transactionArgs "dijkstra"
+            ++ [referenceFlag, reference, "--guard-script-hash", replicate 56 '0']
+            ++ redeemer
+            ++ ["--protocol-params-file", params, "--out-file", outFile]
+      ShelleyTx _ tx <- readDijkstraTransaction outFile
+      -- The guard's reference input must be included in the transaction body.
+      tx ^. L.bodyTxL . L.referenceInputsTxBodyL === Set.singleton (toShelleyTxIn $ TxIn input (TxIx 1))
+      -- Reference scripts must not also be embedded as inline witnesses.
+      Map.size (tx ^. L.witsTxL . L.scriptTxWitsL) === 0
+      -- Either reference-script form contributes one guard credential.
+      length (tx ^. L.bodyTxL . L.guardsTxBodyL) === 1
+      -- A native reference has no redeemer; the Plutus reference has exactly one.
+      Map.size (L.unRedeemers $ tx ^. L.witsTxL . L.rdmrsTxWitsL) === if null redeemer then 0 else 1
+      H.evalIO $ removeFile outFile
+
+-- Reference flags select the script type and require an explicit Plutus V4
+-- version. Omitting a redeemer must never turn Plutus into a native witness.
+hprop_top_level_reference_guard_options :: Property
+hprop_top_level_reference_guard_options = watchdogProp . propertyOnce $ do
+  let reference flag = [flag, txIn, "--guard-script-hash", replicate 56 '0']
+      native = reference "--simple-guard-script-tx-in-reference"
+      unversioned = reference "--guard-tx-in-reference"
+      plutus = unversioned ++ ["--guard-plutus-script-v4"]
+      redeemer = ["--guard-redeemer-value", "42"]
+      units = ["--guard-execution-units", "(3,4)"]
+  forM_ [AutoBalance, ManualBalance] $ \balance -> do
+    let witness =
+          redeemer ++ case balance of
+            AutoBalance -> []
+            ManualBalance -> units
+        parser = Opt.info (pTxGuardArguments Exp.DijkstraEra balance) mempty
+        accepts = isJust . Opt.getParseResult . Opt.execParserPure Opt.defaultPrefs parser
+    forM_ [native, plutus ++ witness, native ++ plutus ++ witness, plutus ++ witness ++ native] $ \args -> do
+      H.annotateShow args
+      accepts args === True
+    forM_ [plutus, native ++ redeemer, native ++ units, native ++ redeemer ++ units, plutus ++ units] $ \args -> do
+      H.annotateShow args
+      accepts args === False
+    forM_
+      ( [unversioned ++ witness, native ++ ["--guard-plutus-script-v4"]]
+          ++ [unversioned ++ ["--guard-plutus-script-v" ++ show version] ++ witness | version <- [1 .. 3 :: Int]]
+      )
+      $ \args -> do
+        H.annotateShow args
+        accepts args === False
+    case balance of
+      AutoBalance -> accepts (plutus ++ redeemer ++ units) === False
+      ManualBalance -> accepts (plutus ++ redeemer) === False
 
 hprop_top_level_guard_rejects_invalid_witnesses :: Property
 hprop_top_level_guard_rejects_invalid_witnesses = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -247,6 +297,8 @@ hprop_top_level_guard_options = watchdogProp . propertyOnce $ do
     help <- execCardanoCLI ["dijkstra", "transaction", command, "--help"]
     H.assertWith help ("--guard-script-file" `isInfixOf`)
     H.assertWith help ("--guard-tx-in-reference" `isInfixOf`)
+    H.assertWith help ("--guard-plutus-script-v4" `isInfixOf`)
+    H.assertWith help ("--simple-guard-script-tx-in-reference" `isInfixOf`)
     -- Online build computes budgets; raw and estimated builds require explicit units.
     ("--guard-execution-units" `isInfixOf` help) === (command /= "build")
     forM_ ["conway", "latest"] $ \era -> do

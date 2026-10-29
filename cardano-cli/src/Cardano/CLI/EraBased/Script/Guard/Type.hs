@@ -18,7 +18,8 @@ import Cardano.CLI.Type.Common
 -- | The guard credential is derived from a file or supplied with a reference input.
 data GuardScriptSource
   = GuardScriptOnDisk ScriptFile
-  | GuardScriptReference TxIn ScriptHash
+  | NativeGuardScriptReference TxIn ScriptHash
+  | PlutusGuardScriptReference TxIn ScriptHash
   deriving Show
 
 -- | A Dijkstra guard supplied on the command line. Files are read before
