@@ -29,6 +29,9 @@ instance Error [Bech32DecodeError] where
 instance Error [RawBytesHexError] where
   prettyError errs = vsep $ map prettyError errs
 
+instance Error [FileError TextEnvelopeError] where
+  prettyError errs = vsep $ map prettyError errs
+
 -- TODO upstream this orphaned instance to the ledger
 instance
   (L.EraTxOut ledgerera, L.EraGov ledgerera, L.EraCertState ledgerera, L.EraStake ledgerera)

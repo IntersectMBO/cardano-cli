@@ -19,6 +19,7 @@ import Cardano.CLI.Compatible.Json.Friendly
   ( friendlyCertificate
   )
 import Cardano.CLI.EraIndependent.Debug.CertificateView.Command
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
@@ -46,15 +47,18 @@ data AnyCertificate where
     -> AnyCertificate
 
 -- | Every era writes the same text envelope type. Try Dijkstra first, then
--- Conway, which also reads registration certificates without a deposit.
+-- Conway, which also reads registration certificates without a deposit. The
+-- first era that reads the certificate wins.
 readCertificate
   :: FileOrPipe
-  -> IO (Either (FileError TextEnvelopeError) AnyCertificate)
+  -> IO (Either [FileError TextEnvelopeError] AnyCertificate)
 readCertificate file = do
-  result <- readAs Exp.DijkstraEra
-  case result of
-    Left (FileError _ (TextEnvelopeDecodeError _)) -> readAs Exp.ConwayEra
-    _ -> pure result
+  results <-
+    sequence
+      [ readAs era
+      | Exp.Some era <- reverse [minBound .. maxBound]
+      ]
+  pure $ toEither $ foldMap (liftError (: [])) results
  where
   readAs :: Exp.Era era -> IO (Either (FileError TextEnvelopeError) AnyCertificate)
   readAs era =
