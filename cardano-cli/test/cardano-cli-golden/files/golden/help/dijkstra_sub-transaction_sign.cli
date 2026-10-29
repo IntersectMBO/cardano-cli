@@ -7,6 +7,7 @@ Usage: cardano-cli dijkstra sub-transaction sign --sub-tx-file FILEPATH
 
 Available options:
   --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
+                           Use `-` to read from standard input.
   --signing-key-file FILEPATH
                            Input filepath of the signing key.
   --out-file FILEPATH      Output filepath of the JSON signed sub-transaction.

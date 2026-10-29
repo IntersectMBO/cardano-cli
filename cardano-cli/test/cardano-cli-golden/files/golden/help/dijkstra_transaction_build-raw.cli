@@ -596,7 +596,8 @@ Available options:
                            The donation to the treasury to perform.
   --signed-sub-tx-file FILEPATH
                            Filepath of a signed sub-transaction to embed in this
-                           transaction (zero or more).
+                           transaction (zero or more). Use `-` to read from
+                           standard input.
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
                            RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON TxBody.

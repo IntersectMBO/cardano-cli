@@ -442,7 +442,10 @@ pTransactionCalculatePlutusScriptCost envCli =
           )
 
   pTxInputFile :: Parser FilePath
-  pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
+  pTxInputFile =
+    parseFilePath
+      "tx-file"
+      "Filepath of the transaction whose Plutus scripts to calculate the cost. Use `-` to read from standard input."
 
 pLocalContext :: Parser (NodeContextInfoSource era)
 pLocalContext =

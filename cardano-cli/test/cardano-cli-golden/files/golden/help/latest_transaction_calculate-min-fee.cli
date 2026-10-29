@@ -18,7 +18,8 @@ Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILEPATH
   Calculate the minimum fee for a transaction.
 
 Available options:
-  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody. Use `-` to read
+                           from standard input.
   --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
   --witness-count NATURAL  The number of Shelley key witnesses.

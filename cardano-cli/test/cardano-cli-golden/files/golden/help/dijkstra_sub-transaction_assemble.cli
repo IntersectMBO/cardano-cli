@@ -8,6 +8,8 @@ Usage: cardano-cli dijkstra sub-transaction assemble --sub-tx-file FILEPATH
 
 Available options:
   --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
-  --witness-file FILEPATH  Filepath of the witness
+                           Use `-` to read from standard input.
+  --witness-file FILEPATH  Filepath of the witness. Use `-` to read from
+                           standard input.
   --out-file FILEPATH      Output filepath of the JSON signed sub-transaction.
   -h,--help                Show this help text
