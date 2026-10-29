@@ -39,7 +39,7 @@ pStakePoolCmds envCli =
           ]
     )
     [ pStakePoolRegistrationCertificateCmd envCli
-    , pStakePoolBlsRegistrationCertificateCmd
+    , pStakePoolBlsRegistrationCertificateCmd envCli
     , pStakePoolDeregistrationCertificateCmd
     , Just $
         Opt.hsubparser $
@@ -147,8 +147,9 @@ pBlsSigningKeyFile =
 pStakePoolBlsRegistrationCertificateCmd
   :: forall era
    . IsEra era
-  => Maybe (Parser (Cmd.StakePoolCmds era))
-pStakePoolBlsRegistrationCertificateCmd =
+  => EnvCli
+  -> Maybe (Parser (Cmd.StakePoolCmds era))
+pStakePoolBlsRegistrationCertificateCmd envCli =
   case useEra @era of
     Exp.ConwayEra -> Nothing
     Exp.DijkstraEra ->
@@ -168,14 +169,16 @@ pStakePoolBlsRegistrationCertificateCmd =
       . Opt.info pBlsRegistrationCertificateOffline
       $ Opt.progDesc
       $ mconcat
-        [ "Create the certificate from the parameters in an existing stake pool registration certificate file."
-        , " No node connection is needed."
+        [ "Create the certificate from the parameters in an existing stake pool registration certificate file"
+        , " or in a file written by query pool-state."
+        , " No node connection is needed, but --current-params needs the network,"
+        , " because the query pool-state output does not record it."
         ]
 
   pBlsRegistrationCertificateOffline =
     fmap Cmd.StakePoolBlsRegistrationCertificateCmd $
       Cmd.StakePoolBlsRegistrationCertificateCmdArgs (convert $ useEra @era)
-        <$> pStakePoolParametersFromCertificate
+        <$> (pStakePoolParametersFromCertificate <|> pStakePoolParametersFromPoolState envCli)
         <*> pBlsSigningKeyFile
         <*> pOutputFile
 
@@ -185,6 +188,45 @@ pStakePoolParametersFromCertificate =
     <$> parseFilePath
       "registration-certificate-file"
       "Input filepath of the stake pool registration certificate to copy the parameters from."
+
+pStakePoolParametersFromPoolState :: EnvCli -> Parser Cmd.StakePoolParametersSource
+pStakePoolParametersFromPoolState envCli =
+  Cmd.StakePoolParametersFromPoolState
+    <$> pPoolStateFile
+    <*> pStakePoolVerificationKeyHash Nothing
+    <*> pPoolStateParametersChoice
+ where
+  pPoolStateFile =
+    File
+      <$> parseFilePath
+        "pool-state-file"
+        "Input filepath of the query pool-state output to take the parameters from."
+
+  pPoolStateParametersChoice =
+    F.asum
+      [ Cmd.PoolStateCurrentParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "current-params"
+                , Opt.help $
+                    mconcat
+                      [ "Keep the current parameters of the pool."
+                      , " Give the network with --mainnet or --testnet-magic,"
+                      , " because the query pool-state output does not record it for the reward account."
+                      ]
+                ]
+            )
+          <*> pNetworkId envCli
+      , Cmd.PoolStatePendingParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "pending-params"
+                , Opt.help "Keep the parameters of the pending update of the pool."
+                ]
+            )
+      ]
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))

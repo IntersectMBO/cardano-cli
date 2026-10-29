@@ -166,6 +166,227 @@ hprop_dijkstra_stake_pool_bls_registration_certificate_not_a_pool_certificate =
     exitCode H.=== ExitFailure 1
     H.assertWith stderr ("is not a stake pool registration certificate" `isInfixOf`)
 
+poolStateInput :: FilePath
+poolStateInput = "test/cardano-cli-golden/files/input/dijkstra/stake_pool/pool_state.json"
+
+-- | The current parameters of a pool with a pending update: the certificate equals the one made from
+-- the certificate that the pool state was built from. Only the pending update is warned about.
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_pool_state_current :: Property
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_pool_state_current =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          pendingUpdatePoolId
+          blsSigningKeyFile
+          outFile
+          ["--current-params", "--testnet-magic", "42"]
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("Pool ID: pool1" `isInfixOf`)
+    oldKey <- H.nothingFail $ findLineValue "Old BLS key: " stderr
+    newKey <- H.nothingFail $ findLineValue "New BLS key: " stderr
+    H.assertWith (oldKey, newKey) $ uncurry (/=)
+    H.assertWith stderr ("WARNING: The pool has a pending parameter update." `isInfixOf`)
+    H.assertWith stderr (not . ("scheduled to retire" `isInfixOf`))
+
+    goldenFile <-
+      H.note "test/cardano-cli-golden/files/golden/dijkstra/stake_pool/bls_registration_certificate.json"
+
+    H.diffFileVsGoldenFile outFile goldenFile
+
+-- | The pending parameters carry their own network and replace the current ones, so there is
+-- nothing to warn about.
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_pool_state_pending :: Property
+hprop_golden_dijkstra_stake_pool_bls_registration_certificate_pool_state_pending =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          pendingUpdatePoolId
+          blsSigningKeyFile
+          outFile
+          ["--pending-params"]
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("Pool ID: pool1" `isInfixOf`)
+    H.assertWith stderr (not . ("WARNING" `isInfixOf`))
+
+    richParams <- readPoolParams @TestEra richRegistrationCertificateInput
+    newParams <- readPoolParams @TestEra outFile
+    H.assertWith (L.sppPledge newParams, L.sppPledge richParams) $ uncurry (/=)
+
+    goldenFile <-
+      H.note
+        "test/cardano-cli-golden/files/golden/dijkstra/stake_pool/bls_registration_certificate_pending_params.json"
+
+    H.diffFileVsGoldenFile outFile goldenFile
+
+-- | A pool that retires and has no pending update is warned about the retirement only.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_retiring_pool :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_retiring_pool =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          retiringPoolId
+          blsSigningKeyFile
+          outFile
+          ["--current-params", "--testnet-magic", "42"]
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("WARNING: The pool is scheduled to retire in epoch 300." `isInfixOf`)
+    H.assertWith stderr (not . ("pending parameter update" `isInfixOf`))
+
+-- | A pool that neither retires nor has a pending update gives no warnings, and has no BLS key yet.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_plain_pool :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_plain_pool =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          plainPoolId
+          blsSigningKeyFile
+          outFile
+          ["--current-params", "--testnet-magic", "42"]
+
+    exitCode H.=== ExitSuccess
+    H.assertWith stderr ("Old BLS key: none (first registration)" `isInfixOf`)
+    H.assertWith stderr (not . ("WARNING" `isInfixOf`))
+
+    richParams <- readPoolParams @TestEra richRegistrationCertificateInput
+    newParams <- readPoolParams @TestEra outFile
+    L.sppVrf newParams H.=== L.sppVrf richParams
+    L.sppAccountAddress newParams H.=== L.sppAccountAddress richParams
+
+-- | The pool must be in the pool state file.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_pool_missing :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_pool_missing =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+    let missingPoolId = replicate 56 '0'
+        missingPoolBech32 = "pool1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8a7a2d"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          missingPoolId
+          blsSigningKeyFile
+          outFile
+          ["--pending-params"]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr (("has no pool " <> missingPoolBech32) `isInfixOf`)
+    H.assertWith stderr (poolStateFile `isInfixOf`)
+
+-- | A pool without a pending update cannot give pending parameters.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_no_pending_update :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_no_pending_update =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          plainPoolId
+          blsSigningKeyFile
+          outFile
+          ["--pending-params"]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("has no pending parameter update" `isInfixOf`)
+    H.assertWith stderr (poolStateFile `isInfixOf`)
+
+-- | The pool state file must be the JSON of @query pool-state@.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_malformed_file :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pool_state_malformed_file =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    notPoolStateFile <- noteInputFile registrationCertificateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          notPoolStateFile
+          pendingUpdatePoolId
+          blsSigningKeyFile
+          outFile
+          ["--pending-params"]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr (notPoolStateFile `isInfixOf`)
+
+-- | A certificate file and a pool state file are alternatives.
+hprop_dijkstra_stake_pool_bls_registration_certificate_both_parameter_sources :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_both_parameter_sources =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    registrationCertFile <- noteInputFile richRegistrationCertificateInput
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateArgs registrationCertFile blsSigningKeyFile outFile
+          <> ["--pool-state-file", poolStateFile, "--stake-pool-id", pendingUpdatePoolId, "--pending-params"]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Invalid option" `isInfixOf`)
+
+-- | The network belongs to the current parameters, so the pending ones do not accept it.
+hprop_dijkstra_stake_pool_bls_registration_certificate_pending_params_with_network :: Property
+hprop_dijkstra_stake_pool_bls_registration_certificate_pending_params_with_network =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    poolStateFile <- noteInputFile poolStateInput
+    blsSigningKeyFile <- noteInputFile secondBlsSigningKeyInput
+    outFile <- noteTempFile tempDir "bls-registration.cert"
+
+    (exitCode, _stdout, stderr) <-
+      execDetailCardanoCLI $
+        blsRegistrationCertificateFromPoolStateArgs
+          poolStateFile
+          pendingUpdatePoolId
+          blsSigningKeyFile
+          outFile
+          ["--pending-params", "--testnet-magic", "42"]
+
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Invalid option" `isInfixOf`)
+
+-- | The hex pool IDs in the pool state file: a pool with a pending update, a retiring pool, and a
+-- plain pool, which uses the hash of an owner of the first.
+pendingUpdatePoolId, retiringPoolId, plainPoolId :: String
+pendingUpdatePoolId = "4124a0c2ba8a7ba05824b3df23f706a1c8b3239446ab16709ae85aa1"
+retiringPoolId = "5c1b0a7e9d3f4268a1b2c3d4e5f607182930a4b5c6d7e8f90123abcd"
+plainPoolId = "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+
 -- | The text after the prefix on the first stderr line that starts with it.
 findLineValue :: String -> String -> Maybe String
 findLineValue prefix = fmap (drop $ length prefix) . find (prefix `isPrefixOf`) . lines
@@ -183,6 +404,24 @@ blsRegistrationCertificateArgs certFile blsSigningKeyFile outFile =
   , "--out-file"
   , outFile
   ]
+
+blsRegistrationCertificateFromPoolStateArgs
+  :: FilePath -> String -> FilePath -> FilePath -> [String] -> [String]
+blsRegistrationCertificateFromPoolStateArgs poolStateFile poolId blsSigningKeyFile outFile choice =
+  [ "dijkstra"
+  , "stake-pool"
+  , "bls-registration-certificate"
+  , "offline"
+  , "--pool-state-file"
+  , poolStateFile
+  , "--stake-pool-id"
+  , poolId
+  , "--bls-signing-key-file"
+  , blsSigningKeyFile
+  , "--out-file"
+  , outFile
+  ]
+    <> choice
 
 readPoolParams
   :: forall era m

@@ -44,11 +44,16 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
+import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.State qualified as L
 
-import Control.Monad (forM, when)
+import Control.Monad (forM, forM_, when)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Maybe.Strict (isSJust)
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as T
@@ -164,17 +169,12 @@ runStakePoolBlsRegistrationCertificateCmd
 runStakePoolBlsRegistrationCertificateCmd
   Cmd.StakePoolBlsRegistrationCertificateCmdArgs
     { era
-    , poolParametersSource = StakePoolParametersFromCertificate (CertificateFile certFile)
+    , poolParametersSource
     , blsSkeyFile
     , outFile
     } =
     obtainCommonConstraints era $ do
-      Certificate cert <-
-        fromEitherIOCli @(FileError TextEnvelopeError) $
-          readFileTextEnvelope @(Certificate (LedgerEra era)) (File certFile)
-      oldParams <-
-        fromMaybeCli (StakePoolCmdNotRegistrationCertificateError certFile) $
-          L.getRegPoolTxCert cert
+      oldParams <- readStakePoolParameters @era poolParametersSource
 
       blsSkey <-
         fromEitherIOCli @(FileError TextEnvelopeError) $
@@ -197,6 +197,70 @@ runStakePoolBlsRegistrationCertificateCmd
    where
     renderBlsKey :: L.BlsKey -> T.Text
     renderBlsKey = serialiseToBech32 . BlsVerificationKey . L.blsPubKey
+
+-- | The pool parameters to keep, with warnings for what the new certificate overrides.
+readStakePoolParameters
+  :: forall era e
+   . IsEra era
+  => StakePoolParametersSource
+  -> CIO e (L.StakePoolParams (LedgerEra era))
+readStakePoolParameters (StakePoolParametersFromCertificate (CertificateFile certFile)) =
+  obtainCommonConstraints (useEra @era) $ do
+    Certificate cert <-
+      fromEitherIOCli @(FileError TextEnvelopeError) $
+        readFileTextEnvelope @(Certificate (LedgerEra era)) (File certFile)
+    fromMaybeCli (StakePoolCmdNotRegistrationCertificateError certFile) $
+      L.getRegPoolTxCert cert
+readStakePoolParameters (StakePoolParametersFromPoolState (File poolStateFilePath) poolId choice) =
+  obtainCommonConstraints (useEra @era) $ do
+    let
+      -- Re-registering a registered pool removes its scheduled retirement.
+      warnAboutRetirement :: L.QueryResultStakePoolState (LedgerEra era) -> CIO e ()
+      warnAboutRetirement poolState =
+        forM_ (L.strictMaybeToMaybe $ L.qrspsRetiring poolState) $ \epoch ->
+          printWarning $
+            "The pool is scheduled to retire in epoch "
+              <> show (unEpochNo epoch)
+              <> ". The new certificate cancels the retirement."
+
+      currentParameters
+        :: NetworkId
+        -> L.QueryResultStakePoolState (LedgerEra era)
+        -> L.StakePoolParams (LedgerEra era)
+      currentParameters network poolState =
+        L.StakePoolParams
+          { L.sppId = unStakePoolKeyHash poolId
+          , L.sppVrf = L.qrspsVrf poolState
+          , L.sppBlsKey = L.bksKey <$> L.qrspsBlsKey poolState
+          , L.sppPledge = L.qrspsPledge poolState
+          , L.sppCost = L.qrspsCost poolState
+          , L.sppMargin = L.qrspsMargin poolState
+          , L.sppAccountAddress = L.AccountAddress (toShelleyNetwork network) (L.qrspsAccountId poolState)
+          , L.sppOwners = L.qrspsOwners poolState
+          , L.sppRelays = L.qrspsRelays poolState
+          , L.sppMetadata = L.qrspsMetadata poolState
+          }
+
+    poolStates <-
+      fromEitherIOCli @(FileError JsonDecodeError) $
+        readFileJSON @(Map (L.KeyHash L.StakePool) (L.QueryResultStakePoolState (LedgerEra era)))
+          poolStateFilePath
+    poolState <-
+      fromMaybeCli (StakePoolCmdPoolNotInPoolStateError poolStateFilePath poolId) $
+        Map.lookup (unStakePoolKeyHash poolId) poolStates
+    case choice of
+      PoolStateCurrentParameters network -> do
+        when (isSJust $ L.qrspsFutureStakePoolParams poolState) $
+          printWarning "The pool has a pending parameter update. The new certificate replaces it."
+        warnAboutRetirement poolState
+        pure $ currentParameters network poolState
+      PoolStatePendingParameters -> do
+        pendingParams <-
+          fromMaybeCli (StakePoolCmdNoPendingParametersError poolStateFilePath poolId) $
+            L.strictMaybeToMaybe $
+              L.qrspsFutureStakePoolParams poolState
+        warnAboutRetirement poolState
+        pure pendingParams
 
 runStakePoolDeregistrationCertificateCmd
   :: forall era e

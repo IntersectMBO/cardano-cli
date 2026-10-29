@@ -35,6 +35,8 @@ data StakePoolCmdError
   | StakePoolCmdRelayPingErrors ![PingException]
   | StakePoolCmdInvalidRelayError !StakePoolRelay
   | StakePoolCmdNotRegistrationCertificateError !FilePath
+  | StakePoolCmdPoolNotInPoolStateError !FilePath !(Hash StakePoolKey)
+  | StakePoolCmdNoPendingParametersError !FilePath !(Hash StakePoolKey)
   deriving Show
 
 instance Error StakePoolCmdError where
@@ -68,3 +70,15 @@ instance Error StakePoolCmdError where
         ]
     StakePoolCmdNotRegistrationCertificateError file ->
       pretty file <+> "is not a stake pool registration certificate"
+    StakePoolCmdPoolNotInPoolStateError file poolId ->
+      "The pool state file"
+        <+> pretty file
+        <+> "has no pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <> "."
+    StakePoolCmdNoPendingParametersError file poolId ->
+      "The pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <+> "in the pool state file"
+        <+> pretty file
+        <+> "has no pending parameter update. Use --current-params."

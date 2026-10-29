@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.StakePool.Command
   , StakePoolMetadataHashCmdArgs (..)
   , StakePoolBlsRegistrationCertificateCmdArgs (..)
   , StakePoolParametersSource (..)
+  , PoolStateParametersChoice (..)
   , StakePoolRegistrationCertificateCmdArgs (..)
   , StakePoolMetadataSource (..)
   )
@@ -52,9 +53,24 @@ data StakePoolBlsRegistrationCertificateCmdArgs era
   deriving Show
 
 -- | Where the pool parameters to keep are read from.
-newtype StakePoolParametersSource
+data StakePoolParametersSource
   = -- | An existing stake pool registration certificate.
     StakePoolParametersFromCertificate CertificateFile
+  | -- | The output of @query pool-state@.
+    StakePoolParametersFromPoolState
+      !(File () In)
+      -- ^ The pool state file.
+      !(Hash StakePoolKey)
+      -- ^ The pool to take the parameters of.
+      !PoolStateParametersChoice
+  deriving Show
+
+-- | Which parameters of a pool in a pool state file to keep.
+data PoolStateParametersChoice
+  = -- | The active parameters. The pool state does not record the network, so it is given.
+    PoolStateCurrentParameters !NetworkId
+  | -- | The parameters of a pending update.
+    PoolStatePendingParameters
   deriving Show
 
 data StakePoolDeregistrationCertificateCmdArgs era
