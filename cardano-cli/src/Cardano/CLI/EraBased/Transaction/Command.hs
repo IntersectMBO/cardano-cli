@@ -35,6 +35,7 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.EraBased.Script.Guard.Type
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
@@ -79,8 +80,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Return collateral
   , mTotalCollateral :: !(Maybe Coin)
   -- ^ Total collateral
-  , requiredSigners :: ![RequiredSigner]
-  -- ^ Required signers
+  , guardArguments :: !(TxGuardArguments era)
+  -- ^ Conway required signers or Dijkstra key and script guards.
   , txouts :: ![TxOutAnyEra]
   , mMintedAssets :: !(Maybe (L.MultiAsset, [AnyMintScript]))
   -- ^ Multi-Asset minted value with script witness
@@ -141,8 +142,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
-  , requiredSigners :: ![RequiredSigner]
-  -- ^ Required signers
+  , guardArguments :: !(TxGuardArguments era)
+  -- ^ Conway required signers or Dijkstra key and script guards.
   , txinsc :: ![TxIn]
   -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   , mReturnCollateral :: !(Maybe TxOutShelleyBasedEra)
@@ -194,8 +195,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
-  , requiredSigners :: ![RequiredSigner]
-  -- ^ Required signers
+  , guardArguments :: !(TxGuardArguments era)
+  -- ^ Conway required signers or Dijkstra key and script guards.
   , txinsc :: ![TxIn]
   -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
   , mReturnCollateral :: !(Maybe TxOutShelleyBasedEra)
