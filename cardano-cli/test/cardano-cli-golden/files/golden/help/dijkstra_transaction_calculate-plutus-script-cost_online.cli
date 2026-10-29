@@ -27,6 +27,7 @@ Available options:
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
   --tx-file FILEPATH       Filepath of the transaction whose Plutus scripts to
-                           calculate the cost.
+                           calculate the cost. Use `-` to read from standard
+                           input.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

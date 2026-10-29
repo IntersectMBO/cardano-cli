@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1488
+kind:
+  - breaking
+description: Certificates in `debug transaction view` use new keys, so update scripts that read them; pool registrations show `pool id`, `vrf key hash`, `reward account` (bech32) and `margin` (a fraction), DRep keys are spelled `DRep` and the credential key is `DRep credential`, and committee certificates show every credential and anchor.

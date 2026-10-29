@@ -1,0 +1,15 @@
+Usage: cardano-cli debug certificate view [--output-json | --output-yaml]
+                                            [--out-file FILEPATH]
+                                            --certificate-file FILEPATH
+                                            
+
+  Print a certificate.
+
+Available options:
+  --output-json            Format certificate view output to JSON (default).
+  --output-yaml            Format certificate view output to YAML.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  --certificate-file FILEPATH
+                           Input filepath of the certificate. Use `-` to read
+                           from standard input.
+  -h,--help                Show this help text

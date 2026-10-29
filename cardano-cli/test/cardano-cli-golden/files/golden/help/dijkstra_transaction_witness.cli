@@ -10,7 +10,8 @@ Usage: cardano-cli dijkstra transaction witness --tx-body-file FILEPATH
   Create a transaction witness
 
 Available options:
-  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody. Use `-` to read
+                           from standard input.
   --signing-key-file FILEPATH
                            Input filepath of the signing key (one or more).
   --address STRING         Byron address (Base58-encoded).

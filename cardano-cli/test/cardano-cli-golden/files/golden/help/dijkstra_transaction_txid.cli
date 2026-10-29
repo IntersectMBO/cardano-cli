@@ -11,8 +11,10 @@ Usage: cardano-cli dijkstra transaction txid
   Print a transaction identifier.
 
 Available options:
-  --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
-  --tx-file FILEPATH       Input filepath of the JSON Tx.
+  --tx-body-file FILEPATH  Input filepath of the JSON TxBody. Use `-` to read
+                           from standard input.
+  --tx-file FILEPATH       Input filepath of the JSON Tx. Use `-` to read from
+                           standard input.
   --output-json            Format output to JSON (default).
   --output-text            Format output to TEXT.
   --output-yaml            Format output to YAML.

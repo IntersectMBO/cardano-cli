@@ -12,7 +12,8 @@ Usage: cardano-cli cip-format cip-129 committee-hot-key
 
 Available options:
   --committee-hot-key-file FILEPATH
-                           Input hex/bech32/text envelope committee hot key file
+                           Input hex/bech32/text envelope committee hot key
+                           file. Use `-` to read from standard input.
   --committee-hot-key-hex HEX
                            Input hex encoded committee hot key
   --committee-hot-key-bech32 BECH32

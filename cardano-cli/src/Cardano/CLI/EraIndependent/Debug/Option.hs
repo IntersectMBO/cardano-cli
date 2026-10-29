@@ -12,6 +12,7 @@ import Cardano.Api
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraIndependent.Debug.CertificateView.Command
 import Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
 import Cardano.CLI.EraIndependent.Debug.Command
 import Cardano.CLI.EraIndependent.Debug.LogEpochState.Command
@@ -63,6 +64,17 @@ pDebugCmds envCli =
                 ]
             )
             (Opt.progDesc "Transaction commands")
+    , Opt.hsubparser $
+        commandWithMetavar "certificate" $
+          Opt.info
+            ( asum
+                [ Opt.hsubparser $
+                    commandWithMetavar "view" $
+                      Opt.info pCertificateView $
+                        Opt.progDesc "Print a certificate."
+                ]
+            )
+            (Opt.progDesc "Certificate commands")
     ]
  where
   pLogEpochStateCmdArgs :: Parser DebugCmds
@@ -90,6 +102,17 @@ pDebugCmds envCli =
           ]
         <*> pMaybeOutputFile
         <*> pInputTxOrTxBodyFile
+  pCertificateView :: Parser DebugCmds
+  pCertificateView =
+    fmap DebugCertificateViewCmd $
+      CertificateViewCmdArgs
+        <$> pFormatFlags
+          "certificate view output"
+          [ flagFormatJson & setDefault
+          , flagFormatYaml
+          ]
+        <*> pMaybeOutputFile
+        <*> pCertificateFileIn
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =

@@ -12,8 +12,10 @@ Usage: cardano-cli dijkstra sub-transaction txid
 
 Available options:
   --sub-tx-file FILEPATH   Input filepath of the JSON unsigned sub-transaction.
+                           Use `-` to read from standard input.
   --signed-sub-tx-file FILEPATH
                            Input filepath of the JSON signed sub-transaction.
+                           Use `-` to read from standard input.
   --output-json            Format output to JSON (default).
   --output-text            Format output to TEXT.
   --output-yaml            Format output to YAML.

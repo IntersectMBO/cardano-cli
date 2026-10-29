@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1488
+kind:
+  - feature
+description: Read standard input when an input file path is `-` in commands that also read pipes, such as `--certificate-file` in `debug certificate view` and `--tx-file` in `debug transaction view`.

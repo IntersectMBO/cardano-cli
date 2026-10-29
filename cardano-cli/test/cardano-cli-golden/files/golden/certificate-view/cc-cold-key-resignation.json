@@ -1,0 +1,9 @@
+{
+    "Constitutional committee cold key resignation": {
+        "anchor": {
+            "dataHash": "af856b4a1f7496f8cebe6782e93f84bee46562d481143b31ebe99b510e0809ee",
+            "url": "https://example.com/cc-resignation.json"
+        },
+        "cold key hash": "a2d5c43ee09e868339f7ec6211a373157c808825ea8175b7694a4c00"
+    }
+}

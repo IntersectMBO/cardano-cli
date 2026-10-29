@@ -11,7 +11,8 @@ Usage: cardano-cli cip-format cip-129 drep
   Convert drep verification key to the cip-129 compliant format
 
 Available options:
-  --drep-file FILEPATH     Input hex/bech32/text envelope drep file
+  --drep-file FILEPATH     Input hex/bech32/text envelope drep file. Use `-` to
+                           read from standard input.
   --drep-hex HEX           Input hex encoded drep
   --drep-bech32 BECH32     Input bech32 encoded drep
   --output-file FILEPATH   Output file

@@ -41,7 +41,9 @@ pCip129Drep =
  where
   pInput =
     asum
-      [ pInputFile "drep-file" "Input hex/bech32/text envelope drep file"
+      [ pInputFile
+          "drep-file"
+          "Input hex/bech32/text envelope drep file. Use `-` to read from standard input."
       , pInputHexText "drep-hex" "HEX" "Input hex encoded drep"
       , pInputBech32Text "drep-bech32" "BECH32" "Input bech32 encoded drep"
       ]
@@ -54,7 +56,9 @@ pCip129CommitteeHotKey =
  where
   pInput =
     asum
-      [ pInputFile "committee-hot-key-file" "Input hex/bech32/text envelope committee hot key file"
+      [ pInputFile
+          "committee-hot-key-file"
+          "Input hex/bech32/text envelope committee hot key file. Use `-` to read from standard input."
       , pInputHexText "committee-hot-key-hex" "HEX" "Input hex encoded committee hot key"
       , pInputBech32Text "committee-hot-key-bech32" "BECH32" "Input bech32 encoded committee hot key"
       ]
@@ -67,7 +71,9 @@ pCip129CommitteeColdKey =
  where
   pInput =
     asum
-      [ pInputFile "committee-cold-key-file" "Input hex/bech32/text envelope committee cold key file"
+      [ pInputFile
+          "committee-cold-key-file"
+          "Input hex/bech32/text envelope committee cold key file. Use `-` to read from standard input."
       , pInputHexText "committee-cold-key-hex" "HEX" "Input hex encoded committee cold key"
       , pInputBech32Text "committee-cold-key-bech32" "BECH32" "Input bech32 encoded committee cold key"
       ]

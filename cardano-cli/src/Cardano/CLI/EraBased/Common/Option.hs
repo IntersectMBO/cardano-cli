@@ -435,7 +435,9 @@ pStakePoolVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
 pStakePoolVerificationKeyFile prefix =
   File
     <$> asum
-      [ parseFilePath "cold-verification-key-file" "Filepath of the stake pool verification key."
+      [ parseFilePath
+          "cold-verification-key-file"
+          "Filepath of the stake pool verification key. Use `-` to read from standard input."
       , Opt.strOption $
           mconcat
             [ Opt.long $ prefixFlag prefix "stake-pool-verification-key-file"
@@ -2098,7 +2100,10 @@ pKesVerificationKeyFile =
       ]
 
 pTxSubmitFile :: Parser FilePath
-pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
+pTxSubmitFile =
+  parseFilePath
+    "tx-file"
+    "Filepath of the transaction you intend to submit. Use `-` to read from standard input."
 
 pTxInForEra
   :: Exp.Era era
@@ -2459,10 +2464,16 @@ pTxFee =
         ]
 
 pWitnessFile :: Parser WitnessFile
-pWitnessFile = WitnessFile <$> parseFilePath "witness-file" "Filepath of the witness"
+pWitnessFile =
+  WitnessFile
+    <$> parseFilePath "witness-file" "Filepath of the witness. Use `-` to read from standard input."
 
 pTxBodyFileIn :: Parser (TxBodyFile In)
-pTxBodyFileIn = File <$> parseFilePath "tx-body-file" "Input filepath of the JSON TxBody."
+pTxBodyFileIn =
+  File
+    <$> parseFilePath
+      "tx-body-file"
+      "Input filepath of the JSON TxBody. Use `-` to read from standard input."
 
 pTxBodyFileOut :: Parser (TxBodyFile Out)
 pTxBodyFileOut =
@@ -2477,7 +2488,9 @@ pTxBodyFileOut =
       ]
 
 pTxFileIn :: Parser (TxFile In)
-pTxFileIn = File <$> parseFilePath "tx-file" "Input filepath of the JSON Tx."
+pTxFileIn =
+  File
+    <$> parseFilePath "tx-file" "Input filepath of the JSON Tx. Use `-` to read from standard input."
 
 pTxFileOut :: Parser (TxFile Out)
 pTxFileOut =
@@ -2497,6 +2510,13 @@ pInputTxOrTxBodyFile =
     [ InputTxBodyFile <$> pTxBodyFileIn
     , InputTxFile <$> pTxFileIn
     ]
+
+pCertificateFileIn :: Parser CertificateFile
+pCertificateFileIn =
+  CertificateFile
+    <$> parseFilePath
+      "certificate-file"
+      "Input filepath of the certificate. Use `-` to read from standard input."
 
 pTxInCountDeprecated :: Parser TxInCount
 pTxInCountDeprecated =

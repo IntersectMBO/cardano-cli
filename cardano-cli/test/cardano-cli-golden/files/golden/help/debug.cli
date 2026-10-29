@@ -2,6 +2,7 @@ Usage: cardano-cli debug
                            ( log-epoch-state
                            | check-node-configuration
                            | transaction
+                           | certificate
                            )
                            
 
@@ -18,3 +19,4 @@ Available commands:
   check-node-configuration Check hashes and paths of genesis files in the given
                            node configuration file.
   transaction              Transaction commands
+  certificate              Certificate commands
