@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Guard.Option</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pTxGuardArguments"><span class="hs-identifier">pTxGuardArguments</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Type.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Guard.Type</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/Control.Applicative.html"><span class="hs-identifier">Control.Applicative</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator">(&lt;|&gt;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Parser</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier">many</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier">optional</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span id="local-6989586621682400879"><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pTxGuardArguments"><span class="hs-identifier hs-type">pTxGuardArguments</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682400879"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#BalanceTxExecUnits"><span class="hs-identifier hs-type">BalanceTxExecUnits</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#TxGuardArguments"><span class="hs-identifier hs-type">TxGuardArguments</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682400879"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-16"></span><span id="pTxGuardArguments"><span class="annot"><span class="annottext">pTxGuardArguments :: forall era.
+Era era -&gt; BalanceTxExecUnits -&gt; Parser (TxGuardArguments era)
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pTxGuardArguments"><span class="hs-identifier hs-var hs-var">pTxGuardArguments</span></a></span></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Experimental.Era.html#ConwayEra"><span class="hs-identifier hs-var">Exp.ConwayEra</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[RequiredSigner] -&gt; TxGuardArguments era
+[RequiredSigner] -&gt; TxGuardArguments ConwayEra
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#ConwayRequiredSignerArguments"><span class="hs-identifier hs-var">ConwayRequiredSignerArguments</span></a></span><span> </span><span class="annot"><span class="annottext">([RequiredSigner] -&gt; TxGuardArguments era)
+-&gt; Parser [RequiredSigner] -&gt; Parser (TxGuardArguments era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser RequiredSigner -&gt; Parser [RequiredSigner]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="annot"><span class="annottext">Parser RequiredSigner
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pRequiredSigner"><span class="hs-identifier hs-var">pRequiredSigner</span></a></span><span>
+</span><span id="line-17"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pTxGuardArguments"><span class="hs-identifier hs-var">pTxGuardArguments</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Experimental.Era.html#DijkstraEra"><span class="hs-identifier hs-var">Exp.DijkstraEra</span></a></span><span> </span><span id="local-6989586621682400960"><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621682400960"><span class="hs-identifier hs-var">balance</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-18"></span><span>  </span><span class="annot"><span class="annottext">[Guard] -&gt; TxGuardArguments era
+[Guard] -&gt; TxGuardArguments DijkstraEra
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#DijkstraGuardArguments"><span class="hs-identifier hs-var">DijkstraGuardArguments</span></a></span><span> </span><span class="annot"><span class="annottext">([Guard] -&gt; TxGuardArguments era)
+-&gt; Parser [Guard] -&gt; Parser (TxGuardArguments era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Guard -&gt; Parser [Guard]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">RequiredSigner -&gt; Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#KeyGuard"><span class="hs-identifier hs-var">KeyGuard</span></a></span><span> </span><span class="annot"><span class="annottext">(RequiredSigner -&gt; Guard) -&gt; Parser RequiredSigner -&gt; Parser Guard
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser RequiredSigner
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pRequiredSigner"><span class="hs-identifier hs-var">pRequiredSigner</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Parser Guard -&gt; Parser Guard -&gt; Parser Guard
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits -&gt; Parser Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pScriptGuard"><span class="hs-identifier hs-var">pScriptGuard</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621682400960"><span class="hs-identifier hs-var">balance</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pScriptGuard"><span class="hs-identifier hs-type">pScriptGuard</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#BalanceTxExecUnits"><span class="hs-identifier hs-type">BalanceTxExecUnits</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#Guard"><span class="hs-identifier hs-type">Guard</span></a></span><span>
+</span><span id="line-21"></span><span id="pScriptGuard"><span class="annot"><span class="annottext">pScriptGuard :: BalanceTxExecUnits -&gt; Parser Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Option.html#pScriptGuard"><span class="hs-identifier hs-var hs-var">pScriptGuard</span></a></span></span><span> </span><span id="local-6989586621682400964"><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621682400964"><span class="hs-identifier hs-var">balance</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">GuardScriptSource
+-&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#ScriptGuard"><span class="hs-identifier hs-var">ScriptGuard</span></a></span><span> </span><span class="annot"><span class="annottext">(GuardScriptSource
+ -&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; (File ScriptInAnyLang 'In -&gt; GuardScriptSource)
+-&gt; File ScriptInAnyLang 'In
+-&gt; Maybe (ScriptDataOrFile, ExecutionUnits)
+-&gt; Guard
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; GuardScriptSource
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#GuardScriptOnDisk"><span class="hs-identifier hs-var">GuardScriptOnDisk</span></a></span><span>
+</span><span id="line-23"></span><span>      </span><span class="annot"><span class="annottext">(File ScriptInAnyLang 'In
+ -&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser (File ScriptInAnyLang 'In)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Maybe String -&gt; String -&gt; Parser (File ScriptInAnyLang 'In)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptFor"><span class="hs-identifier hs-var">pScriptFor</span></a></span><span>
+</span><span id="line-24"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard-script-file&quot;</span></span><span>
+</span><span id="line-25"></span><span>        </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-26"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Native or Plutus V4 script whose approval this transaction requires. Plutus guards require a redeemer; native guards accept neither redeemers nor execution units.&quot;</span></span><span>
+</span><span id="line-27"></span><span>      </span><span class="annot"><span class="annottext">Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser Guard
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (ScriptDataOrFile, ExecutionUnits)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/base-4.22.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (ScriptDataOrFile, ExecutionUnits)
+</span><a href="#local-6989586621682400969"><span class="hs-identifier hs-var">pRedeemer</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="annottext">Parser Guard -&gt; Parser Guard -&gt; Parser Guard
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">GuardScriptSource
+-&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#ScriptGuard"><span class="hs-identifier hs-var">ScriptGuard</span></a></span><span>
+</span><span id="line-30"></span><span>            </span><span class="annot"><span class="annottext">(GuardScriptSource
+ -&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser GuardScriptSource
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxIn -&gt; ScriptHash -&gt; GuardScriptSource
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#NativeGuardScriptReference"><span class="hs-identifier hs-var">NativeGuardScriptReference</span></a></span><span>
+</span><span id="line-31"></span><span>                    </span><span class="annot"><span class="annottext">(TxIn -&gt; ScriptHash -&gt; GuardScriptSource)
+-&gt; Parser TxIn -&gt; Parser (ScriptHash -&gt; GuardScriptSource)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser TxIn
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pReferenceTxIn"><span class="hs-identifier hs-var">pReferenceTxIn</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;simple-guard-script-&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;native&quot;</span></span><span>
+</span><span id="line-32"></span><span>                    </span><span class="annot"><span class="annottext">Parser (ScriptHash -&gt; GuardScriptSource)
+-&gt; Parser ScriptHash -&gt; Parser GuardScriptSource
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ScriptHash
+</span><a href="#local-6989586621682400972"><span class="hs-identifier hs-var">pGuardScriptHash</span></a></span><span>
+</span><span id="line-33"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>            </span><span class="annot"><span class="annottext">Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser Guard
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (ScriptDataOrFile, ExecutionUnits)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (ScriptDataOrFile, ExecutionUnits)
+forall a. Maybe a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-35"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">Parser Guard -&gt; Parser Guard -&gt; Parser Guard
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">GuardScriptSource
+-&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#ScriptGuard"><span class="hs-identifier hs-var">ScriptGuard</span></a></span><span>
+</span><span id="line-37"></span><span>            </span><span class="annot"><span class="annottext">(GuardScriptSource
+ -&gt; Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser GuardScriptSource
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">TxIn -&gt; ScriptHash -&gt; GuardScriptSource
+</span><a href="Cardano.CLI.EraBased.Script.Guard.Type.html#PlutusGuardScriptReference"><span class="hs-identifier hs-var">PlutusGuardScriptReference</span></a></span><span>
+</span><span id="line-38"></span><span>                    </span><span class="annot"><span class="annottext">(TxIn -&gt; ScriptHash -&gt; GuardScriptSource)
+-&gt; Parser TxIn -&gt; Parser (ScriptHash -&gt; GuardScriptSource)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser TxIn
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pReferenceTxIn"><span class="hs-identifier hs-var">pReferenceTxIn</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard-&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Plutus V4&quot;</span></span><span>
+</span><span id="line-39"></span><span>                    </span><span class="annot"><span class="annottext">Parser (ScriptHash -&gt; GuardScriptSource)
+-&gt; Parser AnySLanguage -&gt; Parser (ScriptHash -&gt; GuardScriptSource)
+forall a b. Parser a -&gt; Parser b -&gt; Parser a
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A"><span class="hs-operator hs-var">&lt;*</span></a></span><span> </span><span class="annot"><span class="annottext">Era DijkstraEra -&gt; String -&gt; Parser AnySLanguage
+forall era. Era era -&gt; String -&gt; Parser AnySLanguage
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pPlutusV4ReferenceLanguage"><span class="hs-identifier hs-var">pPlutusV4ReferenceLanguage</span></a></span><span> </span><span class="annot"><span class="annottext">Era DijkstraEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Experimental.Era.html#DijkstraEra"><span class="hs-identifier hs-var">Exp.DijkstraEra</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard-&quot;</span></span><span>
+</span><span id="line-40"></span><span>                    </span><span class="annot"><span class="annottext">Parser (ScriptHash -&gt; GuardScriptSource)
+-&gt; Parser ScriptHash -&gt; Parser GuardScriptSource
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ScriptHash
+</span><a href="#local-6989586621682400972"><span class="hs-identifier hs-var">pGuardScriptHash</span></a></span><span>
+</span><span id="line-41"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>            </span><span class="annot"><span class="annottext">Parser (Maybe (ScriptDataOrFile, ExecutionUnits) -&gt; Guard)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser Guard
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(ScriptDataOrFile, ExecutionUnits)
+-&gt; Maybe (ScriptDataOrFile, ExecutionUnits)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">((ScriptDataOrFile, ExecutionUnits)
+ -&gt; Maybe (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser (ScriptDataOrFile, ExecutionUnits)
+-&gt; Parser (Maybe (ScriptDataOrFile, ExecutionUnits))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (ScriptDataOrFile, ExecutionUnits)
+</span><a href="#local-6989586621682400969"><span class="hs-identifier hs-var">pRedeemer</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-45"></span><span>  </span><span id="local-6989586621682400972"><span class="annot"><span class="annottext">pGuardScriptHash :: Parser ScriptHash
+</span><a href="#local-6989586621682400972"><span class="hs-identifier hs-var hs-var">pGuardScriptHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser ScriptHash
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptHash"><span class="hs-identifier hs-var">pScriptHash</span></a></span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard-script-hash&quot;</span></span><span>
+</span><span id="line-48"></span><span>      </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Hash of the guard script at the preceding reference input.&quot;</span></span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621682400969"><span class="annot"><span class="annottext">pRedeemer :: Parser (ScriptDataOrFile, ExecutionUnits)
+</span><a href="#local-6989586621682400969"><span class="hs-identifier hs-var hs-var">pRedeemer</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">(</span><span class="hs-special">,</span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">(ScriptDataOrFile
+ -&gt; ExecutionUnits -&gt; (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser ScriptDataOrFile
+-&gt; Parser (ExecutionUnits -&gt; (ScriptDataOrFile, ExecutionUnits))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String -&gt; Parser ScriptDataOrFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptDataOrFile"><span class="hs-identifier hs-var">pScriptDataOrFile</span></a></span><span>
+</span><span id="line-52"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard-redeemer&quot;</span></span><span>
+</span><span id="line-53"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Redeemer for the preceding Plutus V4 guard.&quot;</span></span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Redeemer file for the preceding Plutus V4 guard.&quot;</span></span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="annottext">Parser (ExecutionUnits -&gt; (ScriptDataOrFile, ExecutionUnits))
+-&gt; Parser ExecutionUnits
+-&gt; Parser (ScriptDataOrFile, ExecutionUnits)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621682400964"><span class="hs-identifier hs-var">balance</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-56"></span><span>        </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="Cardano.CLI.Type.Common.html#AutoBalance"><span class="hs-identifier hs-var">AutoBalance</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ExecutionUnits -&gt; Parser ExecutionUnits
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; ExecutionUnits
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.11.0.0-a5c55f00844a2580a5c03c49ddc7b6b821e4362c23739c817452157c5a455522/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ExecutionUnits"><span class="hs-identifier hs-var">ExecutionUnits</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span>        </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="Cardano.CLI.Type.Common.html#ManualBalance"><span class="hs-identifier hs-var">ManualBalance</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser ExecutionUnits
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pExecutionUnits"><span class="hs-identifier hs-var">pExecutionUnits</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;guard&quot;</span></span><span>
+</span><span id="line-58"></span></pre></body></html>
