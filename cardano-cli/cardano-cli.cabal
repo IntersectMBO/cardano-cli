@@ -373,6 +373,7 @@ test-suite cardano-cli-test
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-diffusion:ping,
+    cardano-ledger-api,
     cardano-ledger-core,
     cardano-ledger-dijkstra,
     cardano-slotting,
@@ -420,6 +421,7 @@ test-suite cardano-cli-test
     Test.Cli.ITN
     Test.Cli.Json
     Test.Cli.MonadWarning
+    Test.Cli.Orphan
     Test.Cli.Parser
     Test.Cli.Ping
     Test.Cli.Pioneers.Exercise1
@@ -437,6 +439,7 @@ test-suite cardano-cli-test
     Test.Cli.Transaction.DirectDeposit
     Test.Cli.Transaction.SubTransaction
     Test.Cli.VerificationKey
+    Test.Gen.Cardano.CLI.StakePool
 
   ghc-options:
     -threaded

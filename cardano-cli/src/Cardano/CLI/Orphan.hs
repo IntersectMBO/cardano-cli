@@ -15,6 +15,7 @@ import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
+import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Conway.State qualified as L
 import Cardano.Ledger.Shelley.LedgerState qualified as L (nesStakePoolDistrG)
 
@@ -45,6 +46,25 @@ instance
       , "rewardUpdate" .= nesRu
       , "currentStakeDistribution" .= (nes ^. L.nesStakePoolDistrG)
       ]
+
+-- TODO: upstream to cardano-ledger next to the ToJSON instance of QueryResultStakePoolState.
+instance FromJSON (L.QueryResultStakePoolState era) where
+  parseJSON = withObject "QueryResultStakePoolState" $ \o ->
+    L.QueryResultStakePoolState
+      <$> o .: "vrf"
+      <*> o .: "blsKey"
+      <*> o .: "pledge"
+      <*> o .: "cost"
+      <*> o .: "margin"
+      <*> o .: "accountId"
+      <*> o .: "owners"
+      <*> o .: "relays"
+      <*> o .: "metadata"
+      <*> o .: "deposit"
+      <*> o .: "numDelegators"
+      <*> o .: "delegators"
+      <*> o .: "retiring"
+      <*> o .: "futureStakePoolParams"
 
 instance ToJSON HashableScriptData where
   toJSON hsd =

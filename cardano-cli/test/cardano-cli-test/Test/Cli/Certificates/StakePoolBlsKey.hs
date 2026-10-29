@@ -7,23 +7,18 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.Ledger.BaseTypes (Port (..), textToDns)
-
 import Control.Monad (void)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource (runResourceT)
-import Data.Array.Byte (ByteArray)
-import GHC.Exts (fromList)
 
-import Test.Gen.Cardano.Api.Typed (genCertificate, genSigningKey)
+import Test.Gen.Cardano.Api.Typed (genSigningKey)
 
 import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
+import Test.Gen.Cardano.CLI.StakePool (genStakePoolParams)
 
-import Hedgehog (Gen, Property, forAll, (===))
+import Hedgehog (Property, forAll, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Gen qualified as Gen
-import Hedgehog.Range qualified as Range
 
 -- | The era the command under test runs in.
 type TestEra = Exp.DijkstraEra
@@ -85,36 +80,3 @@ writeRegistrationCertificate file params = Exp.obtainCommonConstraints (Exp.useE
           (File file)
           (textEnvelopeToJSON (Just "Stake Pool Registration Certificate") cert)
   H.leftFailM $ H.evalIO write
-
--- | Parameters from the ledger generator, with a BLS key that is present or absent, a 32 byte
--- metadata hash and relays of every kind that needs no IP address added.
-genStakePoolParams
-  :: forall era
-   . Exp.IsEra era
-  => Gen (L.StakePoolParams (Exp.LedgerEra era))
-genStakePoolParams = Exp.obtainCommonConstraints (Exp.useEra @era) $ do
-  baseParams <-
-    Gen.just $
-      (\(Exp.Certificate cert) -> L.getRegPoolTxCert cert)
-        <$> genCertificate (convert $ Exp.useEra @era)
-  blsKey <- Gen.maybe $ toLedgerBlsKey <$> genSigningKey AsBlsKey
-  metadata <- traverse genMetadataHash $ L.sppMetadata baseParams
-  dnsName <- textToDns 64 "relay.example.com"
-  extraRelays <- Gen.subsequence $ extraRelayCandidates dnsName
-  pure
-    baseParams
-      { L.sppBlsKey = maybe L.SNothing L.SJust blsKey
-      , L.sppMetadata = metadata
-      , L.sppRelays = L.sppRelays baseParams <> fromList extraRelays
-      }
- where
-  genMetadataHash poolMetadata = do
-    hashBytes <- Gen.list (Range.singleton 32) $ Gen.word8 Range.constantBounded
-    pure poolMetadata{L.pmHash = fromList hashBytes :: ByteArray}
-
-  extraRelayCandidates :: L.DnsName -> [L.StakePoolRelay]
-  extraRelayCandidates dnsName =
-    [ L.SingleHostAddr L.SNothing L.SNothing L.SNothing
-    , L.SingleHostName (L.SJust $ Port 3001) dnsName
-    , L.MultiHostName dnsName
-    ]
