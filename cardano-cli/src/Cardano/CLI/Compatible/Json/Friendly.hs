@@ -182,23 +182,36 @@ friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
   pure $
     Exp.obtainCommonConstraints era $
       let body = ledgerTx ^. L.bodyTxL
-          mAuxData = strictMaybeToMaybe (ledgerTx ^. L.auxDataTxL)
-       in basePairs era body mAuxData
-            <> [ "validity range" .= renderValidityInterval (body ^. L.vldtTxBodyL)
-               , "mint" .= renderMaryMint (body ^. L.mintTxBodyL)
-               , "collateral inputs" .= renderCollateralInputs body
-               , renderReqSigners body
-               , "reference inputs" .= renderReferenceInputs body
-               , "total collateral" .= toJSON (strictMaybeToMaybe (body ^. L.totalCollateralTxBodyL))
-               , "return collateral" .= friendlyReturnCollateral era (body ^. L.collateralReturnTxBodyL)
-               ]
-            <> alonzoScriptWitnessPairs era ledgerTx
-            <> conwayBodyPairs body
-            <> dijkstraBodyPairs era body
+       in [ "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
+          , "collateral inputs" .= renderCollateralInputs body
+          , "total collateral" .= toJSON (strictMaybeToMaybe (body ^. L.totalCollateralTxBodyL))
+          , "return collateral" .= friendlyReturnCollateral era (body ^. L.collateralReturnTxBodyL)
+          ]
+            <> sharedTxPairs era ledgerTx
+            <> dijkstraTopLevelPairs era body
+
+-- | Pairs for both top-level transactions and sub-transactions.
+sharedTxPairs
+  :: Exp.Era era
+  -> L.Tx l (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+sharedTxPairs era ledgerTx =
+  Exp.obtainCommonConstraints era $
+    let body = ledgerTx ^. L.bodyTxL
+        mAuxData = strictMaybeToMaybe (ledgerTx ^. L.auxDataTxL)
+     in basePairs era body mAuxData
+          <> [ "validity range" .= renderValidityInterval (body ^. L.vldtTxBodyL)
+             , "mint" .= renderMaryMint (body ^. L.mintTxBodyL)
+             , renderReqSigners body
+             , "reference inputs" .= renderReferenceInputs body
+             ]
+          <> alonzoScriptWitnessPairs era ledgerTx
+          <> conwayBodyPairs body
+          <> dijkstraBodyPairs era body
 
 dijkstraBodyPairs
   :: Exp.Era era
-  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> L.TxBody l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 dijkstraBodyPairs era body = case era of
   Exp.ConwayEra -> []
@@ -206,7 +219,17 @@ dijkstraBodyPairs era body = case era of
     [ "direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)
     , "account balance intervals"
         .= friendlyAccountBalanceIntervals (body ^. L.accountBalanceIntervalsTxBodyL)
-    , "starting account balance intervals"
+    ]
+
+-- | Only a top-level transaction has starting account balance intervals and sub-transactions.
+dijkstraTopLevelPairs
+  :: Exp.Era era
+  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+dijkstraTopLevelPairs era body = case era of
+  Exp.ConwayEra -> []
+  Exp.DijkstraEra ->
+    [ "starting account balance intervals"
         .= friendlyAccountBalanceIntervals (body ^. L.startingAccountBalanceIntervalsTxBodyL)
     , "sub-transactions" .= case toList (body ^. L.subTransactionsTxBodyL) of
         [] -> Null
@@ -270,7 +293,7 @@ renderCollateralInputs body =
 
 renderReqSigners
   :: L.AlonzoEraTxBody (Exp.LedgerEra era)
-  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  => L.TxBody l (Exp.LedgerEra era)
   -> Aeson.Pair
 renderReqSigners body =
   "required signers (payment key hashes needed for scripts)"
@@ -278,16 +301,16 @@ renderReqSigners body =
 
 renderReferenceInputs
   :: L.BabbageEraTxBody (Exp.LedgerEra era)
-  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  => L.TxBody l (Exp.LedgerEra era)
   -> Aeson.Value
 renderReferenceInputs body =
   toJSON (map fromShelleyTxIn (toList (body ^. L.referenceInputsTxBodyL)))
 
 -- | Pairs that are present in every Conway-onwards era.
 basePairs
-  :: forall era
+  :: forall era l
    . Exp.Era era
-  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> L.TxBody l (Exp.LedgerEra era)
   -> Maybe (L.TxAuxData (Exp.LedgerEra era))
   -> [Aeson.Pair]
 basePairs era body mAuxData =
@@ -299,7 +322,6 @@ basePairs era body mAuxData =
               then Null
               else array [friendlyCertificateImpl era (Exp.Certificate cert) | cert <- certs]
         , "era" .= (convert era :: CardanoEra era)
-        , "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
         , "inputs" .= toJSON (map fromShelleyTxIn (toList (body ^. L.inputsTxBodyL)))
         , "metadata" .= friendlyMetadata mAuxData
         , "outputs"
@@ -324,7 +346,7 @@ renderMaryMint ma
 alonzoScriptWitnessPairs
   :: L.AlonzoEraTx (Exp.LedgerEra era)
   => Exp.Era era
-  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> Ledger.Tx l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 alonzoScriptWitnessPairs era tx =
   [ "redeemers" .= renderRedeemers era tx
@@ -333,13 +355,13 @@ alonzoScriptWitnessPairs era tx =
   ]
 
 conwayBodyPairs
-  :: forall era
+  :: forall era l
    . ( L.ConwayEraTxBody (Exp.LedgerEra era)
      , Typeable era
      , Exp.IsEra era
      , L.EraTx (Exp.LedgerEra era)
      )
-  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  => L.TxBody l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 conwayBodyPairs body =
   [ "governance actions"
@@ -367,7 +389,7 @@ friendlyLedgerProposal proposalProcedure =
 renderRedeemers
   :: L.AlonzoEraTx (Exp.LedgerEra era)
   => Exp.Era era
-  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> Ledger.Tx l (Exp.LedgerEra era)
   -> Aeson.Value
 renderRedeemers era tx =
   let plutusScriptPurposeAndExUnits = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
@@ -377,7 +399,7 @@ renderRedeemers era tx =
 renderRedeemerInfo
   :: L.AlonzoEraTx (Exp.LedgerEra era)
   => Exp.Era era
-  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> Ledger.Tx l (Exp.LedgerEra era)
   -> Ledger.PlutusPurpose Ledger.AsIx (Exp.LedgerEra era)
   -> (Ledger.Data (Exp.LedgerEra era), ExUnits)
   -> Aeson.Value
@@ -475,7 +497,7 @@ renderScriptData
   :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)
      , L.EraTx (Exp.LedgerEra era)
      )
-  => Ledger.Tx C.TopTx (Exp.LedgerEra era) -> Aeson.Value
+  => Ledger.Tx l (Exp.LedgerEra era) -> Aeson.Value
 renderScriptData tx =
   Aeson.Array $
     Vector.fromList
@@ -491,7 +513,7 @@ renderDats
   :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)
      , L.EraTx (Exp.LedgerEra era)
      )
-  => Ledger.Tx C.TopTx (Exp.LedgerEra era) -> Aeson.Value
+  => Ledger.Tx l (Exp.LedgerEra era) -> Aeson.Value
 renderDats tx =
   let Ledger.TxDats dats = tx ^. Ledger.witsTxL . Ledger.datsTxWitsL
    in Aeson.Array $
