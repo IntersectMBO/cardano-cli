@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -7,23 +8,21 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.Ledger.BaseTypes (Port (..), textToDns)
+import Cardano.CLI.Type.Error.StakePoolCmdError (PoolStateOrigin (..), StakePoolCmdError (..))
 
 import Control.Monad (void)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource (runResourceT)
-import Data.Array.Byte (ByteArray)
-import GHC.Exts (fromList)
+import Data.ByteString.Char8 qualified as BSC
 
-import Test.Gen.Cardano.Api.Typed (genCertificate, genSigningKey)
+import Test.Gen.Cardano.Api.Typed (genSigningKey)
 
 import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
+import Test.Gen.Cardano.CLI.StakePool (genStakePoolParams)
 
-import Hedgehog (Gen, Property, forAll, (===))
+import Hedgehog (Property, forAll, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Gen qualified as Gen
-import Hedgehog.Range qualified as Range
 
 -- | The era the command under test runs in.
 type TestEra = Exp.DijkstraEra
@@ -62,6 +61,16 @@ hprop_stake_pool_bls_registration_certificate_keeps_params =
 
     newParams === oldParams{L.sppBlsKey = L.SJust (toLedgerBlsKey newSigningKey)}
 
+-- | The errors for a pool state from a node do not mention a pool state file.
+hprop_stake_pool_bls_registration_certificate_node_error_messages :: Property
+hprop_stake_pool_bls_registration_certificate_node_error_messages = H.propertyOnce $ do
+  poolId <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
+  let bech32 = serialiseToBech32 (poolId :: Hash StakePoolKey)
+  docToText (prettyError $ StakePoolCmdPoolNotInPoolStateError PoolStateFromNode poolId)
+    === "The pool " <> bech32 <> " is not registered on the node."
+  docToText (prettyError $ StakePoolCmdNoPendingParametersError PoolStateFromNode poolId)
+    === "The pool " <> bech32 <> " has no pending parameter update. Use --current-params."
+
 readPoolParams
   :: forall era m
    . (Exp.IsEra era, H.MonadTest m, MonadIO m)
@@ -85,36 +94,3 @@ writeRegistrationCertificate file params = Exp.obtainCommonConstraints (Exp.useE
           (File file)
           (textEnvelopeToJSON (Just "Stake Pool Registration Certificate") cert)
   H.leftFailM $ H.evalIO write
-
--- | Parameters from the ledger generator, with a BLS key that is present or absent, a 32 byte
--- metadata hash and relays of every kind that needs no IP address added.
-genStakePoolParams
-  :: forall era
-   . Exp.IsEra era
-  => Gen (L.StakePoolParams (Exp.LedgerEra era))
-genStakePoolParams = Exp.obtainCommonConstraints (Exp.useEra @era) $ do
-  baseParams <-
-    Gen.just $
-      (\(Exp.Certificate cert) -> L.getRegPoolTxCert cert)
-        <$> genCertificate (convert $ Exp.useEra @era)
-  blsKey <- Gen.maybe $ toLedgerBlsKey <$> genSigningKey AsBlsKey
-  metadata <- traverse genMetadataHash $ L.sppMetadata baseParams
-  dnsName <- textToDns 64 "relay.example.com"
-  extraRelays <- Gen.subsequence $ extraRelayCandidates dnsName
-  pure
-    baseParams
-      { L.sppBlsKey = maybe L.SNothing L.SJust blsKey
-      , L.sppMetadata = metadata
-      , L.sppRelays = L.sppRelays baseParams <> fromList extraRelays
-      }
- where
-  genMetadataHash poolMetadata = do
-    hashBytes <- Gen.list (Range.singleton 32) $ Gen.word8 Range.constantBounded
-    pure poolMetadata{L.pmHash = fromList hashBytes :: ByteArray}
-
-  extraRelayCandidates :: L.DnsName -> [L.StakePoolRelay]
-  extraRelayCandidates dnsName =
-    [ L.SingleHostAddr L.SNothing L.SNothing L.SNothing
-    , L.SingleHostName (L.SJust $ Port 3001) dnsName
-    , L.MultiHostName dnsName
-    ]

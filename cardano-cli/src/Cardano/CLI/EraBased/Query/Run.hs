@@ -34,6 +34,7 @@ module Cardano.CLI.EraBased.Query.Run
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage
+  , easyRunQuery
   )
 where
 
@@ -2123,6 +2124,9 @@ easyRunQuerySystemStart
   :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) SystemStart
 easyRunQuerySystemStart = lift querySystemStart & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
+-- | Run a node query and lift its result into 'QueryCmdError'.
+-- An unsupported node-to-client version becomes 'QueryCmdUnsupportedNtcVersion'
+-- and an era mismatch becomes 'QueryCmdEraMismatch'.
 easyRunQuery
   :: ()
   => Monad m

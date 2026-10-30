@@ -1,0 +1,10 @@
+project: cardano-cli
+pr: 1490
+kind:
+  - feature
+description: |
+  `cardano-cli dijkstra stake-pool bls-registration-certificate offline` can now take the pool parameters from the output of `query pool-state` instead of a registration certificate. Pass `--pool-state-file` and `--stake-pool-id`, then choose `--current-params` to keep the pool's current parameters or `--pending-params` to keep the parameters of its pending update. With `--current-params` you must also give `--mainnet` or `--testnet-magic`, because the pool-state output does not say which network the pool's reward account belongs to.
+
+  The new `cardano-cli dijkstra stake-pool bls-registration-certificate online` command reads the pool parameters from a running node, so you do not need to run `query pool-state` first. It takes the usual node connection options, `--stake-pool-id`, and either `--current-params` or `--pending-params`. The network comes from the node connection, so no extra network option is needed.
+
+  When the parameters come from `query pool-state` output or from a node, the command warns if the new certificate replaces a pending update of the pool, or if it cancels a retirement that is scheduled for the pool.

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -17,6 +18,8 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraBased.Query.Command (QueryCommons (..))
+import Cardano.CLI.EraBased.Query.Option (pQueryCommons)
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.Parser
@@ -39,7 +42,7 @@ pStakePoolCmds envCli =
           ]
     )
     [ pStakePoolRegistrationCertificateCmd envCli
-    , pStakePoolBlsRegistrationCertificateCmd
+    , pStakePoolBlsRegistrationCertificateCmd envCli
     , pStakePoolDeregistrationCertificateCmd
     , Just $
         Opt.hsubparser $
@@ -147,35 +150,83 @@ pBlsSigningKeyFile =
 pStakePoolBlsRegistrationCertificateCmd
   :: forall era
    . IsEra era
-  => Maybe (Parser (Cmd.StakePoolCmds era))
-pStakePoolBlsRegistrationCertificateCmd =
+  => EnvCli
+  -> Maybe (Parser (Cmd.StakePoolCmds era))
+pStakePoolBlsRegistrationCertificateCmd envCli =
   case useEra @era of
     Exp.ConwayEra -> Nothing
     Exp.DijkstraEra ->
       Just
         . Opt.hsubparser
         . commandWithMetavar "bls-registration-certificate"
-        . Opt.info pOffline
+        . Opt.info (Opt.hsubparser (pOffline <> pOnline))
         $ Opt.progDesc
         $ mconcat
           [ "Create a stake pool registration certificate that keeps the pool's existing"
           , " parameters and replaces only its BLS key and proof of possession."
           ]
  where
+  pOnline =
+    commandWithMetavar "online"
+      . Opt.info pBlsRegistrationCertificateOnline
+      $ Opt.progDesc
+      $ mconcat
+        [ "Create the certificate from the pool parameters that a running node reports."
+        , " Needs a connection to the node."
+        ]
+
+  pBlsRegistrationCertificateOnline =
+    fmap Cmd.StakePoolBlsRegistrationCertificateCmd $
+      Cmd.StakePoolBlsRegistrationCertificateCmdArgs (convert $ useEra @era)
+        <$> pParametersFromNode
+        <*> pBlsSigningKeyFile
+        <*> pOutputFile
+
+  pParametersFromNode =
+    fromNode
+      <$> pQueryCommons @era envCli
+      <*> pStakePoolVerificationKeyHash Nothing
+      <*> pPoolStateParametersChoice
+   where
+    fromNode commons@QueryCommons{nodeConnInfo} poolId choice =
+      Cmd.StakePoolParametersFromNode commons poolId $ choice (localNodeNetworkId nodeConnInfo)
+
+  -- The current parameters need the network of the node connection.
+  pPoolStateParametersChoice =
+    F.asum
+      [ Cmd.PoolStateCurrentParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "current-params"
+                , Opt.help "Keep the current parameters of the pool."
+                ]
+            )
+      , const Cmd.PoolStatePendingParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "pending-params"
+                , Opt.help "Keep the parameters of the pending update of the pool."
+                ]
+            )
+      ]
+
   pOffline =
-    Opt.hsubparser
-      . commandWithMetavar "offline"
+    commandWithMetavar "offline"
       . Opt.info pBlsRegistrationCertificateOffline
       $ Opt.progDesc
       $ mconcat
-        [ "Create the certificate from the parameters in an existing stake pool registration certificate file."
-        , " No node connection is needed."
+        [ "Create the certificate from the parameters in an existing stake pool registration certificate file"
+        , " or in a file written by query pool-state."
+        , " No node connection is needed, but --current-params needs the network,"
+        , " because the query pool-state output does not record it."
         ]
 
   pBlsRegistrationCertificateOffline =
     fmap Cmd.StakePoolBlsRegistrationCertificateCmd $
       Cmd.StakePoolBlsRegistrationCertificateCmdArgs (convert $ useEra @era)
-        <$> pStakePoolParametersFromCertificate
+        <$> (pStakePoolParametersFromCertificate <|> pStakePoolParametersFromPoolState envCli)
         <*> pBlsSigningKeyFile
         <*> pOutputFile
 
@@ -185,6 +236,45 @@ pStakePoolParametersFromCertificate =
     <$> parseFilePath
       "registration-certificate-file"
       "Input filepath of the stake pool registration certificate to copy the parameters from."
+
+pStakePoolParametersFromPoolState :: EnvCli -> Parser Cmd.StakePoolParametersSource
+pStakePoolParametersFromPoolState envCli =
+  Cmd.StakePoolParametersFromPoolState
+    <$> pPoolStateFile
+    <*> pStakePoolVerificationKeyHash Nothing
+    <*> pPoolStateParametersChoice
+ where
+  pPoolStateFile =
+    File
+      <$> parseFilePath
+        "pool-state-file"
+        "Input filepath of the query pool-state output to take the parameters from."
+
+  pPoolStateParametersChoice =
+    F.asum
+      [ Cmd.PoolStateCurrentParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "current-params"
+                , Opt.help $
+                    mconcat
+                      [ "Keep the current parameters of the pool."
+                      , " Give the network with --mainnet or --testnet-magic,"
+                      , " because the query pool-state output does not record it for the reward account."
+                      ]
+                ]
+            )
+          <*> pNetworkId envCli
+      , Cmd.PoolStatePendingParameters
+          <$ Opt.flag'
+            ()
+            ( mconcat
+                [ Opt.long "pending-params"
+                , Opt.help "Keep the parameters of the pending update of the pool."
+                ]
+            )
+      ]
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
