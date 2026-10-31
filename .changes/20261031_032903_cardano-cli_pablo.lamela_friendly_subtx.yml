@@ -1,0 +1,6 @@
+description: Add support for printing sub-transaction data to `transaction view`.
+kind:
+- compatible
+- feature
+pr: 1492
+project: cardano-cli
