@@ -1,0 +1,93 @@
+account balance intervals: null
+auxiliary scripts: null
+certificates: null
+collateral inputs: []
+currentTreasuryValue: null
+datums: []
+direct deposits: null
+era: Dijkstra
+fee: 200000 Lovelace
+governance actions: []
+inputs:
+- 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#3
+metadata: null
+mint: null
+outputs:
+- address: addr_test1vrdak6qxg9htzac7s5u9skgnt87hpwk73g4fe3llz54hywgk2rmcv
+  address era: Shelley
+  amount:
+    lovelace: 49800000
+  datum: null
+  network: Testnet
+  payment credential key hash: dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239
+  reference script: null
+  stake reference: null
+redeemers: []
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+return collateral: null
+scripts: []
+starting account balance intervals: null
+sub-transactions:
+- account balance intervals: null
+  auxiliary scripts: '(StrictSeq {fromStrict = fromList [MkDijkstraNativeScript DijkstraRequireSignature
+    (KeyHash {unKeyHash = "dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239"})
+    (blake2b_256: SafeHash "4244695e25832fe6e9cb69031ddd37444e6880f3cd6a90531ad2d5c08cf6abfa"),MkDijkstraNativeScript
+    DijkstraRequireAllOf (StrictSeq {fromStrict = fromList [MkDijkstraNativeScript
+    DijkstraRequireSignature (KeyHash {unKeyHash = "24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d"})
+    (blake2b_256: SafeHash "0000000000000000000000000000000000000000000000000000000000000000"),MkDijkstraNativeScript
+    DijkstraTimeStart (SlotNo 1000) (blake2b_256: SafeHash "0000000000000000000000000000000000000000000000000000000000000000")]})
+    (blake2b_256: SafeHash "61a16a77ce7bfa062df490d6b3778d09d3d7b3b949747143c71d605858d5d5b1")]},fromList
+    [])'
+  certificates: null
+  currentTreasuryValue: null
+  datums: []
+  direct deposits: null
+  era: Dijkstra
+  governance actions: []
+  id: 5732f57885dbdde35203ea65e5ae58287597b32f86d99d5acba3d179a6995fbc
+  inputs:
+  - 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#2
+  metadata:
+    '1337':
+    - 42
+    - -7
+    - '[0xca, 0xfe]'
+    '674':
+    - - msg
+      - - sub-transaction
+        - metadata
+  mint: null
+  outputs:
+  - address: addr_test1vrdak6qxg9htzac7s5u9skgnt87hpwk73g4fe3llz54hywgk2rmcv
+    address era: Shelley
+    amount:
+      lovelace: 50000000
+    datum: null
+    network: Testnet
+    payment credential key hash: dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239
+    reference script: null
+    stake reference: null
+  redeemers: []
+  reference inputs: []
+  required signers (payment key hashes needed for scripts): null
+  scripts: []
+  treasuryDonation: 0
+  validity range:
+    lower bound: null
+    upper bound: null
+  voters: {}
+  withdrawals: null
+  witnesses:
+  - key: VKey (VerKeyEd25519DSIGN "e192f7769517ff0940f9bbbceef8dc6ed38d691a6366ecc349194e6b8cc28098")
+    signature: SignedDSIGN (SigEd25519DSIGN "93ef1c52b585d64af3ce62e7f0cab5c2dc8873426f59fbc9b6035add686ee0117ade87d9b58fbe6002321429d2a0fcb4d73d21da07351cccf7e5292036adc201")
+total collateral: null
+treasuryDonation: 0
+validity range:
+  lower bound: null
+  upper bound: null
+voters: {}
+withdrawals: null
+witnesses:
+- key: VKey (VerKeyEd25519DSIGN "e192f7769517ff0940f9bbbceef8dc6ed38d691a6366ecc349194e6b8cc28098")
+  signature: SignedDSIGN (SigEd25519DSIGN "91cb7a2ad3e401a2dc09d514f5de9e25c95152eab7051be693445c1802089aeaf8d7ac815d46d32ee6a90a8167078787c836943e359fb5b2945c5eee97fab301")

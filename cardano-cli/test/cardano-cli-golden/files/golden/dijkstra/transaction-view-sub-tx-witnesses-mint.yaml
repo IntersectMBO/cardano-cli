@@ -1,0 +1,87 @@
+account balance intervals: null
+auxiliary scripts: null
+certificates: null
+collateral inputs: []
+currentTreasuryValue: null
+datums: []
+direct deposits: null
+era: Dijkstra
+fee: 200000 Lovelace
+governance actions: []
+inputs:
+- 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#1
+metadata: null
+mint: null
+outputs:
+- address: addr_test1vrdak6qxg9htzac7s5u9skgnt87hpwk73g4fe3llz54hywgk2rmcv
+  address era: Shelley
+  amount:
+    lovelace: 49800000
+  datum: null
+  network: Testnet
+  payment credential key hash: dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239
+  reference script: null
+  stake reference: null
+redeemers: []
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+return collateral: null
+scripts: []
+starting account balance intervals: null
+sub-transactions:
+- account balance intervals: null
+  auxiliary scripts: null
+  certificates: null
+  currentTreasuryValue: null
+  datums: []
+  direct deposits: null
+  era: Dijkstra
+  governance actions: []
+  id: e0500b471bf8bb2c490e5cec9a3e92ac3198bd29a9a696f25fb2b4563bb65863
+  inputs:
+  - 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#0
+  metadata: null
+  mint:
+    policy f47b811c2b6eb6a3ef9a65ef46204b1034c7640d440ea2d859f4aed0:
+      asset 537562546f6b656e (SubToken): 1000
+  outputs:
+  - address: addr_test1vrdak6qxg9htzac7s5u9skgnt87hpwk73g4fe3llz54hywgk2rmcv
+    address era: Shelley
+    amount:
+      lovelace: 50000000
+      policy f47b811c2b6eb6a3ef9a65ef46204b1034c7640d440ea2d859f4aed0:
+        asset 537562546f6b656e (SubToken): 1000
+    datum: null
+    network: Testnet
+    payment credential key hash: dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239
+    reference script: null
+    stake reference: null
+  redeemers: []
+  reference inputs: []
+  required signers (payment key hashes needed for scripts): null
+  scripts:
+  - script data:
+      script: (Signature KeyHash {unKeyHash = "d95bce222ed0f4bc9e436c85f651cf205ac7817b74f922e717a9e2e8"})
+      type: native
+    script hash: f47b811c2b6eb6a3ef9a65ef46204b1034c7640d440ea2d859f4aed0
+  treasuryDonation: 0
+  validity range:
+    lower bound: null
+    upper bound: null
+  voters: {}
+  withdrawals: null
+  witnesses:
+  - key: VKey (VerKeyEd25519DSIGN "5eafbcc78085a1a4661c6edd48b161883d5fd2cb9738475441afa3a1b3767847")
+    signature: SignedDSIGN (SigEd25519DSIGN "66be79d194cd7f81cfb5078b46c8a1915df8093f91b7c1f59058962c82c3222aada6fcc023f12bbbda2652749845e9f1039bd51df8cc6bed860d04657676070d")
+  - key: VKey (VerKeyEd25519DSIGN "e192f7769517ff0940f9bbbceef8dc6ed38d691a6366ecc349194e6b8cc28098")
+    signature: SignedDSIGN (SigEd25519DSIGN "e480d50af1181f7216ef1c8921b2bbc2210139af65d03b2d34e767cae62f2967063c245e48a1c21d3448df8b68601e124cf39773e5b1cbfb5fd5b69839ab070f")
+total collateral: null
+treasuryDonation: 0
+validity range:
+  lower bound: null
+  upper bound: null
+voters: {}
+withdrawals: null
+witnesses:
+- key: VKey (VerKeyEd25519DSIGN "e192f7769517ff0940f9bbbceef8dc6ed38d691a6366ecc349194e6b8cc28098")
+  signature: SignedDSIGN (SigEd25519DSIGN "24065810d09d264aace938e9af9c02f0d4268c3cb74d2616d2eecca63cdf09d43dba799ddfaee4500c50a13764e4b71c768b0e7826380e2b0e9f5cac7b71a50e")
