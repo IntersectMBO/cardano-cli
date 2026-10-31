@@ -250,18 +250,19 @@ dijkstraTopLevelPairs era body = case era of
         .= friendlyAccountBalanceIntervals (body ^. L.startingAccountBalanceIntervalsTxBodyL)
     , "sub-transactions" .= case toList (body ^. L.subTransactionsTxBodyL) of
         [] -> Null
-        subTransactions -> array $ map renderSubTransaction subTransactions
+        subTransactions -> array $ map (renderSubTransaction Signed) subTransactions
     ]
 
 renderSubTransaction
-  :: L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
+  :: Signedness
+  -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -> Aeson.Value
-renderSubTransaction subTx =
-  object
+renderSubTransaction signedness subTx =
+  object $
     [ "id" .= serialiseToRawBytesHexText (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
-    , "account balance intervals"
-        .= friendlyAccountBalanceIntervals (subTx ^. L.bodyTxL . L.accountBalanceIntervalsTxBodyL)
     ]
+      <> keyWitnessPairs Exp.DijkstraEra signedness subTx
+      <> sharedTxPairs Exp.DijkstraEra subTx
 
 friendlyAccountBalanceIntervals :: L.AccountBalanceIntervals era -> Aeson.Value
 friendlyAccountBalanceIntervals (L.AccountBalanceIntervals intervals)
