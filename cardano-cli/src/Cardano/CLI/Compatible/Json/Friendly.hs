@@ -157,10 +157,27 @@ friendlyTxImpl
   -> m [Aeson.Pair]
 friendlyTxImpl era (Exp.SignedTx ledgerTx) =
   Exp.obtainCommonConstraints era $
+    (keyWitnessPairs era Signed ledgerTx <>)
+      <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
+
+data Signedness = Signed | Unsigned
+
+keyWitnessPairs
+  :: forall era l
+   . Exp.Era era
+  -> Signedness
+  -> L.Tx l (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+keyWitnessPairs era signedness tx =
+  Exp.obtainCommonConstraints era $
     let sbe = convert era :: ShelleyBasedEra era
-        witnesses = getTxWitnesses (ShelleyTx sbe ledgerTx)
-     in (("witnesses" .= map friendlyKeyWitness witnesses) :)
-          <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
+        wits = tx ^. L.witsTxL
+        witnesses =
+          map (ShelleyBootstrapWitness sbe) (toList (wits ^. L.bootAddrTxWitsL))
+            <> map (ShelleyKeyWitness sbe) (toList (wits ^. L.addrTxWitsL))
+     in case signedness of
+          Signed -> ["witnesses" .= map friendlyKeyWitness witnesses]
+          Unsigned -> []
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
