@@ -17,7 +17,9 @@ import Cardano.CLI.Compatible.Exception
   , fromEitherIOCli
   )
 import Cardano.CLI.Compatible.Json.Friendly
-  ( friendlyTx
+  ( Signedness (..)
+  , friendlySubTx
+  , friendlyTx
   , friendlyTxBody
   )
 import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
@@ -37,24 +39,31 @@ runTransactionViewCmd
     case inputTxBodyOrTxFile of
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-        IncompleteTxBody (sbe :: ShelleyBasedEra era) (Exp.UnsignedTx ledgerTx) <-
-          fromEitherIOCli $ readFileTxBody txbodyFile
-        era <- fromEitherCli (Exp.sbeToEra sbe)
-        -- Why are we differentiating between a transaction body and a transaction?
-        -- In the case of a transaction body, we /could/ simply call @addWitnesses []@
-        -- to get a transaction which would allow us to reuse friendlyTxBS. However,
-        -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
-        -- is arguably not part of the transaction body.
-        let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
-            unsignedTx = Exp.obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
-        fromEitherIOCli @(FileError ()) $
-          friendlyTxBody outputFormat mOutFile era unsignedTx
+        txBodyOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txbodyFile
+        case txBodyOrSubTx of
+          Right subTx ->
+            fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Unsigned subTx
+          Left (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
+            era <- fromEitherCli (Exp.sbeToEra sbe)
+            -- Why are we differentiating between a transaction body and a transaction?
+            -- In the case of a transaction body, we /could/ simply call @addWitnesses []@
+            -- to get a transaction which would allow us to reuse friendlyTxBS. However,
+            -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
+            -- is arguably not part of the transaction body.
+            let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
+                unsignedTx = Exp.obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
+            fromEitherIOCli @(FileError ()) $
+              friendlyTxBody outputFormat mOutFile era unsignedTx
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
-        InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx <- fromEitherIOCli (readFileTx txFile)
-        era <- fromEitherCli (Exp.sbeToEra sbe)
-        let ShelleyTx _ ledgerTx = tx
-            signedTx :: Exp.SignedTx era
-            signedTx = Exp.obtainCommonConstraints era $ Exp.SignedTx ledgerTx
-        fromEitherIOCli @(FileError ()) $
-          friendlyTx outputFormat mOutFile era signedTx
+        txOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txFile
+        case txOrSubTx of
+          Right subTx ->
+            fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Signed subTx
+          Left (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
+            era <- fromEitherCli (Exp.sbeToEra sbe)
+            let ShelleyTx _ ledgerTx = tx
+                signedTx :: Exp.SignedTx era
+                signedTx = Exp.obtainCommonConstraints era $ Exp.SignedTx ledgerTx
+            fromEitherIOCli @(FileError ()) $
+              friendlyTx outputFormat mOutFile era signedTx

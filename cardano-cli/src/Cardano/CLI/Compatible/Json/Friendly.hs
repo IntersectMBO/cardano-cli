@@ -15,6 +15,8 @@ module Cardano.CLI.Compatible.Json.Friendly
   -- Use them when writing to stdout or to files.
     friendlyTx
   , friendlyTxBody
+  , friendlySubTx
+  , Signedness (..)
   , friendlyProposal
   , friendlyDRep
   , friendlyCertificate
@@ -119,6 +121,16 @@ friendlyTxBody
 friendlyTxBody format mOutFile era unsignedTx = do
   pairs <- runWarningIO $ friendlyTxBodyImpl era unsignedTx
   friendly format mOutFile $ object pairs
+
+friendlySubTx
+  :: MonadIO m
+  => Vary [FormatJson, FormatYaml]
+  -> Maybe (File () Out)
+  -> Signedness
+  -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
+  -> m (Either (FileError e) ())
+friendlySubTx format mOutFile signedness =
+  friendly format mOutFile . renderSubTransaction signedness
 
 friendlyProposal
   :: MonadIO m
