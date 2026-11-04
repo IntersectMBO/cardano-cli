@@ -1,0 +1,5 @@
+description: Show guards and required top-level guards in `transaction view`.
+kind:
+- feature
+pr: 1494
+project: cardano-cli

@@ -8,6 +8,7 @@ direct deposits: null
 era: Dijkstra
 fee: 200000 Lovelace
 governance actions: []
+guards: null
 inputs:
 - 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#1
 metadata: null
@@ -25,6 +26,7 @@ outputs:
 redeemers: []
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
+required top-level guards: null
 return collateral: null
 scripts: []
 starting account balance intervals: null
@@ -37,6 +39,7 @@ sub-transactions:
   direct deposits: null
   era: Dijkstra
   governance actions: []
+  guards: null
   id: e0500b471bf8bb2c490e5cec9a3e92ac3198bd29a9a696f25fb2b4563bb65863
   inputs:
   - 1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#0
@@ -59,6 +62,7 @@ sub-transactions:
   redeemers: []
   reference inputs: []
   required signers (payment key hashes needed for scripts): null
+  required top-level guards: null
   scripts:
   - script data:
       script: (Signature KeyHash {unKeyHash = "d95bce222ed0f4bc9e436c85f651cf205ac7817b74f922e717a9e2e8"})
