@@ -24,6 +24,7 @@ governance actions:
     credential:
       keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
     network: Testnet
+guards: null
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#200
 metadata: null
@@ -105,6 +106,7 @@ redeemers:
       steps: 100
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
+required top-level guards: null
 return collateral: null
 scripts:
 - script data:

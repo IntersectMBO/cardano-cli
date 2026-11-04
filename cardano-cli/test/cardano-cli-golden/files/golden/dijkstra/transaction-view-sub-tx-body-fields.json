@@ -9,6 +9,7 @@
     "era": "Dijkstra",
     "fee": "200000 Lovelace",
     "governance actions": [],
+    "guards": null,
     "inputs": [
         "1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#11"
     ],
@@ -31,6 +32,7 @@
     "redeemers": [],
     "reference inputs": [],
     "required signers (payment key hashes needed for scripts)": null,
+    "required top-level guards": null,
     "return collateral": null,
     "scripts": [],
     "starting account balance intervals": null,
@@ -77,6 +79,11 @@
                     }
                 }
             ],
+            "guards": [
+                {
+                    "keyHash": "24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d"
+                }
+            ],
             "id": "acfe9804f52f5767f08c47864fca2f40d09dd63774bbfbd976a795b580ba9ed6",
             "inputs": [
                 "1aed29203ce182d05b6a02ddec2c5066df2c96d0c5de22e2c641199025edc70c#10"
@@ -104,6 +111,7 @@
             "required signers (payment key hashes needed for scripts)": [
                 "24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d"
             ],
+            "required top-level guards": null,
             "scripts": [],
             "treasuryDonation": 500000,
             "validity range": {

@@ -171,6 +171,51 @@ goldenDijkstraIntervals format signed =
     H.diffVsGoldenFile result $
       goldenDir </> "dijkstra/transaction-view-intervals" ++ suffix ++ "." ++ format
 
+hprop_golden_debug_transaction_view_dijkstra_guards_json :: Property
+hprop_golden_debug_transaction_view_dijkstra_guards_json = goldenDijkstraGuards "json"
+
+hprop_golden_debug_transaction_view_dijkstra_guards_yaml :: Property
+hprop_golden_debug_transaction_view_dijkstra_guards_yaml = goldenDijkstraGuards "yaml"
+
+-- | Key and script guards, and required top-level guards with and without a datum.
+goldenDijkstraGuards :: String -> Property
+goldenDijkstraGuards format =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    subBody <- H.noteTempFile tempDir "sub.body"
+    subSigned <- H.noteTempFile tempDir "sub.signed"
+    bodyFile <- H.noteTempFile tempDir "tx.body"
+    let keyHash = "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+        scriptHash = "186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4"
+        input ix = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#" ++ ix
+        output = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
+    void $
+      execCardanoCLI $
+        concat
+          [ ["dijkstra", "sub-transaction", "build-raw"]
+          , ["--tx-in", input "1", "--tx-out", output]
+          , ["--guard-key-hash", keyHash, "--guard-script-hash", scriptHash]
+          , ["--top-level-guard-key-hash", keyHash]
+          , ["--top-level-guard-script-hash", scriptHash, "--top-level-guard-datum-value", "42"]
+          , ["--out-file", subBody]
+          ]
+    void $
+      execCardanoCLI $
+        ["dijkstra", "sub-transaction", "sign", "--sub-tx-file", subBody]
+          ++ ["--signing-key-file", inputDir </> "dijkstra/keys/utxo_keys/signing_key"]
+          ++ ["--out-file", subSigned]
+    void $
+      execCardanoCLI $
+        concat
+          [ ["dijkstra", "transaction", "build-raw"]
+          , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
+          , ["--required-signer-hash", keyHash]
+          , ["--signed-sub-tx-file", subSigned, "--out-file", bodyFile]
+          ]
+    result <-
+      execCardanoCLI
+        ["debug", "transaction", "view", "--tx-body-file", bodyFile, "--output-" ++ format]
+    H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-guards." ++ format
+
 -- | A sub-transaction with two key witnesses and a mint under a native script policy.
 hprop_golden_debug_transaction_view_dijkstra_sub_tx_witnesses_mint_json :: Property
 hprop_golden_debug_transaction_view_dijkstra_sub_tx_witnesses_mint_json =

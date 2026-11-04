@@ -28,6 +28,7 @@
     "era": "Dijkstra",
     "fee": "200000 Lovelace",
     "governance actions": [],
+    "guards": null,
     "inputs": [
         "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
     ],
@@ -50,6 +51,7 @@
     "redeemers": [],
     "reference inputs": [],
     "required signers (payment key hashes needed for scripts)": null,
+    "required top-level guards": null,
     "return collateral": null,
     "scripts": [],
     "starting account balance intervals": [
@@ -103,6 +105,7 @@
             "direct deposits": null,
             "era": "Dijkstra",
             "governance actions": [],
+            "guards": null,
             "id": "61ba2d8821e417661702f29f7ce1d3aea71fabd53d3594be3e87ff9ddb647188",
             "inputs": [
                 "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#1"
@@ -126,6 +129,7 @@
             "redeemers": [],
             "reference inputs": [],
             "required signers (payment key hashes needed for scripts)": null,
+            "required top-level guards": null,
             "scripts": [],
             "treasuryDonation": 0,
             "validity range": {
@@ -150,6 +154,7 @@
             "direct deposits": null,
             "era": "Dijkstra",
             "governance actions": [],
+            "guards": null,
             "id": "c45b108f5a31036036618ef8213be0df21e556c7fd53e35d0254ba8fe959d261",
             "inputs": [
                 "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#2"
@@ -173,6 +178,7 @@
             "redeemers": [],
             "reference inputs": [],
             "required signers (payment key hashes needed for scripts)": null,
+            "required top-level guards": null,
             "scripts": [],
             "treasuryDonation": 0,
             "validity range": {
