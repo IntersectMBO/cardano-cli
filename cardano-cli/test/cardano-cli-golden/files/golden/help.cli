@@ -3984,6 +3984,10 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-ref-script-size-per-tx WORD32]
                                                                                   [--ref-script-cost-stride WORD32]
                                                                                   [--ref-script-cost-multiplier RATIONAL]
+                                                                                  [--min-pool-margin RATIONAL]
+                                                                                  [ --max-pledge-leverage RATIONAL
+                                                                                  | --no-max-pledge-leverage
+                                                                                  ]
                                                                                   [--leios-announcement-period-length MILLISECONDS]
                                                                                   [--leios-vote-period-length MILLISECONDS]
                                                                                   [--leios-diffusion-period-length MILLISECONDS]
@@ -3993,6 +3997,16 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-endorser-block-txs-size WORD32]
                                                                                   [--max-endorser-block-execution-units (INT, INT)]
                                                                                   [--max-ref-script-size-per-endorser-block WORD32]
+                                                                                  [--peras-min-candidate-block-age SLOTS]
+                                                                                  [--peras-healing-factor RATIONAL]
+                                                                                  [--peras-cert-boost WORD16]
+                                                                                  [--peras-target-committee-size WORD16]
+                                                                                  [ --peras-bootstrap-round WORD32
+                                                                                  | --no-peras-bootstrap-round
+                                                                                  ]
+                                                                                  [--peras-quorum-threshold-safety-margin RATIONAL]
+                                                                                  [--ref-inputs-cost-per-multi-asset-policy LOVELACE]
+                                                                                  [--ref-inputs-cost-per-datum-byte LOVELACE]
                                                                                   [--cost-model-file FILE]
                                                                                   --out-file FILEPATH
                                                                                   
