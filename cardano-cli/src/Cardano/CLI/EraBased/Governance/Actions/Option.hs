@@ -20,6 +20,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.Option.Flag (setDefault)
 import Cardano.CLI.Parser
+import Cardano.CLI.Read (readerFromParsecParser)
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (Milliseconds32 (..), NonZero, PositiveInterval, nonZero)
 import Cardano.Ledger.Plutus.ExUnits (OrdExUnits (..))
@@ -313,6 +314,8 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
     <*> convertToLedger id (optional pRefScriptCostStride)
     <*> convertToLedger id (optional pRefScriptCostMultiplier)
+    <*> convertToLedger toUnitIntervalOrErr (optional pMinPoolMargin)
+    <*> convertToLedger L.MaxPledgeLeverage (optional pMaxPledgeLeverage)
     <*> convertToLedger id (optional pLeiosAnnouncementPeriodLength)
     <*> convertToLedger id (optional pLeiosVotePeriodLength)
     <*> convertToLedger id (optional pLeiosDiffusionPeriodLength)
@@ -322,6 +325,14 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxEndorserBlockTxsSize)
     <*> convertToLedger (OrdExUnits . toAlonzoExUnits) (optional pMaxEndorserBlockExecutionUnits)
     <*> convertToLedger id (optional pMaxRefScriptSizePerEndorserBlock)
+    <*> convertToLedger id (optional pPerasMinCandidateBlockAge)
+    <*> convertToLedger id (optional pPerasHealingFactor)
+    <*> convertToLedger id (optional pPerasCertBoost)
+    <*> convertToLedger id (optional pPerasTargetCommitteeSize)
+    <*> convertToLedger id (optional pPerasBootstrapRound)
+    <*> convertToLedger toUnitIntervalOrErr (optional pPerasQuorumThresholdSafetyMargin)
+    <*> convertToLedger id (optional pRefInputsCostPerMultiAssetPolicy)
+    <*> convertToLedger id (optional pRefInputsCostPerDatumByte)
 
 pLeiosAnnouncementPeriodLength :: Parser Milliseconds32
 pLeiosAnnouncementPeriodLength =
@@ -465,6 +476,121 @@ toPositiveInterval r =
     )
     pure
     $ L.boundRational r
+
+pMinPoolMargin :: Parser Rational
+pMinPoolMargin =
+  Opt.option readRationalUnitInterval $
+    mconcat
+      [ Opt.long "min-pool-margin"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Minimum stake pool profit margin."
+      ]
+
+-- | Either a leverage bound, or an explicit request to remove the bound.
+pMaxPledgeLeverage :: Parser (L.StrictMaybe L.NonNegativeInterval)
+pMaxPledgeLeverage =
+  asum
+    [ L.SJust . toNonNegativeIntervalOrErr
+        <$> Opt.option
+          readRational
+          ( mconcat
+              [ Opt.long "max-pledge-leverage"
+              , Opt.metavar "RATIONAL"
+              , Opt.help "Maximum pledge leverage used when calculating stake pool rewards."
+              ]
+          )
+    , Opt.flag' L.SNothing $
+        mconcat
+          [ Opt.long "no-max-pledge-leverage"
+          , Opt.help "Remove the maximum pledge leverage bound."
+          ]
+    ]
+
+pPerasMinCandidateBlockAge :: Parser L.SlotInterval
+pPerasMinCandidateBlockAge =
+  L.SlotInterval
+    <$> Opt.option
+      integralReader
+      ( mconcat
+          [ Opt.long "peras-min-candidate-block-age"
+          , Opt.metavar "SLOTS"
+          , Opt.help "Minimum age of a Peras candidate block, in slots."
+          ]
+      )
+
+pPerasHealingFactor :: Parser PositiveInterval
+pPerasHealingFactor =
+  Opt.option (readRational >>= toPositiveInterval) $
+    mconcat
+      [ Opt.long "peras-healing-factor"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Peras healing factor."
+      ]
+
+pPerasCertBoost :: Parser Word16
+pPerasCertBoost =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "peras-cert-boost"
+      , Opt.metavar "WORD16"
+      , Opt.help "Chain weight boost given by a Peras certificate."
+      ]
+
+pPerasTargetCommitteeSize :: Parser Word16
+pPerasTargetCommitteeSize =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "peras-target-committee-size"
+      , Opt.metavar "WORD16"
+      , Opt.help "Target size of the Peras committee."
+      ]
+
+-- | Either a bootstrap round, or an explicit request to unset it.
+pPerasBootstrapRound :: Parser (L.StrictMaybe Word32)
+pPerasBootstrapRound =
+  asum
+    [ L.SJust
+        <$> Opt.option
+          integralReader
+          ( mconcat
+              [ Opt.long "peras-bootstrap-round"
+              , Opt.metavar "WORD32"
+              , Opt.help "Peras bootstrap round."
+              ]
+          )
+    , Opt.flag' L.SNothing $
+        mconcat
+          [ Opt.long "no-peras-bootstrap-round"
+          , Opt.help "Unset the Peras bootstrap round."
+          ]
+    ]
+
+pPerasQuorumThresholdSafetyMargin :: Parser Rational
+pPerasQuorumThresholdSafetyMargin =
+  Opt.option readRationalUnitInterval $
+    mconcat
+      [ Opt.long "peras-quorum-threshold-safety-margin"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Safety margin for the Peras quorum threshold."
+      ]
+
+pRefInputsCostPerMultiAssetPolicy :: Parser L.Coin
+pRefInputsCostPerMultiAssetPolicy =
+  Opt.option (readerFromParsecParser parseLovelace) $
+    mconcat
+      [ Opt.long "ref-inputs-cost-per-multi-asset-policy"
+      , Opt.metavar "LOVELACE"
+      , Opt.help "Reference-input cost per multi-asset policy."
+      ]
+
+pRefInputsCostPerDatumByte :: Parser L.CoinPerByte
+pRefInputsCostPerDatumByte =
+  Opt.option (readerFromParsecParser parseCoinPerByte) $
+    mconcat
+      [ Opt.long "ref-inputs-cost-per-datum-byte"
+      , Opt.metavar "LOVELACE"
+      , Opt.help "Reference-input cost per datum byte."
+      ]
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]

@@ -601,6 +601,10 @@ hprop_golden_dijkstra_governance_action_create_protocol_parameters_update =
         , "1000003"
         , "--ref-script-cost-multiplier"
         , "11/10"
+        , "--min-pool-margin"
+        , "1/50"
+        , "--max-pledge-leverage"
+        , "7/2"
         , -- Leios
           "--leios-announcement-period-length"
         , "1000"
@@ -620,6 +624,24 @@ hprop_golden_dijkstra_governance_action_create_protocol_parameters_update =
         , "(1000006, 1000007)"
         , "--max-ref-script-size-per-endorser-block"
         , "1000008"
+        , -- Peras
+          "--peras-min-candidate-block-age"
+        , "91"
+        , "--peras-healing-factor"
+        , "1/3"
+        , "--peras-cert-boost"
+        , "16"
+        , "--peras-target-committee-size"
+        , "801"
+        , "--peras-bootstrap-round"
+        , "1000009"
+        , "--peras-quorum-threshold-safety-margin"
+        , "1/20"
+        , -- Reference-input costs
+          "--ref-inputs-cost-per-multi-asset-policy"
+        , "1000010"
+        , "--ref-inputs-cost-per-datum-byte"
+        , "1000011"
         , "--out-file"
         , actionFile
         ]
