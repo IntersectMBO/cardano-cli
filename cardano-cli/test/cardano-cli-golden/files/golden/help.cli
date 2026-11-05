@@ -5266,18 +5266,51 @@ Usage: cardano-cli dijkstra stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline 
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate online 
 
   Create a stake pool registration certificate that keeps the pool's existing
   parameters and replaces only its BLS key and proof of possession.
 
-Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline --registration-certificate-file FILEPATH
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate online 
+                                                                             [--cardano-mode
+                                                                               [--epoch-slots SLOTS]]
+                                                                             ( --mainnet
+                                                                             | --testnet-magic NATURAL
+                                                                             )
+                                                                             --socket-path SOCKET_PATH
+                                                                             [ --volatile-tip
+                                                                             | --immutable-tip
+                                                                             ]
+                                                                             --stake-pool-id STAKE_POOL_ID
+                                                                             ( --current-params
+                                                                             | --pending-params
+                                                                             )
+                                                                             --bls-signing-key-file FILEPATH
+                                                                             --out-file FILEPATH
+                                                                             
+
+  Create the certificate from the pool parameters that a running node reports.
+  Needs a connection to the node.
+
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline 
+                                                                              ( --registration-certificate-file FILEPATH
+                                                                              | --pool-state-file FILEPATH
+                                                                                --stake-pool-id STAKE_POOL_ID
+                                                                                ( --current-params
+                                                                                  ( --mainnet
+                                                                                  | --testnet-magic NATURAL
+                                                                                  )
+                                                                                | --pending-params
+                                                                                )
+                                                                              )
                                                                               --bls-signing-key-file FILEPATH
                                                                               --out-file FILEPATH
                                                                               
 
   Create the certificate from the parameters in an existing stake pool
-  registration certificate file. No node connection is needed.
+  registration certificate file or in a file written by query pool-state. No
+  node connection is needed, but --current-params needs the network, because the
+  query pool-state output does not record it.
 
 Usage: cardano-cli dijkstra stake-pool deregistration-certificate 
                                                                     ( --stake-pool-verification-key STRING

@@ -1,0 +1,48 @@
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate online 
+                                                                             [--cardano-mode
+                                                                               [--epoch-slots SLOTS]]
+                                                                             ( --mainnet
+                                                                             | --testnet-magic NATURAL
+                                                                             )
+                                                                             --socket-path SOCKET_PATH
+                                                                             [ --volatile-tip
+                                                                             | --immutable-tip
+                                                                             ]
+                                                                             --stake-pool-id STAKE_POOL_ID
+                                                                             ( --current-params
+                                                                             | --pending-params
+                                                                             )
+                                                                             --bls-signing-key-file FILEPATH
+                                                                             --out-file FILEPATH
+                                                                             
+
+  Create the certificate from the pool parameters that a running node reports.
+  Needs a connection to the node.
+
+Available options:
+  --cardano-mode           For talking to a node running in full Cardano mode
+                           (default).
+  --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
+                           (default: 21600)
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
+  --stake-pool-id STAKE_POOL_ID
+                           Stake pool ID/verification key hash (either
+                           Bech32-encoded or hex-encoded).
+  --current-params         Keep the current parameters of the pool.
+  --pending-params         Keep the parameters of the pending update of the
+                           pool.
+  --bls-signing-key-file FILEPATH
+                           Input filepath of the BLS signing key.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

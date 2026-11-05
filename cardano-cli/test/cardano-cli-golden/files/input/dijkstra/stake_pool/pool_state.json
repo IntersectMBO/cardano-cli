@@ -1,0 +1,160 @@
+{
+    "4124a0c2ba8a7ba05824b3df23f706a1c8b3239446ab16709ae85aa1": {
+        "accountId": {
+            "keyHash": "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        },
+        "blsKey": {
+            "bksKey": {
+                "blsPossessionProof": "87f83b7745e33d7eab3b5bf257eeefe2642d6fc7b5255d53c3febb881b62e335291ea4addc744222f1aee37d17a577f3",
+                "blsPubKey": "8f25d696f778b68ceca228315b9366423029d781a36c4353a9ccfc7b4e879b5827324000c1c0748d19f11ea92857d7ce004c3c11ef18949e6df8cfced42c25764ff95c3603973af54e38b7d760a2a9921959498ef895d66d8ba2266dcb69659b"
+            },
+            "bksRegisteredIn": 5
+        },
+        "cost": 340000000,
+        "delegators": null,
+        "deposit": 500000000,
+        "futureStakePoolParams": {
+            "accountAddress": {
+                "credential": {
+                    "keyHash": "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+                },
+                "network": "Testnet"
+            },
+            "blsKey": {
+                "blsPossessionProof": "87f83b7745e33d7eab3b5bf257eeefe2642d6fc7b5255d53c3febb881b62e335291ea4addc744222f1aee37d17a577f3",
+                "blsPubKey": "8f25d696f778b68ceca228315b9366423029d781a36c4353a9ccfc7b4e879b5827324000c1c0748d19f11ea92857d7ce004c3c11ef18949e6df8cfced42c25764ff95c3603973af54e38b7d760a2a9921959498ef895d66d8ba2266dcb69659b"
+            },
+            "cost": 341000000,
+            "margin": 5.0e-2,
+            "metadata": {
+                "hash": "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965",
+                "url": "https://example.com/pool.json"
+            },
+            "owners": [
+                "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+            ],
+            "pledge": 2000000,
+            "poolId": "4124a0c2ba8a7ba05824b3df23f706a1c8b3239446ab16709ae85aa1",
+            "relays": [
+                {
+                    "single host address": {
+                        "IPv4": "10.2.0.192",
+                        "IPv6": null,
+                        "port": 3001
+                    }
+                },
+                {
+                    "single host name": {
+                        "dnsName": "relay.example.com",
+                        "port": 3002
+                    }
+                }
+            ],
+            "vrf": "6aa5f600f54659d456dc2628997df23d98f8f85681edd3e6f4a9340cb06b8db7"
+        },
+        "margin": 5.0e-2,
+        "metadata": {
+            "hash": "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965",
+            "url": "https://example.com/pool.json"
+        },
+        "numDelegators": 3,
+        "owners": [
+            "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        ],
+        "pledge": 1000000,
+        "relays": [
+            {
+                "single host address": {
+                    "IPv4": "10.2.0.192",
+                    "IPv6": null,
+                    "port": 3001
+                }
+            },
+            {
+                "single host name": {
+                    "dnsName": "relay.example.com",
+                    "port": 3002
+                }
+            }
+        ],
+        "retiring": null,
+        "vrf": "6aa5f600f54659d456dc2628997df23d98f8f85681edd3e6f4a9340cb06b8db7"
+    },
+    "5c1b0a7e9d3f4268a1b2c3d4e5f607182930a4b5c6d7e8f90123abcd": {
+        "accountId": {
+            "keyHash": "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        },
+        "blsKey": {
+            "bksKey": {
+                "blsPossessionProof": "87f83b7745e33d7eab3b5bf257eeefe2642d6fc7b5255d53c3febb881b62e335291ea4addc744222f1aee37d17a577f3",
+                "blsPubKey": "8f25d696f778b68ceca228315b9366423029d781a36c4353a9ccfc7b4e879b5827324000c1c0748d19f11ea92857d7ce004c3c11ef18949e6df8cfced42c25764ff95c3603973af54e38b7d760a2a9921959498ef895d66d8ba2266dcb69659b"
+            },
+            "bksRegisteredIn": 5
+        },
+        "cost": 340000000,
+        "delegators": null,
+        "deposit": 500000000,
+        "futureStakePoolParams": null,
+        "margin": 5.0e-2,
+        "metadata": {
+            "hash": "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965",
+            "url": "https://example.com/pool.json"
+        },
+        "numDelegators": 3,
+        "owners": [
+            "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        ],
+        "pledge": 1000000,
+        "relays": [
+            {
+                "single host address": {
+                    "IPv4": "10.2.0.192",
+                    "IPv6": null,
+                    "port": 3001
+                }
+            },
+            {
+                "single host name": {
+                    "dnsName": "relay.example.com",
+                    "port": 3002
+                }
+            }
+        ],
+        "retiring": 300,
+        "vrf": "6aa5f600f54659d456dc2628997df23d98f8f85681edd3e6f4a9340cb06b8db7"
+    },
+    "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803": {
+        "accountId": {
+            "keyHash": "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        },
+        "blsKey": null,
+        "cost": 340000000,
+        "delegators": null,
+        "deposit": 500000000,
+        "futureStakePoolParams": null,
+        "margin": 5.0e-2,
+        "metadata": null,
+        "numDelegators": 3,
+        "owners": [
+            "749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803"
+        ],
+        "pledge": 1000000,
+        "relays": [
+            {
+                "single host address": {
+                    "IPv4": "10.2.0.192",
+                    "IPv6": null,
+                    "port": 3001
+                }
+            },
+            {
+                "single host name": {
+                    "dnsName": "relay.example.com",
+                    "port": 3002
+                }
+            }
+        ],
+        "retiring": null,
+        "vrf": "6aa5f600f54659d456dc2628997df23d98f8f85681edd3e6f4a9340cb06b8db7"
+    }
+}

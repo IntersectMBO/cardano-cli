@@ -9,6 +9,7 @@
 module Cardano.CLI.EraBased.Query.Option
   ( pQueryCmds
   , pQueryCmdsTopLevel
+  , pQueryCommons
   )
 where
 

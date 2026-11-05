@@ -1,15 +1,43 @@
-Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline --registration-certificate-file FILEPATH
+Usage: cardano-cli dijkstra stake-pool bls-registration-certificate offline 
+                                                                              ( --registration-certificate-file FILEPATH
+                                                                              | --pool-state-file FILEPATH
+                                                                                --stake-pool-id STAKE_POOL_ID
+                                                                                ( --current-params
+                                                                                  ( --mainnet
+                                                                                  | --testnet-magic NATURAL
+                                                                                  )
+                                                                                | --pending-params
+                                                                                )
+                                                                              )
                                                                               --bls-signing-key-file FILEPATH
                                                                               --out-file FILEPATH
                                                                               
 
   Create the certificate from the parameters in an existing stake pool
-  registration certificate file. No node connection is needed.
+  registration certificate file or in a file written by query pool-state. No
+  node connection is needed, but --current-params needs the network, because the
+  query pool-state output does not record it.
 
 Available options:
   --registration-certificate-file FILEPATH
                            Input filepath of the stake pool registration
                            certificate to copy the parameters from.
+  --pool-state-file FILEPATH
+                           Input filepath of the query pool-state output to take
+                           the parameters from.
+  --stake-pool-id STAKE_POOL_ID
+                           Stake pool ID/verification key hash (either
+                           Bech32-encoded or hex-encoded).
+  --current-params         Keep the current parameters of the pool. Give the
+                           network with --mainnet or --testnet-magic, because
+                           the query pool-state output does not record it for
+                           the reward account.
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --pending-params         Keep the parameters of the pending update of the
+                           pool.
   --bls-signing-key-file FILEPATH
                            Input filepath of the BLS signing key.
   --out-file FILEPATH      The output file.

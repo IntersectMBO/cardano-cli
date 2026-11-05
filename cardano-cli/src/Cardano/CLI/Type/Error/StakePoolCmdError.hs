@@ -5,6 +5,7 @@
 
 module Cardano.CLI.Type.Error.StakePoolCmdError
   ( StakePoolCmdError (..)
+  , PoolStateOrigin (..)
   )
 where
 
@@ -35,6 +36,14 @@ data StakePoolCmdError
   | StakePoolCmdRelayPingErrors ![PingException]
   | StakePoolCmdInvalidRelayError !StakePoolRelay
   | StakePoolCmdNotRegistrationCertificateError !FilePath
+  | StakePoolCmdPoolNotInPoolStateError !PoolStateOrigin !(Hash StakePoolKey)
+  | StakePoolCmdNoPendingParametersError !PoolStateOrigin !(Hash StakePoolKey)
+  deriving Show
+
+-- | Where a pool state came from.
+data PoolStateOrigin
+  = PoolStateFromFile !FilePath
+  | PoolStateFromNode
   deriving Show
 
 instance Error StakePoolCmdError where
@@ -68,3 +77,23 @@ instance Error StakePoolCmdError where
         ]
     StakePoolCmdNotRegistrationCertificateError file ->
       pretty file <+> "is not a stake pool registration certificate"
+    StakePoolCmdPoolNotInPoolStateError (PoolStateFromFile file) poolId ->
+      "The pool state file"
+        <+> pretty file
+        <+> "has no pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <> "."
+    StakePoolCmdPoolNotInPoolStateError PoolStateFromNode poolId ->
+      "The pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <+> "is not registered on the node."
+    StakePoolCmdNoPendingParametersError (PoolStateFromFile file) poolId ->
+      "The pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <+> "in the pool state file"
+        <+> pretty file
+        <+> "has no pending parameter update. Use --current-params."
+    StakePoolCmdNoPendingParametersError PoolStateFromNode poolId ->
+      "The pool"
+        <+> pretty (serialiseToBech32 poolId)
+        <+> "has no pending parameter update. Use --current-params."
