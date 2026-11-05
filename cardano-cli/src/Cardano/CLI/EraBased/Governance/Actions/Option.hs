@@ -313,6 +313,8 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
     <*> convertToLedger id (optional pRefScriptCostStride)
     <*> convertToLedger id (optional pRefScriptCostMultiplier)
+    <*> pure L.SNothing
+    <*> pure L.SNothing
     <*> convertToLedger id (optional pLeiosAnnouncementPeriodLength)
     <*> convertToLedger id (optional pLeiosVotePeriodLength)
     <*> convertToLedger id (optional pLeiosDiffusionPeriodLength)
@@ -322,6 +324,14 @@ pIntroducedInDijkstraPParams =
     <*> convertToLedger id (optional pMaxEndorserBlockTxsSize)
     <*> convertToLedger (OrdExUnits . toAlonzoExUnits) (optional pMaxEndorserBlockExecutionUnits)
     <*> convertToLedger id (optional pMaxRefScriptSizePerEndorserBlock)
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
+    <*> pure L.SNothing
 
 pLeiosAnnouncementPeriodLength :: Parser Milliseconds32
 pLeiosAnnouncementPeriodLength =

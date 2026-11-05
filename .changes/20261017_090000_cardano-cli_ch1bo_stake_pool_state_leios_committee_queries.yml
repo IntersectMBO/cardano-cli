@@ -1,0 +1,8 @@
+project: cardano-cli
+pr: 0
+kind:
+  - feature
+  - breaking
+description: |
+  Add `query leios-committee`, printing the Leios voting committees of the current and the next epoch.
+  `query pool-state` now reports each pool's state from the ledger's stake pool state query, including the epoch its voting key was registered in, its future parameters and retirement epoch.
