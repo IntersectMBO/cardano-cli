@@ -62,6 +62,10 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-ref-script-size-per-tx WORD32]
                                                                                   [--ref-script-cost-stride WORD32]
                                                                                   [--ref-script-cost-multiplier RATIONAL]
+                                                                                  [--min-pool-margin RATIONAL]
+                                                                                  [ --max-pledge-leverage RATIONAL
+                                                                                  | --no-max-pledge-leverage
+                                                                                  ]
                                                                                   [--leios-announcement-period-length MILLISECONDS]
                                                                                   [--leios-vote-period-length MILLISECONDS]
                                                                                   [--leios-diffusion-period-length MILLISECONDS]
@@ -71,6 +75,16 @@ Usage: cardano-cli dijkstra governance action create-protocol-parameters-update
                                                                                   [--max-endorser-block-txs-size WORD32]
                                                                                   [--max-endorser-block-execution-units (INT, INT)]
                                                                                   [--max-ref-script-size-per-endorser-block WORD32]
+                                                                                  [--peras-min-candidate-block-age SLOTS]
+                                                                                  [--peras-healing-factor RATIONAL]
+                                                                                  [--peras-cert-boost WORD16]
+                                                                                  [--peras-target-committee-size WORD16]
+                                                                                  [ --peras-bootstrap-round WORD32
+                                                                                  | --no-peras-bootstrap-round
+                                                                                  ]
+                                                                                  [--peras-quorum-threshold-safety-margin RATIONAL]
+                                                                                  [--ref-inputs-cost-per-multi-asset-policy LOVELACE]
+                                                                                  [--ref-inputs-cost-per-datum-byte LOVELACE]
                                                                                   [--cost-model-file FILE]
                                                                                   --out-file FILEPATH
                                                                                   
@@ -228,6 +242,12 @@ Available options:
                            calculation.
   --ref-script-cost-multiplier RATIONAL
                            Reference script cost multiplier for fee calculation.
+  --min-pool-margin RATIONAL
+                           Minimum stake pool profit margin.
+  --max-pledge-leverage RATIONAL
+                           Maximum pledge leverage used when calculating stake
+                           pool rewards.
+  --no-max-pledge-leverage Remove the maximum pledge leverage bound.
   --leios-announcement-period-length MILLISECONDS
                            Length of the Leios announcement period, in
                            milliseconds.
@@ -254,6 +274,24 @@ Available options:
   --max-ref-script-size-per-endorser-block WORD32
                            Maximum total size of reference scripts per endorser
                            block.
+  --peras-min-candidate-block-age SLOTS
+                           Minimum age of a Peras candidate block, in slots.
+  --peras-healing-factor RATIONAL
+                           Peras healing factor.
+  --peras-cert-boost WORD16
+                           Chain weight boost given by a Peras certificate.
+  --peras-target-committee-size WORD16
+                           Target size of the Peras committee.
+  --peras-bootstrap-round WORD32
+                           Peras bootstrap round.
+  --no-peras-bootstrap-round
+                           Unset the Peras bootstrap round.
+  --peras-quorum-threshold-safety-margin RATIONAL
+                           Safety margin for the Peras quorum threshold.
+  --ref-inputs-cost-per-multi-asset-policy LOVELACE
+                           Reference-input cost per multi-asset policy.
+  --ref-inputs-cost-per-datum-byte LOVELACE
+                           Reference-input cost per datum byte.
   --cost-model-file FILE   Filepath of the JSON formatted cost model
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

@@ -255,7 +255,7 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=11.11,
+    cardano-api ^>=11.12,
     cardano-binary,
     cardano-config ^>=2.2.2,
     cardano-crypto,
