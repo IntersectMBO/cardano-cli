@@ -1,5 +1,0 @@
-project: cardano-cli
-pr: 1497
-kind:
-  - feature
-description: Bump cardano-api to 11.12.0 and add Dijkstra protocol parameter options to governance action create-protocol-parameters-update for the minimum pool margin, maximum pledge leverage, Peras parameters, and reference-input costs. --no-max-pledge-leverage and --no-peras-bootstrap-round propose setting those optional parameters to no value.
