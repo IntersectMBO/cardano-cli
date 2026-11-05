@@ -68,9 +68,77 @@ sub-transactions:
       kind: exact
     network: Testnet
     stake credential key hash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+  auxiliary scripts: null
+  certificates: null
+  currentTreasuryValue: null
+  datums: []
+  direct deposits: null
+  era: Dijkstra
+  governance actions: []
   id: 61ba2d8821e417661702f29f7ce1d3aea71fabd53d3594be3e87ff9ddb647188
+  inputs:
+  - 63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#1
+  metadata: null
+  mint: null
+  outputs:
+  - address: addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg
+    address era: Shelley
+    amount:
+      lovelace: 5000000
+    datum: null
+    network: Testnet
+    payment credential key hash: 5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938
+    reference script: null
+    stake reference: null
+  redeemers: []
+  reference inputs: []
+  required signers (payment key hashes needed for scripts): null
+  scripts: []
+  treasuryDonation: 0
+  validity range:
+    lower bound: null
+    upper bound: null
+  voters: {}
+  withdrawals: null
+  witnesses:
+  - key: VKey (VerKeyEd25519DSIGN "48d968a47923d491cbba6548e61cc3e347e658d1818d7bea90cf7d04ca13dbd1")
+    signature: SignedDSIGN (SigEd25519DSIGN "e18bfa368b259a5f1a50ef8fffd95e4a5717edf561a89e5ae1c7ed63a56f89632734578fe3117a233aa8950b894cf8448458d6e9a130e7cbba30fc8bae980109")
 - account balance intervals: null
+  auxiliary scripts: null
+  certificates: null
+  currentTreasuryValue: null
+  datums: []
+  direct deposits: null
+  era: Dijkstra
+  governance actions: []
   id: c45b108f5a31036036618ef8213be0df21e556c7fd53e35d0254ba8fe959d261
+  inputs:
+  - 63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#2
+  metadata: null
+  mint: null
+  outputs:
+  - address: addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg
+    address era: Shelley
+    amount:
+      lovelace: 5000000
+    datum: null
+    network: Testnet
+    payment credential key hash: 5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938
+    reference script: null
+    stake reference: null
+  redeemers: []
+  reference inputs: []
+  required signers (payment key hashes needed for scripts): null
+  scripts: []
+  treasuryDonation: 0
+  validity range:
+    lower bound: null
+    upper bound: null
+  voters: {}
+  withdrawals: null
+  witnesses:
+  - key: VKey (VerKeyEd25519DSIGN "48d968a47923d491cbba6548e61cc3e347e658d1818d7bea90cf7d04ca13dbd1")
+    signature: SignedDSIGN (SigEd25519DSIGN "9842adc4dd2db50e5ebcbc3b72f5d34b28536306d167204057a6e758a180219518156e88a4ff65096519fd5d943709a735b13d5bdd0f2208d846fd3625341106")
 total collateral: null
 treasuryDonation: 0
 validity range:
