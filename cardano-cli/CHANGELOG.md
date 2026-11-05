@@ -1,5 +1,43 @@
 # Changelog for cardano-cli
 
+## 11.7.0.0 -- 2026-11-05
+
+- Bump cardano-api to 11.12.0 and add Dijkstra protocol parameter options to governance action create-protocol-parameters-update for the minimum pool margin, maximum pledge leverage, Peras parameters, and reference-input costs. --no-max-pledge-leverage and --no-peras-bootstrap-round propose setting those optional parameters to no value.
+  (feature)
+  [PR 1497](https://github.com/intersectmbo/cardano-cli/pull/1497)
+
+- Add support for printing sub-transaction data to `transaction view`.
+  (compatible, feature)
+  [PR 1492](https://github.com/intersectmbo/cardano-cli/pull/1492)
+
+- Add `cardano-cli dijkstra stake-pool bls-registration-certificate offline` with `--registration-certificate-file`, `--bls-signing-key-file` and `--out-file`. It reads an existing stake pool registration certificate and writes a new one that keeps every pool parameter and replaces only the pool's BLS key and its proof of possession, both derived from the given BLS signing key. Use it to register a BLS key for a pool for the first time or to rotate it later, without re-entering pool parameters, so they cannot change by accident. The command prints the pool ID and the old and new BLS keys, and warns when the new key equals the old one. It also accepts registration certificates created in the Conway era, including files written by earlier cardano-cli versions, and treats them as having no BLS key.
+  (feature)
+  [PR 1489](https://github.com/intersectmbo/cardano-cli/pull/1489)
+
+- Add `debug certificate view`, which prints a certificate file as JSON or YAML.
+  (feature)
+  [PR 1488](https://github.com/intersectmbo/cardano-cli/pull/1488)
+
+- Certificates in `debug transaction view` use new keys, so update scripts that read them; pool registrations show `pool id`, `vrf key hash`, `reward account` (bech32) and `margin` (a fraction), DRep keys are spelled `DRep` and the credential key is `DRep credential`, and committee certificates show every credential and anchor.
+  (breaking)
+  [PR 1488](https://github.com/intersectmbo/cardano-cli/pull/1488)
+
+- Read standard input when an input file path is `-` in commands that also read pipes, such as `--certificate-file` in `debug certificate view` and `--tx-file` in `debug transaction view`.
+  (feature)
+  [PR 1488](https://github.com/intersectmbo/cardano-cli/pull/1488)
+
+- Add Dijkstra sub-transaction witness and assemble commands to create key witnesses separately and combine them with an unsigned sub-transaction, rejecting witnesses whose signatures do not match its body.
+  (feature)
+  [PR 1485](https://github.com/intersectmbo/cardano-cli/pull/1485)
+
+- Add CIP-159 `--account-balance-interval` and `--starting-account-balance-interval` to Dijkstra `transaction build`, `build-raw`, and `build-estimate`; `sub-transaction build-raw` supports only the former. Values use `STAKE_ADDRESS{=N|>=L|<U|>=L,<U}` in lovelace, with inclusive lower bounds, exclusive upper bounds, and `L < U`. Add matching builder argument fields and always display intervals and sub-transactions in JSON/YAML views, with interval amounts in Lovelace.
+  (feature)
+  [PR 1483](https://github.com/intersectmbo/cardano-cli/pull/1483)
+
+- Add native and Plutus V4 script guards to Dijkstra transaction build, build-raw, and build-estimate, with inline or reference scripts, guarding redeemers, and automatic or explicit execution budgets. Native reference guards use --simple-guard-script-tx-in-reference; Plutus V4 reference guards use --guard-tx-in-reference with --guard-plutus-script-v4 and require a redeemer.
+  (feature)
+  [PR 1477](https://github.com/intersectmbo/cardano-cli/pull/1477)
+
 ## 11.6.0.0 -- 2026-10-26
 
 - Update to cardano-api 11.11 and adapt Dijkstra sub-transaction construction to validated, insertion-ordered TxGuards while preserving existing guard witness handling. Add TxCmdGuardsError to the exposed TxCmdError type to report API guard-validation failures.
