@@ -1,0 +1,126 @@
+{
+    "account balance intervals": null,
+    "auxiliary scripts": null,
+    "certificates": null,
+    "collateral inputs": [],
+    "currentTreasuryValue": null,
+    "datums": [],
+    "direct deposits": null,
+    "era": "Dijkstra",
+    "fee": "200000 Lovelace",
+    "governance actions": [],
+    "guards": [
+        {
+            "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+        }
+    ],
+    "inputs": [
+        "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
+    ],
+    "metadata": null,
+    "mint": null,
+    "outputs": [
+        {
+            "address": "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg",
+            "address era": "Shelley",
+            "amount": {
+                "lovelace": 5000000
+            },
+            "datum": null,
+            "network": "Testnet",
+            "payment credential key hash": "5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938",
+            "reference script": null,
+            "stake reference": null
+        }
+    ],
+    "redeemers": [],
+    "reference inputs": [],
+    "required signers (payment key hashes needed for scripts)": [
+        "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+    ],
+    "required top-level guards": null,
+    "return collateral": null,
+    "scripts": [],
+    "starting account balance intervals": null,
+    "sub-transactions": [
+        {
+            "account balance intervals": null,
+            "auxiliary scripts": null,
+            "certificates": null,
+            "currentTreasuryValue": null,
+            "datums": [],
+            "direct deposits": null,
+            "era": "Dijkstra",
+            "governance actions": [],
+            "guards": [
+                {
+                    "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+                },
+                {
+                    "scriptHash": "186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4"
+                }
+            ],
+            "id": "77cfd3f25e1db8c3eb98dd4b1efcc4f6618596532344cc5b56087cb91a752376",
+            "inputs": [
+                "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#1"
+            ],
+            "metadata": null,
+            "mint": null,
+            "outputs": [
+                {
+                    "address": "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg",
+                    "address era": "Shelley",
+                    "amount": {
+                        "lovelace": 5000000
+                    },
+                    "datum": null,
+                    "network": "Testnet",
+                    "payment credential key hash": "5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938",
+                    "reference script": null,
+                    "stake reference": null
+                }
+            ],
+            "redeemers": [],
+            "reference inputs": [],
+            "required signers (payment key hashes needed for scripts)": [
+                "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+            ],
+            "required top-level guards": [
+                {
+                    "credential": {
+                        "scriptHash": "186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4"
+                    },
+                    "datum": "I 42"
+                },
+                {
+                    "credential": {
+                        "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+                    },
+                    "datum": null
+                }
+            ],
+            "scripts": [],
+            "treasuryDonation": 0,
+            "validity range": {
+                "lower bound": null,
+                "upper bound": null
+            },
+            "voters": {},
+            "withdrawals": null,
+            "witnesses": [
+                {
+                    "key": "VKey (VerKeyEd25519DSIGN \"48d968a47923d491cbba6548e61cc3e347e658d1818d7bea90cf7d04ca13dbd1\")",
+                    "signature": "SignedDSIGN (SigEd25519DSIGN \"27aa03506e3c427121e6dd0e980f82bcf173e30a440df76c152e1dd2cf9d52b09d578bb5d4f57c34737d459c90873215ab6ba95f252cfdf3b6f519e257a68409\")"
+                }
+            ]
+        }
+    ],
+    "total collateral": null,
+    "treasuryDonation": 0,
+    "validity range": {
+        "lower bound": null,
+        "upper bound": null
+    },
+    "voters": {},
+    "withdrawals": null
+}

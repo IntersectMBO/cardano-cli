@@ -236,7 +236,22 @@ dijkstraBodyPairs era body = case era of
     [ "direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)
     , "account balance intervals"
         .= friendlyAccountBalanceIntervals (body ^. L.accountBalanceIntervalsTxBodyL)
+    , "guards" .= case toList (body ^. L.guardsTxBodyL) of
+        [] -> Null
+        guards -> toJSON guards
+    , "required top-level guards"
+        .= friendlyRequiredTopLevelGuards (body ^. L.requiredTopLevelGuardsL)
     ]
+
+friendlyRequiredTopLevelGuards
+  :: L.Era era => Map.Map (L.Credential L.Guard) (L.StrictMaybe (L.Data era)) -> Aeson.Value
+friendlyRequiredTopLevelGuards guards
+  | Map.null guards = Null
+  | otherwise =
+      array
+        [ object ["credential" .= credential, "datum" .= fmap friendlyDatum (strictMaybeToMaybe datum)]
+        | (credential, datum) <- Map.toList guards
+        ]
 
 -- | Only a top-level transaction has starting account balance intervals and sub-transactions.
 dijkstraTopLevelPairs
