@@ -34,6 +34,8 @@ module Cardano.CLI.Read
     -- * Sub-transactions
   , readFileUnsignedSubTx
   , readFileSignedSubTx
+  , TxOrSubTx (..)
+  , readFileTxOrSubTx
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -119,6 +121,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Core qualified as C
 
 import RIO (readFileBinary)
 import Prelude
@@ -357,6 +360,19 @@ readFileUnsignedSubTx =
 readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Exp.SignedSubTx)
 readFileSignedSubTx =
   readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
+
+data TxOrSubTx
+  = FullTx (InAnyShelleyBasedEra Tx)
+  | SubTx (L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra))
+
+-- | A transaction, or a signed or unsigned sub-transaction.
+readFileTxOrSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) TxOrSubTx)
+readFileTxOrSubTx =
+  readFileOrPipeTextEnvelopeAnyOf $
+    [FromSomeType asTx (FullTx . f) | FromSomeType asTx f <- fromSomeShelleyTx]
+      <> [ FromSomeType Exp.AsSignedSubTx (\(Exp.SignedSubTx subTx) -> SubTx subTx)
+         , FromSomeType Exp.AsUnsignedSubTx (\(Exp.UnsignedSubTx subTx) -> SubTx subTx)
+         ]
 
 -- Tx witnesses
 

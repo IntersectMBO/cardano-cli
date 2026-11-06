@@ -272,6 +272,42 @@ goldenDijkstraAppliedTx name format =
         ]
     H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-" ++ name ++ "." ++ format
 
+-- | A signed sub-transaction file on its own, through @--tx-file@.
+hprop_golden_debug_transaction_view_dijkstra_signed_sub_tx :: Property
+hprop_golden_debug_transaction_view_dijkstra_signed_sub_tx =
+  watchdogProp . propertyOnce $ do
+    result <-
+      execCardanoCLI
+        [ "debug"
+        , "transaction"
+        , "view"
+        , "--tx-file"
+        , inputDir </> "dijkstra/tx/sub-tx-order/sub-tx-1.signed"
+        , "--output-yaml"
+        ]
+    H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-signed-sub-tx.yaml"
+
+-- | An unsigned sub-transaction file on its own, through @--tx-body-file@.
+hprop_golden_debug_transaction_view_dijkstra_unsigned_sub_tx :: Property
+hprop_golden_debug_transaction_view_dijkstra_unsigned_sub_tx =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    bodyFile <- H.noteTempFile tempDir "sub.body"
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "sub-transaction"
+        , "build-raw"
+        , "--tx-in"
+        , "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#1"
+        , "--tx-out"
+        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
+        , "--out-file"
+        , bodyFile
+        ]
+    result <-
+      execCardanoCLI ["debug", "transaction", "view", "--tx-body-file", bodyFile, "--output-yaml"]
+    H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-unsigned-sub-tx.yaml"
+
 -- | The id printed for each sub-transaction is the one @sub-transaction txid@
 -- gives for its file. The files are listed in the order they were given.
 hprop_golden_debug_transaction_view_dijkstra_sub_tx_ids :: Property
