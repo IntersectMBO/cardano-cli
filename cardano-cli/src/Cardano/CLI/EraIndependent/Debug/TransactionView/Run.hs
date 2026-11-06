@@ -17,7 +17,7 @@ import Cardano.CLI.Compatible.Exception
   , fromEitherIOCli
   )
 import Cardano.CLI.Compatible.Json.Friendly
-  ( Signedness (..)
+  ( IsSigned (..)
   , friendlySubTx
   , friendlyTx
   , friendlyTxBody
@@ -41,9 +41,9 @@ runTransactionViewCmd
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         txBodyOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txbodyFile
         case txBodyOrSubTx of
-          Right subTx ->
+          SubTx subTx ->
             fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Unsigned subTx
-          Left (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
+          FullTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             -- Why are we differentiating between a transaction body and a transaction?
             -- In the case of a transaction body, we /could/ simply call @addWitnesses []@
@@ -58,9 +58,9 @@ runTransactionViewCmd
         txFile <- liftIO $ fileOrPipe txFilePath
         txOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txFile
         case txOrSubTx of
-          Right subTx ->
+          SubTx subTx ->
             fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Signed subTx
-          Left (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
+          FullTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             let ShelleyTx _ ledgerTx = tx
                 signedTx :: Exp.SignedTx era

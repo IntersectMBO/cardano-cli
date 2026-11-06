@@ -16,7 +16,7 @@ module Cardano.CLI.Compatible.Json.Friendly
     friendlyTx
   , friendlyTxBody
   , friendlySubTx
-  , Signedness (..)
+  , IsSigned (..)
   , friendlyProposal
   , friendlyDRep
   , friendlyCertificate
@@ -126,7 +126,7 @@ friendlySubTx
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> Signedness
+  -> IsSigned
   -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -> m (Either (FileError e) ())
 friendlySubTx format mOutFile signedness =
@@ -172,12 +172,12 @@ friendlyTxImpl era (Exp.SignedTx ledgerTx) =
     (keyWitnessPairs era Signed ledgerTx <>)
       <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
 
-data Signedness = Signed | Unsigned
+data IsSigned = Signed | Unsigned
 
 keyWitnessPairs
   :: forall era l
    . Exp.Era era
-  -> Signedness
+  -> IsSigned
   -> L.Tx l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 keyWitnessPairs era signedness tx =
@@ -281,7 +281,7 @@ dijkstraTopLevelPairs era body = case era of
     ]
 
 renderSubTransaction
-  :: Signedness
+  :: IsSigned
   -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -> Aeson.Value
 renderSubTransaction signedness subTx =
