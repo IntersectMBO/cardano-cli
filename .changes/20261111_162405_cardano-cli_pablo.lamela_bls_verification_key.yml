@@ -1,0 +1,5 @@
+description: Accept BLS signing keys, in text envelope and bech32 form, in `key verification-key`.
+kind:
+- bugfix
+pr: 1502
+project: cardano-cli

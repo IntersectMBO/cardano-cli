@@ -17,25 +17,35 @@ import Hedgehog.Extras.Test.Base qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/verification key drep/"'@
 hprop_verification_key_drep :: Property
 hprop_verification_key_drep =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["drep", "key-gen"]
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $
+    runOne ["conway", "governance", "drep", "key-gen"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee hot/"'@
 hprop_verification_key_committee_hot :: Property
 hprop_verification_key_committee_hot =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-hot"]
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $
+    runOne ["conway", "governance", "committee", "key-gen-hot"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee cold/"'@
 hprop_verification_key_committee_cold :: Property
 hprop_verification_key_committee_cold =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-cold"]
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $
+    runOne ["conway", "governance", "committee", "key-gen-cold"]
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/verification key bls/"'@
+hprop_verification_key_bls :: Property
+hprop_verification_key_bls =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $
+    runOne ["dijkstra", "node", "key-gen-BLS"]
 
 runOne
   :: ()
   => (HasCallStack, MonadCatch m, MonadIO m, MonadTest m)
   => [String]
-  -- ^ The piece of the command to generate the keys
+  -- ^ The command to generate the keys
   -> FilePath
   -- ^ The temporary directory, i.e. where the test is allowed to generate files
   -> m ()
@@ -46,8 +56,7 @@ runOne cmd tempDir = GHC.withFrozenCallStack $ do
 
   H.noteM_ $
     execCardanoCLI $
-      ["conway", "governance"]
-        ++ cmd
+      cmd
         ++ [ "--verification-key-file"
            , verificationKeyFile
            , "--signing-key-file"
