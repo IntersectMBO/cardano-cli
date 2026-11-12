@@ -34,7 +34,9 @@ jobs:
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
         with:
           extra_nix_config: |
-            accept-flake-config = true
+            extra-substituters = https://cache.iog.io
+            extra-trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+            allow-import-from-derivation = true
 
       - uses: input-output-hk/cardano-dev/actions/herald-release@b609066a050d9cdab63f1fe196dce4def0636aa7 # herald-release-0.0.3.1
         with:
