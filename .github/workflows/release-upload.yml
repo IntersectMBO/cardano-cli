@@ -74,9 +74,11 @@ jobs:
           fetch-tags: true # So that tags are known to git commands
       - name: Define target tag, flake ref, and compute drynesss
         id: store_vars
+        env:
+          INPUT_TARGET_TAG: ${{ inputs.target_tag }}
         run: |
           dry_run="false"
-          if [[ -z "${{ inputs.target_tag }}" ]]
+          if [[ -z "$INPUT_TARGET_TAG" ]]
           then
             # No tag was specified manually as input, take the tag from the current commit (if any)
             current_tag=$(git tag --points-at HEAD | head -n 1)
@@ -84,7 +86,7 @@ jobs:
             then
               # No tag was specified manually as input, and current commit has no tag.
               echo "Tag not yet defined, using current commit as reference."
-              target_tag="${{ github.ref_name }}"
+              target_tag="$GITHUB_REF_NAME"
 
               echo "Run targets a commit that has no attached tag: no release will be published."
               # This is the only case we won't run the create_release job at the end
@@ -95,13 +97,13 @@ jobs:
             fi
           else
             # A tag was specified manually as input, use it
-            target_tag="${{ inputs.target_tag }}"
+            target_tag="$INPUT_TARGET_TAG"
           fi
           # Set variables in GITHUB_ENV for next steps and in GITHUB_OUTPUT for next jobs
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_ENV"
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_OUTPUT"
 
-          flake_ref="github:${{ github.repository }}/$target_tag"
+          flake_ref="github:$GITHUB_REPOSITORY/$target_tag"
           echo "FLAKE_REF=$flake_ref" >> "$GITHUB_OUTPUT"
 
           echo "DRY_RUN=$dry_run" >> "$GITHUB_OUTPUT"
@@ -177,15 +179,19 @@ jobs:
 
       - name: Display flake metadata
         id: flake-metadata
+        env:
+          FLAKE_REF: ${{ needs.wait_for_hydra.outputs.FLAKE_REF }}
         run: |
-          nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}"
-          nix flake metadata "${{ needs.wait_for_hydra.outputs.FLAKE_REF }}" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
+          nix flake metadata "$FLAKE_REF"
+          nix flake metadata "$FLAKE_REF" --json | jq -r '"LOCKED_URL=\(.url)"' >> "$GITHUB_ENV"
       - name: Build
+        env:
+          ARCH: ${{ matrix.arch }}
         run: |
           derivation="hydraJobs."
-          case ${{ matrix.arch }} in
+          case "$ARCH" in
             "aarch64-darwin")
-              derivation+="${{ matrix.arch }}"
+              derivation+="$ARCH"
               ;;
             "x86_64-linux")
               derivation+="x86_64-linux.ghc967-x86_64-unknown-linux-musl"
@@ -197,19 +203,19 @@ jobs:
               derivation+="x86_64-linux.ghc9122-x86_64-w64-mingw32"
               ;;
             *)
-              echo "Unexpected matrix.arch value: ${{ matrix.arch }}"
+              echo "Unexpected matrix.arch value: $ARCH"
               exit 1
               ;;
           esac
           derivation+=".packages.cardano-cli:exe:cardano-cli"
-          nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#$derivation
+          nix build --builders "" --max-jobs 0 "$LOCKED_URL#$derivation"
           tree result
-          case ${{ matrix.arch }} in
+          case "$ARCH" in
             "win64")
               cp --dereference -r result/bin/ cardano-cli-win64
               ;;
             *)
-              cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
+              cp result/bin/cardano-cli "cardano-cli-$ARCH" # (1)
               ;;
           esac
       - uses: actions/upload-artifact@v4
@@ -225,6 +231,8 @@ jobs:
     permissions:
       contents: write # To create the release and upload its files
     if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
+    env:
+      TARGET_TAG: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
     steps:
       - uses: actions/checkout@v6 # We need the repo to execute extract-changelog.sh  below
       - uses: actions/download-artifact@v4
@@ -236,28 +244,28 @@ jobs:
           # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
           # with cardano-cli
           for arch in x86_64-linux aarch64-darwin aarch64-linux; do
-            tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
+            tar -czf "$TARGET_TAG-$arch.tar.gz" "cardano-cli-$arch"
           done
           # TODO generalize
-          zip -r9 ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
+          zip -r9 "$TARGET_TAG-win64.zip" cardano-cli-win64
       - name: Checksums
         run: |
           # (3)
           for arch in x86_64-linux aarch64-darwin aarch64-linux; do
-            sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
+            sha256sum "$TARGET_TAG-$arch.tar.gz" >> "$TARGET_TAG-sha256sums.txt"
           done
-          sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
+          sha256sum "$TARGET_TAG-win64.zip" >> "$TARGET_TAG-sha256sums.txt"
       - name: Create short tag
         run: |
           # Transform the long tag (e.g. "cardano-cli-8.22.0.0")
           # into the short version (e.g. "8.22.0.0")
-          long_tag=${{ needs.wait_for_hydra.outputs.TARGET_TAG }}
+          long_tag="$TARGET_TAG"
           short_tag="${long_tag#cardano-cli-}"
           echo "SHORT_TAG=$short_tag" >> "$GITHUB_ENV"
       - name: Create changelog
         run: |
           echo -e "# Changelog\n" > RELEASE_CHANGELOG.md
-          ./scripts/ci/extract-changelog.sh ${{ env.SHORT_TAG }} >> RELEASE_CHANGELOG.md
+          ./scripts/ci/extract-changelog.sh "$SHORT_TAG" >> RELEASE_CHANGELOG.md
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
         with:

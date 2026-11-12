@@ -23,12 +23,14 @@ jobs:
 
       - name: Check if changes were trivial
         id: check_trivial_changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          if [ -z "${{ github.base_ref }}" ]; then
+          if [ -z "$BASE_REF" ]; then
             exception=false
           else
-            git fetch origin ${{ github.base_ref }} --unshallow
-            base_ref=origin/${{ github.base_ref }}
+            git fetch origin "$BASE_REF" --unshallow
+            base_ref="origin/$BASE_REF"
             head_ref=HEAD
             changed_files=$(git diff-tree --name-status -r "$base_ref".."$head_ref" -- | cut -f2 -d$'\t')
             # Flag to check whether we do the rest of checks

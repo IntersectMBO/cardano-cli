@@ -60,15 +60,16 @@ jobs:
 
     steps:
     - name: Concurrency group
-      run: >
-        echo
-        a+${{ github.event_name }}
-        b+${{ github.workflow_ref }}
-        c+${{ github.job }}
-        d+${{ matrix.ghc }}
-        e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
-        g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
+      env:
+        GROUP: >
+          a+${{ github.event_name }}
+          b+${{ github.workflow_ref }}
+          c+${{ github.job }}
+          d+${{ matrix.ghc }}
+          e+${{ matrix.cabal }}
+          f+${{ matrix.os }}
+          g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
+      run: echo "$GROUP"
 
     - name: Install Haskell
       uses: input-output-hk/actions/haskell@latest

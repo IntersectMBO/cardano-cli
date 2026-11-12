@@ -48,11 +48,13 @@ jobs:
           git --no-pager diff
 
       - name: Run formatting over all modified files
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           git add .
           git stash
-          git fetch origin ${{ github.base_ref }} --unshallow
-          for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
+          git fetch origin "$BASE_REF" --unshallow
+          for x in $(git diff --name-only --diff-filter=ACMR "origin/$BASE_REF..HEAD"); do
             if [ "${x##*.}" == "hs" ]; then
               "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi
