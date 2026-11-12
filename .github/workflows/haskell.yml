@@ -60,35 +60,38 @@ jobs:
 
     steps:
     - name: Concurrency group
-      run: >
-        echo
-        a+${{ github.event_name }}
-        b+${{ github.workflow_ref }}
-        c+${{ github.job }}
-        d+${{ matrix.ghc }}
-        e+${{ matrix.cabal }}
-        f+${{ matrix.os }}
-        g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
+      env:
+        GROUP: >
+          a+${{ github.event_name }}
+          b+${{ github.workflow_ref }}
+          c+${{ github.job }}
+          d+${{ matrix.ghc }}
+          e+${{ matrix.cabal }}
+          f+${{ matrix.os }}
+          g+${{ (startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.run_id) || github.event.pull_request.number || github.ref }}
+      run: echo "$GROUP"
 
     - name: Install Haskell
-      uses: input-output-hk/actions/haskell@latest
+      uses: input-output-hk/actions/haskell@fc5641d3c3a9d5941bbad5a623236d799b521d9f # latest
       id: setup-haskell
       with:
         ghc-version: ${{ matrix.ghc }}
         cabal-version: ${{ matrix.cabal }}
 
     - name: Install system dependencies
-      uses: input-output-hk/actions/base@latest
+      uses: input-output-hk/actions/base@fc5641d3c3a9d5941bbad5a623236d799b521d9f # latest
       with:
         use-sodium-vrf: true # default is true
         # Work around macOS foreign-library configure failures with iohk-nix v3.2.
         # https://github.com/IntersectMBO/cardano-cli/actions/runs/39825029792/job/119985950591
         url-prefix: ${{ runner.os == 'macOS' && 'https://github.com/input-output-hk/iohk-nix/releases/download/v3.1' || 'https://github.com/input-output-hk/iohk-nix/releases/latest/download' }}
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      with:
+        persist-credentials: false
 
     - name: Cache and install Cabal dependencies
-      uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.1
+      uses: input-output-hk/cardano-dev/actions/cabal-cache@c7427b0921301778971d96b20ab234e8c34aedc3 # cabal-cache-0.0.1.2
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
         # Do not reuse macOS 26 dependencies on the pinned macOS 15 runner.
@@ -117,7 +120,7 @@ jobs:
 
     - name: Preserve failed test diagnostics
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: test-diagnostics-${{ matrix.os }}-${{ matrix.ghc }}
         path: |
@@ -172,7 +175,7 @@ jobs:
         done
 
     - name: Save Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
         path: ./artifacts

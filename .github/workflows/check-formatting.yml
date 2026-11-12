@@ -18,21 +18,26 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.type }}-${{ startsWith(github.ref, 'refs/heads/gh-readonly-queue/') && github.ref || github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   check-formatting:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
-      - uses: cachix/install-nix-action@v31
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
         with:
           nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io/ https://cache.nixos.org/
 
-      - uses: rrbutani/use-nix-shell-action@v1
+      - uses: rrbutani/use-nix-shell-action@59a52b2b9bbfe3cc0e7deb8f9059abe37a439edf # v1.1.0
 
       - name: Run formatting over all Haskell files (always succeeds)
         run: |
@@ -48,11 +53,13 @@ jobs:
           git --no-pager diff
 
       - name: Run formatting over all modified files
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           git add .
           git stash
-          git fetch origin ${{ github.base_ref }} --unshallow
-          for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
+          git fetch origin "$BASE_REF" --unshallow
+          for x in $(git diff --name-only --diff-filter=ACMR "origin/$BASE_REF..HEAD"); do
             if [ "${x##*.}" == "hs" ]; then
               "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi

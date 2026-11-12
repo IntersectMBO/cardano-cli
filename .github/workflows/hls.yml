@@ -19,16 +19,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Check if changes were trivial
         id: check_trivial_changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          if [ -z "${{ github.base_ref }}" ]; then
+          if [ -z "$BASE_REF" ]; then
             exception=false
           else
-            git fetch origin ${{ github.base_ref }} --unshallow
-            base_ref=origin/${{ github.base_ref }}
+            git fetch origin "$BASE_REF" --unshallow
+            base_ref="origin/$BASE_REF"
             head_ref=HEAD
             changed_files=$(git diff-tree --name-status -r "$base_ref".."$head_ref" -- | cut -f2 -d$'\t')
             # Flag to check whether we do the rest of checks
@@ -76,7 +80,7 @@ jobs:
             echo "CHECK_HLS_WORKS=1" >> "$GITHUB_OUTPUT"
             echo "Some changes are non-trivial. We need to do the checks!"
           fi
-      - uses: cachix/install-nix-action@v31
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
         if: steps.check_trivial_changes.outputs.CHECK_HLS_WORKS > 0
         with:
           nix_path: nixpkgs=channel:nixos-unstable
@@ -84,7 +88,7 @@ jobs:
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io/ https://cache.nixos.org/
 
-      - uses: rrbutani/use-nix-shell-action@v1
+      - uses: rrbutani/use-nix-shell-action@59a52b2b9bbfe3cc0e7deb8f9059abe37a439edf # v1.1.0
         if: steps.check_trivial_changes.outputs.CHECK_HLS_WORKS > 0
 
       - name: Update dependencies
@@ -99,7 +103,7 @@ jobs:
 
       - name: HLS caching
         if: steps.check_trivial_changes.outputs.CHECK_HLS_WORKS > 0
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             /home/runner/.cache/hie-bios
