@@ -99,6 +99,13 @@ jobs:
             # A tag was specified manually as input, use it
             target_tag="$INPUT_TARGET_TAG"
           fi
+          # The tag ends up in file names, a flake reference and the release, and
+          # can come from a free-form input, so only accept a plain ref name.
+          if ! [[ "$target_tag" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]]
+          then
+            echo "::error::Invalid target tag: $target_tag"
+            exit 1
+          fi
           # Set variables in GITHUB_ENV for next steps and in GITHUB_OUTPUT for next jobs
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_ENV"
           echo "TARGET_TAG=$target_tag" >> "$GITHUB_OUTPUT"
