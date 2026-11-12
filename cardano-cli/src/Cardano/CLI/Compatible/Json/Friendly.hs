@@ -122,12 +122,17 @@ friendlyTxBody format mOutFile era unsignedTx = do
   pairs <- runWarningIO $ friendlyTxBodyImpl era unsignedTx
   friendly format mOutFile $ object pairs
 
+-- | Write a sub-transaction in a user-friendly format.
 friendlySubTx
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
+  -- ^ The output format, JSON or YAML
   -> Maybe (File () Out)
+  -- ^ The output file, or 'Nothing' for stdout
   -> IsSigned
+  -- ^ Whether to show the witnesses: If 'Signed', we show the witnesses or null if it does not have any; if 'Unsigned', we ignore the witnesses
   -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
+  -- ^ The sub-transaction to show
   -> m (Either (FileError e) ())
 friendlySubTx format mOutFile signedness =
   friendly format mOutFile . renderSubTransaction signedness
@@ -172,6 +177,7 @@ friendlyTxImpl era (Exp.SignedTx ledgerTx) =
     (keyWitnessPairs era Signed ledgerTx <>)
       <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
 
+-- | Whether a transaction must be treated as signed or unsigned.
 data IsSigned = Signed | Unsigned
 
 keyWitnessPairs
