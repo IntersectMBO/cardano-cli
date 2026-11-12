@@ -6,8 +6,13 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
+    permissions:
+      contents: write  # push to gh-pages
     runs-on: ubuntu-latest
 
     defaults:

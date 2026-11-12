@@ -4,8 +4,14 @@ on:
   merge_group:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
+    permissions:
+      contents: read
+      security-events: write  # upload HLint results to code scanning
     runs-on: ubuntu-latest
 
     defaults:
