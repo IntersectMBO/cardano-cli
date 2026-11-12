@@ -362,14 +362,14 @@ readFileSignedSubTx =
   readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
 
 data TxOrSubTx
-  = FullTx (InAnyShelleyBasedEra Tx)
+  = TopTx (InAnyShelleyBasedEra Tx)
   | SubTx (L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra))
 
 -- | A transaction, or a signed or unsigned sub-transaction.
 readFileTxOrSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) TxOrSubTx)
 readFileTxOrSubTx =
   readFileOrPipeTextEnvelopeAnyOf $
-    [FromSomeType asTx (FullTx . f) | FromSomeType asTx f <- fromSomeShelleyTx]
+    [FromSomeType asTx (TopTx . f) | FromSomeType asTx f <- fromSomeShelleyTx]
       <> [ FromSomeType Exp.AsSignedSubTx (\(Exp.SignedSubTx subTx) -> SubTx subTx)
          , FromSomeType Exp.AsUnsignedSubTx (\(Exp.UnsignedSubTx subTx) -> SubTx subTx)
          ]

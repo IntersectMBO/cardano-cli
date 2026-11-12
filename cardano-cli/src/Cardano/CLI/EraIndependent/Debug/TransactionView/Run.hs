@@ -43,7 +43,7 @@ runTransactionViewCmd
         case txBodyOrSubTx of
           SubTx subTx ->
             fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Unsigned subTx
-          FullTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
+          TopTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             -- Why are we differentiating between a transaction body and a transaction?
             -- In the case of a transaction body, we /could/ simply call @addWitnesses []@
@@ -60,7 +60,7 @@ runTransactionViewCmd
         case txOrSubTx of
           SubTx subTx ->
             fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Signed subTx
-          FullTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
+          TopTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             let ShelleyTx _ ledgerTx = tx
                 signedTx :: Exp.SignedTx era
