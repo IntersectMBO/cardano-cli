@@ -361,9 +361,13 @@ readFileSignedSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) Ex
 readFileSignedSubTx =
   readFileOrPipeTextEnvelopeAnyOf [FromSomeType Exp.AsSignedSubTx id]
 
+-- | A transaction or a sub-transaction, as read by 'readFileTxOrSubTx'.
 data TxOrSubTx
-  = TopTx (InAnyShelleyBasedEra Tx)
-  | SubTx (L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra))
+  = -- | A top-level transaction, from any Shelley-based era.
+    TopTx (InAnyShelleyBasedEra Tx)
+  | -- | A signed or unsigned sub-transaction. The era is fixed to Dijkstra,
+    -- because only Dijkstra has sub-transactions.
+    SubTx (L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra))
 
 -- | A transaction, or a signed or unsigned sub-transaction.
 readFileTxOrSubTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) TxOrSubTx)
