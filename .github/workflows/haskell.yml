@@ -89,7 +89,7 @@ jobs:
     - uses: actions/checkout@v6
 
     - name: Cache and install Cabal dependencies
-      uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.1
+      uses: input-output-hk/cardano-dev/actions/cabal-cache@c7427b0921301778971d96b20ab234e8c34aedc3 # cabal-cache-0.0.1.2
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
         # Do not reuse macOS 26 dependencies on the pinned macOS 15 runner.
@@ -118,7 +118,7 @@ jobs:
 
     - name: Preserve failed test diagnostics
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: test-diagnostics-${{ matrix.os }}-${{ matrix.ghc }}
         path: |
@@ -173,7 +173,7 @@ jobs:
         done
 
     - name: Save Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: artifacts-${{ matrix.os }}-${{ matrix.ghc }}
         path: ./artifacts
