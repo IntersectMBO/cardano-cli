@@ -1,0 +1,36 @@
+account balance intervals: null
+auxiliary scripts: null
+certificates: null
+currentTreasuryValue: null
+datums: []
+direct deposits: null
+era: Dijkstra
+governance actions: []
+guards: null
+id: a06fc1e80c04a7abf04a4fa239927a88eaaa9dac76a5e06324afc06bdd8a87c3
+inputs:
+- 63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#1
+metadata: null
+mint: null
+outputs:
+- address: addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg
+  address era: Shelley
+  amount:
+    lovelace: 5000000
+  datum: null
+  network: Testnet
+  payment credential key hash: 5ebab53d2d9785718cf4105fe7a9e5d6e271e6c4aa0ad934082c1938
+  reference script: null
+  stake reference: null
+redeemers: []
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
+required top-level guards: null
+scripts: []
+treasuryDonation: 0
+validity range:
+  lower bound: null
+  upper bound: null
+voters: {}
+withdrawals: null
+witnesses: []

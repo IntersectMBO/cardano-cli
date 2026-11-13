@@ -1,0 +1,5 @@
+description: '`transaction view` also reads signed and unsigned sub-transaction files, with `--tx-file` or `--tx-body-file`.'
+kind:
+- feature
+pr: 1496
+project: cardano-cli

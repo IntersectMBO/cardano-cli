@@ -15,6 +15,8 @@ module Cardano.CLI.Compatible.Json.Friendly
   -- Use them when writing to stdout or to files.
     friendlyTx
   , friendlyTxBody
+  , friendlySubTx
+  , IsSigned (..)
   , friendlyProposal
   , friendlyDRep
   , friendlyCertificate
@@ -120,6 +122,21 @@ friendlyTxBody format mOutFile era unsignedTx = do
   pairs <- runWarningIO $ friendlyTxBodyImpl era unsignedTx
   friendly format mOutFile $ object pairs
 
+-- | Write a sub-transaction in a user-friendly format.
+friendlySubTx
+  :: MonadIO m
+  => Vary [FormatJson, FormatYaml]
+  -- ^ The output format, JSON or YAML
+  -> Maybe (File () Out)
+  -- ^ The output file, or 'Nothing' for stdout
+  -> IsSigned
+  -- ^ Whether to show the witnesses: If 'Signed', we show the witnesses or null if it does not have any; if 'Unsigned', we ignore the witnesses
+  -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
+  -- ^ The sub-transaction to show
+  -> m (Either (FileError e) ())
+friendlySubTx format mOutFile signedness =
+  friendly format mOutFile . renderSubTransaction signedness
+
 friendlyProposal
   :: MonadIO m
   => Exp.IsEra era
@@ -160,12 +177,13 @@ friendlyTxImpl era (Exp.SignedTx ledgerTx) =
     (keyWitnessPairs era Signed ledgerTx <>)
       <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
 
-data Signedness = Signed | Unsigned
+-- | Whether a transaction must be treated as signed or unsigned.
+data IsSigned = Signed | Unsigned
 
 keyWitnessPairs
   :: forall era l
    . Exp.Era era
-  -> Signedness
+  -> IsSigned
   -> L.Tx l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 keyWitnessPairs era signedness tx =
@@ -269,7 +287,7 @@ dijkstraTopLevelPairs era body = case era of
     ]
 
 renderSubTransaction
-  :: Signedness
+  :: IsSigned
   -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -> Aeson.Value
 renderSubTransaction signedness subTx =
