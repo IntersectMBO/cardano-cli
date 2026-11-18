@@ -181,15 +181,15 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1791295470,
-        "narHash": "sha256-Bky1JCMU6ye8p4dbAUCwz47f/XAdc835/CEIerhNedg=",
-        "owner": "input-output-hk",
+        "lastModified": 1793764720,
+        "narHash": "sha256-BCuuDzdgeyOZY6thr+Z/LmA4oRYB0SxyVZCkWwBhWMQ=",
+        "owner": "IntersectMBO",
         "repo": "cardano-dev",
-        "rev": "9c19e57a76af0f8856ff889a7c3392ffa52bb6c3",
+        "rev": "c7427b0921301778971d96b20ab234e8c34aedc3",
         "type": "github"
       },
       "original": {
-        "owner": "input-output-hk",
+        "owner": "IntersectMBO",
         "repo": "cardano-dev",
         "type": "github"
       }

@@ -1,7 +1,7 @@
 <!--
 Every PR needs a changelog fragment in `.changes/`.
 Create one from the template at .changes/_TEMPLATE.yml, or use `herald` for interactive creation.
-Run herald with nix: nix run github:input-output-hk/cardano-dev#herald
+Run herald with nix: nix run github:IntersectMBO/cardano-dev#herald
 
 Interactive:
   herald new

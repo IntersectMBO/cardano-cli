@@ -17,7 +17,7 @@
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
-    cardano-dev.url = "github:input-output-hk/cardano-dev";
+    cardano-dev.url = "github:IntersectMBO/cardano-dev";
 
     hls = {
       url = "github:haskell/haskell-language-server/2.15.0.0";
