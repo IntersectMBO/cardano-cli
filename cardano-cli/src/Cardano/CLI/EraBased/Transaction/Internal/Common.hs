@@ -125,12 +125,12 @@ createTxMintValue (val, scriptWitnesses) =
       -- Check not too many, nor too few:
       validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
       validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
-      pure $
-        Exp.TxMintValue $
-          Map.intersectionWith
-            (,)
-            policiesWithAssets
-            witnessesProvidedMap
+      pure
+        $ Exp.TxMintValue
+        $ Map.intersectionWith
+          (,)
+          policiesWithAssets
+          witnessesProvidedMap
  where
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()
@@ -193,9 +193,9 @@ convertDirectDeposits :: [(StakeAddress, Lovelace)] -> Either TxCmdError L.Direc
 convertDirectDeposits deposits =
   case findDuplicates (map fst deposits) of
     [] ->
-      Right $
-        L.DirectDeposits $
-          Map.fromList [(toShelleyStakeAddr address, amount) | (address, amount) <- deposits]
+      Right
+        $ L.DirectDeposits
+        $ Map.fromList [(toShelleyStakeAddr address, amount) | (address, amount) <- deposits]
     duplicates -> Left $ TxCmdDuplicateDirectDeposits duplicates
 
 -- | An account may occur once in each interval field. Never silently discard
@@ -207,7 +207,7 @@ convertAccountBalanceIntervals
 convertAccountBalanceIntervals option intervals =
   case findDuplicates (map fst intervals) of
     [] ->
-      Right $
-        L.AccountBalanceIntervals $
-          Map.fromList [(toShelleyStakeAddr address, interval) | (address, interval) <- intervals]
+      Right
+        $ L.AccountBalanceIntervals
+        $ Map.fromList [(toShelleyStakeAddr address, interval) | (address, interval) <- intervals]
     duplicates -> Left $ TxCmdDuplicateAccountBalanceIntervals option duplicates

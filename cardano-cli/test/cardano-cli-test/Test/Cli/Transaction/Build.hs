@@ -168,20 +168,20 @@ hprop_conway_calculate_plutus_script_cost_offline =
     costOutFile <- H.noteTempFile tempDir "cost-calculation.json"
 
     utxoFile <- H.noteTempFile tempDir "utxo.json"
-    H.evalEitherM $
-      liftIO $
-        writeFileJSON
-          utxoFile
-          ( UTxO $
-              Map.singleton
-                (TxIn (TxId randomTxIdHash) (TxIx txIx))
-                ( TxOut
-                    (AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) scriptAddr)
-                    (lovelaceToTxOutValue ShelleyBasedEraConway 1200000)
-                    TxOutDatumNone
-                    ReferenceScriptNone
-                )
-          )
+    H.evalEitherM
+      $ liftIO
+      $ writeFileJSON
+        utxoFile
+        ( UTxO $
+            Map.singleton
+              (TxIn (TxId randomTxIdHash) (TxIx txIx))
+              ( TxOut
+                  (AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) scriptAddr)
+                  (lovelaceToTxOutValue ShelleyBasedEraConway 1200000)
+                  TxOutDatumNone
+                  ReferenceScriptNone
+              )
+        )
 
     H.noteShowM_ $
       execCardanoCLI

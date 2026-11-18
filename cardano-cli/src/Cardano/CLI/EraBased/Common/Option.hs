@@ -127,13 +127,13 @@ pNetworkIdDeprecated =
           [ Opt.long "mainnet"
           , Opt.help "DEPRECATED. This argument has no effect."
           ]
-    , fmap (Testnet . NetworkMagic) $
-        Opt.option (bounded "TESTNET_MAGIC") $
-          mconcat
-            [ Opt.long "testnet-magic"
-            , Opt.metavar "NATURAL"
-            , Opt.help "DEPRECATED. This argument has no effect."
-            ]
+    , fmap (Testnet . NetworkMagic)
+        $ Opt.option (bounded "TESTNET_MAGIC")
+        $ mconcat
+          [ Opt.long "testnet-magic"
+          , Opt.metavar "NATURAL"
+          , Opt.help "DEPRECATED. This argument has no effect."
+          ]
     ]
 
 pNetworkId :: EnvCli -> Parser NetworkId
@@ -150,17 +150,17 @@ pNetworkId envCli =
                     , "environment variable"
                     ]
               ]
-        , fmap (Testnet . NetworkMagic) $
-            Opt.option (bounded "TESTNET_MAGIC") $
-              mconcat
-                [ Opt.long "testnet-magic"
-                , Opt.metavar "NATURAL"
-                , Opt.help $
-                    mconcat
-                      [ "Specify a testnet magic id. This overrides the CARDANO_NODE_NETWORK_ID "
-                      , "environment variable"
-                      ]
-                ]
+        , fmap (Testnet . NetworkMagic)
+            $ Opt.option (bounded "TESTNET_MAGIC")
+            $ mconcat
+              [ Opt.long "testnet-magic"
+              , Opt.metavar "NATURAL"
+              , Opt.help $
+                  mconcat
+                    [ "Specify a testnet magic id. This overrides the CARDANO_NODE_NETWORK_ID "
+                    , "environment variable"
+                    ]
+              ]
         ]
       , -- Default to the network id specified by the environment variable if it is available.
         pure <$> maybeToList (envCliNetworkId envCli)
@@ -236,34 +236,34 @@ defaultByronEpochSlots = 21600
 
 pEpochSlots :: Parser EpochSlots
 pEpochSlots =
-  fmap EpochSlots $
-    Opt.option (bounded "SLOTS") $
-      mconcat
-        [ Opt.long "epoch-slots"
-        , Opt.metavar "SLOTS"
-        , Opt.help "The number of slots per epoch for the Byron era."
-        , Opt.value defaultByronEpochSlots -- Default to the mainnet value.
-        , Opt.showDefault
-        ]
+  fmap EpochSlots
+    $ Opt.option (bounded "SLOTS")
+    $ mconcat
+      [ Opt.long "epoch-slots"
+      , Opt.metavar "SLOTS"
+      , Opt.help "The number of slots per epoch for the Byron era."
+      , Opt.value defaultByronEpochSlots -- Default to the mainnet value.
+      , Opt.showDefault
+      ]
 
 pSocketPath :: EnvCli -> Parser SocketPath
 pSocketPath envCli =
   asum $
     mconcat
       [
-        [ fmap File $
-            Opt.strOption $
-              mconcat
-                [ Opt.long "socket-path"
-                , Opt.metavar "SOCKET_PATH"
-                , Opt.help $
-                    mconcat
-                      [ "Path to the node socket.  This overrides the CARDANO_NODE_SOCKET_PATH "
-                      , "environment variable.  The argument is optional if CARDANO_NODE_SOCKET_PATH "
-                      , "is defined and mandatory otherwise."
-                      ]
-                , Opt.completer (Opt.bashCompleter "file")
-                ]
+        [ fmap File
+            $ Opt.strOption
+            $ mconcat
+              [ Opt.long "socket-path"
+              , Opt.metavar "SOCKET_PATH"
+              , Opt.help $
+                  mconcat
+                    [ "Path to the node socket.  This overrides the CARDANO_NODE_SOCKET_PATH "
+                    , "environment variable.  The argument is optional if CARDANO_NODE_SOCKET_PATH "
+                    , "is defined and mandatory otherwise."
+                    ]
+              , Opt.completer (Opt.bashCompleter "file")
+              ]
         ]
       , -- Default to the socket path specified by the environment variable if it is available.
         pure . File <$> maybeToList (envCliSocketPath envCli)
@@ -359,10 +359,10 @@ subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
 subInfoParser name i mps = case catMaybes mps of
   [] -> Nothing
   parsers ->
-    Just $
-      Opt.hsubparser $
-        commandWithMetavar name $
-          Opt.info (asum parsers) i
+    Just
+      $ Opt.hsubparser
+      $ commandWithMetavar name
+      $ Opt.info (asum parsers) i
 
 pConwayEra :: EnvCli -> Parser (Era ConwayEra)
 pConwayEra envCli =
@@ -767,13 +767,13 @@ pAnyVerificationKeyFileIn helpText =
 
 pAnyVerificationKeyText :: String -> Parser AnyVerificationKeyText
 pAnyVerificationKeyText helpText =
-  fmap (AnyVerificationKeyText . Text.pack) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "verification-key"
-        , Opt.metavar "STRING"
-        , Opt.help $ helpText <> " (Bech32-encoded)"
-        ]
+  fmap (AnyVerificationKeyText . Text.pack)
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long "verification-key"
+      , Opt.metavar "STRING"
+      , Opt.help $ helpText <> " (Bech32-encoded)"
+      ]
 
 pAnyVerificationKeySource :: String -> Parser AnyVerificationKeySource
 pAnyVerificationKeySource helpText =
@@ -996,13 +996,13 @@ pSimpleScriptOrPlutusSpendingScriptWitness autoBalanceExecUnits scriptFlagPrefix
 
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
-  fmap (uncurry ExecutionUnits) $
-    Opt.option pairIntegralReader $
-      mconcat
-        [ Opt.long (scriptFlagPrefix ++ "-execution-units")
-        , Opt.metavar "(INT, INT)"
-        , Opt.help "The time and space units needed by the script."
-        ]
+  fmap (uncurry ExecutionUnits)
+    $ Opt.option pairIntegralReader
+    $ mconcat
+      [ Opt.long (scriptFlagPrefix ++ "-execution-units")
+      , Opt.metavar "(INT, INT)"
+      , Opt.help "The time and space units needed by the script."
+      ]
 
 pScriptRedeemerOrFile :: String -> Parser ScriptDataOrFile
 pScriptRedeemerOrFile scriptFlagPrefix =
@@ -1296,13 +1296,13 @@ pPaymentVerificationKeyTextOrFile =
 
 pPaymentVerificationKeyText :: Parser Text
 pPaymentVerificationKeyText =
-  fmap Text.pack $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "payment-verification-key"
-        , Opt.metavar "STRING"
-        , Opt.help "Payment verification key (Bech32-encoded)"
-        ]
+  fmap Text.pack
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long "payment-verification-key"
+      , Opt.metavar "STRING"
+      , Opt.help "Payment verification key (Bech32-encoded)"
+      ]
 
 pPaymentVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPaymentVerificationKeyFile =
@@ -1516,12 +1516,12 @@ pDirectDeposits :: Exp.Era era -> Parser [(StakeAddress, Lovelace)]
 pDirectDeposits era = case era of
   Exp.ConwayEra -> pure []
   Exp.DijkstraEra ->
-    many $
-      Opt.option (readerFromParsecParser parseStakeAddressAndLovelace) $
-        Opt.long "direct-deposit"
-          <> Opt.metavar "STAKE_ADDRESS+LOVELACE"
-          <> Opt.help
-            "Deposit ADA into a registered account. Amount in lovelace; each account may occur once."
+    many
+      $ Opt.option (readerFromParsecParser parseStakeAddressAndLovelace)
+      $ Opt.long "direct-deposit"
+        <> Opt.metavar "STAKE_ADDRESS+LOVELACE"
+        <> Opt.help
+          "Deposit ADA into a registered account. Amount in lovelace; each account may occur once."
 
 -- | Comparison syntax deliberately follows the ledger's inclusive lower and
 -- exclusive upper bounds. Exact assertions retain their distinct constructor.
@@ -1572,16 +1572,16 @@ pBalanceIntervals
 pBalanceIntervals era optionName timing = case era of
   Exp.ConwayEra -> pure []
   Exp.DijkstraEra ->
-    many $
-      Opt.option (readerFromParsecParser parseAccountBalanceInterval) $
-        Opt.long optionName
-          <> Opt.metavar "STAKE_ADDRESS{=LOVELACE|>=LOWER|<UPPER|>=LOWER,<UPPER}"
-          <> Opt.help
-            ( timing
-                <> " Amounts in lovelace; lower bounds inclusive, upper bounds exclusive."
-                <> " Quote the argument so the shell treats < and > as literal characters, e.g. 'stake_test1...>=100,<200'."
-                <> " Each account may occur once per option."
-            )
+    many
+      $ Opt.option (readerFromParsecParser parseAccountBalanceInterval)
+      $ Opt.long optionName
+        <> Opt.metavar "STAKE_ADDRESS{=LOVELACE|>=LOWER|<UPPER|>=LOWER,<UPPER}"
+        <> Opt.help
+          ( timing
+              <> " Amounts in lovelace; lower bounds inclusive, upper bounds exclusive."
+              <> " Quote the argument so the shell treats < and > as literal characters, e.g. 'stake_test1...>=100,<200'."
+              <> " Each account may occur once per option."
+          )
 
 pWithdrawalForEra
   :: Exp.Era era
@@ -1764,23 +1764,23 @@ pSigningKeyFileIn =
 
 pKesPeriod :: Parser KESPeriod
 pKesPeriod =
-  fmap KESPeriod $
-    Opt.option (bounded "KES_PERIOD") $
-      mconcat
-        [ Opt.long "kes-period"
-        , Opt.metavar "NATURAL"
-        , Opt.help "The start of the KES key validity period."
-        ]
+  fmap KESPeriod
+    $ Opt.option (bounded "KES_PERIOD")
+    $ mconcat
+      [ Opt.long "kes-period"
+      , Opt.metavar "NATURAL"
+      , Opt.help "The start of the KES key validity period."
+      ]
 
 pEpochNo :: String -> Parser EpochNo
 pEpochNo h =
-  fmap EpochNo $
-    Opt.option (bounded "EPOCH") $
-      mconcat
-        [ Opt.long "epoch"
-        , Opt.metavar "NATURAL"
-        , Opt.help h
-        ]
+  fmap EpochNo
+    $ Opt.option (bounded "EPOCH")
+    $ mconcat
+      [ Opt.long "epoch"
+      , Opt.metavar "NATURAL"
+      , Opt.help h
+      ]
 
 pEpochNoUpdateProp :: Parser EpochNo
 pEpochNoUpdateProp = pEpochNo "The epoch number in which the update proposal is valid."
@@ -2278,17 +2278,17 @@ pTxOutDatum =
     <|> pure TxOutDatumByNone
  where
   pTxOutDatumByHashOnly =
-    fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser parseScriptDataHash) $
-        mconcat
-          [ Opt.long "tx-out-datum-hash"
-          , Opt.metavar "HASH"
-          , Opt.help $
-              mconcat
-                [ "The script datum hash for this tx output, as "
-                , "the raw datum hash (in hex)."
-                ]
-          ]
+    fmap TxOutDatumByHashOnly
+      $ Opt.option (readerFromParsecParser parseScriptDataHash)
+      $ mconcat
+        [ Opt.long "tx-out-datum-hash"
+        , Opt.metavar "HASH"
+        , Opt.help $
+            mconcat
+              [ "The script datum hash for this tx output, as "
+              , "the raw datum hash (in hex)."
+              ]
+        ]
 
   pTxOutDatumByHashOf =
     TxOutDatumByHashOf
@@ -2423,45 +2423,45 @@ pInvalidHereafter
 pInvalidHereafter eon =
   fmap (TxValidityUpperBound $ convert eon) $
     asum
-      [ fmap (Just . SlotNo) $
-          Opt.option (bounded "SLOT") $
-            mconcat
-              [ Opt.long "invalid-hereafter"
-              , Opt.metavar "SLOT"
-              , Opt.help "Time that transaction is valid until (in slots)."
-              ]
-      , fmap (Just . SlotNo) $
-          Opt.option (bounded "SLOT") $
-            mconcat
-              [ Opt.long "upper-bound"
-              , Opt.metavar "SLOT"
-              , Opt.help $
-                  mconcat
-                    [ "Time that transaction is valid until (in slots) "
-                    , "(deprecated; use --invalid-hereafter instead)."
-                    ]
-              , Opt.internal
-              ]
-      , fmap (Just . SlotNo) $
-          Opt.option (bounded "SLOT") $
-            mconcat
-              [ Opt.long "ttl"
-              , Opt.metavar "SLOT"
-              , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
-              , Opt.internal
-              ]
+      [ fmap (Just . SlotNo)
+          $ Opt.option (bounded "SLOT")
+          $ mconcat
+            [ Opt.long "invalid-hereafter"
+            , Opt.metavar "SLOT"
+            , Opt.help "Time that transaction is valid until (in slots)."
+            ]
+      , fmap (Just . SlotNo)
+          $ Opt.option (bounded "SLOT")
+          $ mconcat
+            [ Opt.long "upper-bound"
+            , Opt.metavar "SLOT"
+            , Opt.help $
+                mconcat
+                  [ "Time that transaction is valid until (in slots) "
+                  , "(deprecated; use --invalid-hereafter instead)."
+                  ]
+            , Opt.internal
+            ]
+      , fmap (Just . SlotNo)
+          $ Opt.option (bounded "SLOT")
+          $ mconcat
+            [ Opt.long "ttl"
+            , Opt.metavar "SLOT"
+            , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
+            , Opt.internal
+            ]
       , pure Nothing
       ]
 
 pTxFee :: Parser Lovelace
 pTxFee =
-  fmap (L.Coin . (fromIntegral :: Natural -> Integer)) $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "fee"
-        , Opt.metavar "LOVELACE"
-        , Opt.help "The fee amount in Lovelace."
-        ]
+  fmap (L.Coin . (fromIntegral :: Natural -> Integer))
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "fee"
+      , Opt.metavar "LOVELACE"
+      , Opt.help "The fee amount in Lovelace."
+      ]
 
 pWitnessFile :: Parser WitnessFile
 pWitnessFile =
@@ -2520,44 +2520,44 @@ pCertificateFileIn =
 
 pTxInCountDeprecated :: Parser TxInCount
 pTxInCountDeprecated =
-  fmap TxInCount $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "tx-in-count"
-        , Opt.metavar "NATURAL"
-        , Opt.help "DEPRECATED. This argument has no effect."
-        ]
+  fmap TxInCount
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "tx-in-count"
+      , Opt.metavar "NATURAL"
+      , Opt.help "DEPRECATED. This argument has no effect."
+      ]
 
 pTxOutCountDeprecated :: Parser TxOutCount
 pTxOutCountDeprecated =
-  fmap TxOutCount $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "tx-out-count"
-        , Opt.metavar "NATURAL"
-        , Opt.help "DEPRECATED. This argument has no effect."
-        ]
+  fmap TxOutCount
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "tx-out-count"
+      , Opt.metavar "NATURAL"
+      , Opt.help "DEPRECATED. This argument has no effect."
+      ]
 
 pTxShelleyWitnessCount :: Parser TxShelleyWitnessCount
 pTxShelleyWitnessCount =
-  fmap TxShelleyWitnessCount $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "witness-count"
-        , Opt.metavar "NATURAL"
-        , Opt.help "The number of Shelley key witnesses."
-        ]
+  fmap TxShelleyWitnessCount
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "witness-count"
+      , Opt.metavar "NATURAL"
+      , Opt.help "The number of Shelley key witnesses."
+      ]
 
 pTxByronWitnessCount :: Parser TxByronWitnessCount
 pTxByronWitnessCount =
-  fmap TxByronWitnessCount $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "byron-witness-count"
-        , Opt.metavar "NATURAL"
-        , Opt.help "The number of Byron key witnesses (default is 0)."
-        , Opt.value 0
-        ]
+  fmap TxByronWitnessCount
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "byron-witness-count"
+      , Opt.metavar "NATURAL"
+      , Opt.help "The number of Byron key witnesses (default is 0)."
+      , Opt.value 0
+      ]
 
 pQueryUTxOFilter :: Parser QueryUTxOFilter
 pQueryUTxOFilter =
@@ -2624,13 +2624,13 @@ pByronAddress =
 
 pAddress :: Parser Text
 pAddress =
-  fmap Text.pack $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "address"
-        , Opt.metavar "ADDRESS"
-        , Opt.help "A Cardano address"
-        ]
+  fmap Text.pack
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long "address"
+      , Opt.metavar "ADDRESS"
+      , Opt.help "A Cardano address"
+      ]
 
 -- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
@@ -3413,23 +3413,23 @@ pMinCommitteeSize =
 
 pCommitteeTermLength :: Parser L.EpochInterval
 pCommitteeTermLength =
-  fmap L.EpochInterval $
-    Opt.option (bounded "EPOCH_INTERVAL") $
-      mconcat
-        [ Opt.long "committee-term-length"
-        , Opt.metavar "WORD32"
-        , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
-        ]
+  fmap L.EpochInterval
+    $ Opt.option (bounded "EPOCH_INTERVAL")
+    $ mconcat
+      [ Opt.long "committee-term-length"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximal term length for members of the constitutional committee, in epochs."
+      ]
 
 pGovActionLifetime :: Parser L.EpochInterval
 pGovActionLifetime =
-  fmap L.EpochInterval $
-    Opt.option (bounded "EPOCH_INTERVAL") $
-      mconcat
-        [ Opt.long "governance-action-lifetime"
-        , Opt.metavar "WORD32"
-        , Opt.help "Maximal lifetime of governance actions, in epochs."
-        ]
+  fmap L.EpochInterval
+    $ Opt.option (bounded "EPOCH_INTERVAL")
+    $ mconcat
+      [ Opt.long "governance-action-lifetime"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximal lifetime of governance actions, in epochs."
+      ]
 
 pDRepDeposit :: Parser Lovelace
 pDRepDeposit =
@@ -3442,13 +3442,13 @@ pDRepDeposit =
 
 pDRepActivity :: Parser L.EpochInterval
 pDRepActivity =
-  fmap L.EpochInterval $
-    Opt.option (bounded "EPOCH_INTERVAL") $
-      mconcat
-        [ Opt.long "drep-activity"
-        , Opt.metavar "WORD32"
-        , Opt.help "DRep activity period, in epochs."
-        ]
+  fmap L.EpochInterval
+    $ Opt.option (bounded "EPOCH_INTERVAL")
+    $ mconcat
+      [ Opt.long "drep-activity"
+      , Opt.metavar "WORD32"
+      , Opt.help "DRep activity period, in epochs."
+      ]
 
 parseTxOutShelleyBasedEra
   :: P.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutShelleyBasedEra)
@@ -3777,18 +3777,18 @@ pNetworkIdForTestnetData envCli =
   asum $
     mconcat
       [
-        [ fmap (Testnet . NetworkMagic) $
-            Opt.option (bounded "TESTNET_MAGIC") $
-              mconcat
-                [ Opt.long "testnet-magic"
-                , Opt.metavar "NATURAL"
-                , Opt.help $
-                    mconcat
-                      [ "Specify a testnet magic id for the cluster. "
-                      , "This overrides both the network magic from the "
-                      , "spec file and CARDANO_NODE_NETWORK_ID environment variable."
-                      ]
-                ]
+        [ fmap (Testnet . NetworkMagic)
+            $ Opt.option (bounded "TESTNET_MAGIC")
+            $ mconcat
+              [ Opt.long "testnet-magic"
+              , Opt.metavar "NATURAL"
+              , Opt.help $
+                  mconcat
+                    [ "Specify a testnet magic id for the cluster. "
+                    , "This overrides both the network magic from the "
+                    , "spec file and CARDANO_NODE_NETWORK_ID environment variable."
+                    ]
+              ]
         ]
       , -- Default to the network id specified by the environment variable if it is available.
         pure <$> maybeToList (envCliNetworkId envCli)
@@ -3796,14 +3796,14 @@ pNetworkIdForTestnetData envCli =
 
 pReferenceScriptSize :: Parser ReferenceScriptSize
 pReferenceScriptSize =
-  fmap ReferenceScriptSize $
-    Opt.option integralReader $
-      mconcat
-        [ Opt.long "reference-script-size"
-        , Opt.metavar "NATURAL"
-        , Opt.help "Total size in bytes of transaction reference scripts (default is 0)."
-        , Opt.value 0
-        ]
+  fmap ReferenceScriptSize
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "reference-script-size"
+      , Opt.metavar "NATURAL"
+      , Opt.help "Total size in bytes of transaction reference scripts (default is 0)."
+      , Opt.value 0
+      ]
 
 --------------------------------------------------------------------------------
 -- Helpers

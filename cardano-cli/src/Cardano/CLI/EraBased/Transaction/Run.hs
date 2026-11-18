@@ -169,14 +169,14 @@ runTransactionBuildCmd
       DijkstraGuardArguments guards -> DijkstraGuards <$> readDijkstraGuards guards
     -- Reject duplicate deposits and interval assertions before any node queries.
     void $ fromEitherCli $ convertDirectDeposits directDeposits
-    void $
-      fromEitherCli $
-        convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
-    void $
-      fromEitherCli $
-        convertAccountBalanceIntervals
-          startingAccountBalanceIntervalOptionName
-          startingAccountBalanceIntervals
+    void
+      $ fromEitherCli
+      $ convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
+    void
+      $ fromEitherCli
+      $ convertAccountBalanceIntervals
+        startingAccountBalanceIntervalOptionName
+        startingAccountBalanceIntervals
     checkNodeNetworkId nodeConnInfo
 
     let eon = convert currentEra
@@ -195,9 +195,9 @@ runTransactionBuildCmd
       :: [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))] <-
       sequence
         [ (,mSwit)
-            <$> ( fromEitherIOCli @(FileError TextEnvelopeError) $
-                    obtainCommonConstraints currentEra $
-                      readFileTextEnvelope (File certFile)
+            <$> ( fromEitherIOCli @(FileError TextEnvelopeError)
+                    $ obtainCommonConstraints currentEra
+                    $ readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -269,9 +269,9 @@ runTransactionBuildCmd
             (\stakeCred -> Map.notMember (makeStakeAddress networkId stakeCred) balances)
             allAddrHashes
 
-    unless (null unregisteredAddresses) $
-      throwCliError $
-        TxCmdUnregisteredStakeAddress unregisteredAddresses
+    unless (null unregisteredAddresses)
+      $ throwCliError
+      $ TxCmdUnregisteredStakeAddress unregisteredAddresses
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = nubOrd txinsc
@@ -485,9 +485,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     certsAndMaybeScriptWits <-
       sequence $
         [ (,mSwit)
-            <$> ( obtainCommonConstraints currentEra $
-                    fromEitherIOCli $
-                      readFileTextEnvelope (File certFile)
+            <$> ( obtainCommonConstraints currentEra
+                    $ fromEitherIOCli
+                    $ readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit :: Exp.AnyWitness (Exp.LedgerEra era)) <-
             certFilesAndMaybeScriptWits
@@ -538,26 +538,26 @@ runTransactionBuildEstimateCmd -- TODO change type
               ]
 
     balancedTxBody :: Exp.TxBodyContent (Exp.LedgerEra era) <-
-      fromEitherCli $
-        first TxCmdFeeEstimationError $
-          Exp.estimateBalancedTxBody
-            currentEra
-            txBodyContent
-            ledgerPParams
-            poolsToDeregister
-            stakeCredentialsToDeregisterMap
-            pScriptExecUnits
-            totCol
-            shelleyWitnesses
-            (fromMaybe 0 mByronWitnesses)
-            (maybe 0 unReferenceScriptSize totalReferenceScriptSize)
-            (anyAddressInShelleyBasedEra sbe changeAddr)
-            (obtainCommonConstraints currentEra $ toLedgerValue (convert currentEra) totalUTxOValue)
+      fromEitherCli
+        $ first TxCmdFeeEstimationError
+        $ Exp.estimateBalancedTxBody
+          currentEra
+          txBodyContent
+          ledgerPParams
+          poolsToDeregister
+          stakeCredentialsToDeregisterMap
+          pScriptExecUnits
+          totCol
+          shelleyWitnesses
+          (fromMaybe 0 mByronWitnesses)
+          (maybe 0 unReferenceScriptSize totalReferenceScriptSize)
+          (anyAddressInShelleyBasedEra sbe changeAddr)
+          (obtainCommonConstraints currentEra $ toLedgerValue (convert currentEra) totalUTxOValue)
 
     unsignedTx <-
-      fromEitherCli $
-        first TxCmdMakeUnsignedTxError $
-          Exp.makeUnsignedTx currentEra balancedTxBody
+      fromEitherCli
+        $ first TxCmdMakeUnsignedTxError
+        $ Exp.makeUnsignedTx currentEra balancedTxBody
     fromEitherCli $
       validateCanonicalSubTransactions
         isCborOutCanonical
@@ -696,9 +696,9 @@ runTransactionBuildRawCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> ( obtainCommonConstraints eon $
-                    fromEitherIOCli $
-                      readFileTextEnvelope (File certFile)
+            <$> ( obtainCommonConstraints eon
+                    $ fromEitherIOCli
+                    $ readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -1188,9 +1188,9 @@ runTxBuild
             mOverrideWits
       -- Check to see if we lost any scripts during balancing
       scriptWitnessesBeforeBalance <-
-        firstExceptT TxCmdCBORDecodeError $
-          hoistEither $
-            Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra txBodyContent
+        firstExceptT TxCmdCBORDecodeError
+          $ hoistEither
+          $ Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra txBodyContent
       scriptWitnessesAfterBalance <-
         hoistEither . first TxCmdCBORDecodeError $
           Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra (snd r)
@@ -1243,21 +1243,21 @@ runTransactionSignCmd
             ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
 
         byronWitnesses <-
-          firstExceptT TxCmdBootstrapWitnessError . liftEither $
-            forM sksByron $
-              shelleyBasedEraConstraints sbe $
-                mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
+          firstExceptT TxCmdBootstrapWitnessError . liftEither
+            $ forM sksByron
+            $ shelleyBasedEraConstraints sbe
+            $ mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
 
         let newShelleyKeyWits = map (makeShelleyKeyWitness' sbe ledgerTxBody) sksShelley
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
             signedTx = addWitnesses allKeyWits tx
 
         liftEither $ validateCanonicalSubTransactions isCborOutCanonical sbe signedTx
-        modifyError TxCmdWriteFileError $
-          hoistIOEither $
-            if isCborOutCanonical == TxCborCanonical
-              then writeTxFileTextEnvelopeCanonical sbe outTxFile signedTx
-              else writeTxFileTextEnvelope sbe outTxFile signedTx
+        modifyError TxCmdWriteFileError
+          $ hoistIOEither
+          $ if isCborOutCanonical == TxCborCanonical
+            then writeTxFileTextEnvelopeCanonical sbe outTxFile signedTx
+            else writeTxFileTextEnvelope sbe outTxFile signedTx
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         unwitnessed <-
@@ -1272,19 +1272,19 @@ runTransactionSignCmd
             -- Byron witnesses require the network ID. This can either be provided
             -- directly or derived from a provided Byron address.
             byronWitnesses <-
-              firstExceptT TxCmdBootstrapWitnessError . liftEither $
-                forM sksByron $
-                  mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
+              firstExceptT TxCmdBootstrapWitnessError . liftEither
+                $ forM sksByron
+                $ mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
 
             let shelleyKeyWitnesses = map (makeShelleyKeyWitness' sbe ledgerTxBody) sksShelley
                 tx = addWitnesses (byronWitnesses ++ shelleyKeyWitnesses) unsignedTxAsTx
 
             liftEither $ validateCanonicalSubTransactions isCborOutCanonical sbe tx
-            modifyError TxCmdWriteFileError $
-              hoistIOEither $
-                if isCborOutCanonical == TxCborCanonical
-                  then writeTxFileTextEnvelopeCanonical sbe outTxFile tx
-                  else writeTxFileTextEnvelope sbe outTxFile tx
+            modifyError TxCmdWriteFileError
+              $ hoistIOEither
+              $ if isCborOutCanonical == TxCborCanonical
+                then writeTxFileTextEnvelopeCanonical sbe outTxFile tx
+                else writeTxFileTextEnvelope sbe outTxFile tx
 
 -- ----------------------------------------------------------------------------
 -- Transaction submission
@@ -1307,11 +1307,11 @@ runTransactionSubmitCmd
     case res of
       TxSubmitSuccess -> liftIO $ do
         Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
-        LBS.putStrLn $
-          Aeson.encode $
-            TxSubmissionResult $
-              shelleyBasedEraConstraints era $
-                getTxIdShelley era (ledgerTx ^. L.bodyTxL)
+        LBS.putStrLn
+          $ Aeson.encode
+          $ TxSubmissionResult
+          $ shelleyBasedEraConstraints era
+          $ getTxIdShelley era (ledgerTx ^. L.bodyTxL)
       TxSubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
@@ -1346,9 +1346,9 @@ runTransactionCalculateMinFeeCmd
 
     era <- fromEitherCli $ Exp.sbeToEra sbe
     (lpparams :: L.PParams (Exp.LedgerEra era)) <-
-      fromExceptTCli @ProtocolParamsError $
-        Exp.obtainCommonConstraints era $
-          readProtocolParameters protocolParamsFile
+      fromExceptTCli @ProtocolParamsError
+        $ Exp.obtainCommonConstraints era
+        $ readProtocolParameters protocolParamsFile
 
     let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
         unsignedTx = obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
@@ -1377,9 +1377,9 @@ runTransactionCalculateMinFeeCmd
                   Nothing ->
                     liftIO $ LBS.putStrLn $ Json.encodeJson content
                   Just file ->
-                    fromEitherIOCli @(FileError ()) $
-                      writeLazyByteStringFile file $
-                        Json.encodeJson content
+                    fromEitherIOCli @(FileError ())
+                      $ writeLazyByteStringFile file
+                      $ Json.encodeJson content
               )
             . Vary.on
               ( \FormatText -> case outFile of
@@ -1393,9 +1393,9 @@ runTransactionCalculateMinFeeCmd
                   Nothing ->
                     liftIO $ LBS.putStrLn $ Json.encodeYaml content
                   Just file ->
-                    fromEitherIOCli @(FileError ()) $
-                      writeLazyByteStringFile file $
-                        Json.encodeYaml content
+                    fromEitherIOCli @(FileError ())
+                      $ writeLazyByteStringFile file
+                      $ Json.encodeYaml content
               )
             $ Vary.exhaustiveCase
         )
@@ -1556,12 +1556,12 @@ runTransactionCalculatePlutusScriptCostCmd
               ledgerTx
 
       scriptCostOutput <-
-        firstExceptT TxCmdPlutusScriptCostErr $
-          hoistEither $
-            renderScriptCostsWithScriptHashesMap
-              executionUnitPrices
-              scriptHashes
-              scriptExecUnitsMap
+        firstExceptT TxCmdPlutusScriptCostErr
+          $ hoistEither
+          $ renderScriptCostsWithScriptHashesMap
+            executionUnitPrices
+            scriptHashes
+            scriptExecUnitsMap
       liftIO
         $ ( case outputFile of
               Just file -> LBS.writeFile (unFile file)
@@ -1583,13 +1583,13 @@ buildTransactionContext
 buildTransactionContext era systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints (convert era) $ do
     ledgerPParams <-
-      firstExceptT TxCmdProtocolParamsError $
-        obtainCommonConstraints era $
-          readProtocolParameters protocolParamsFile
+      firstExceptT TxCmdProtocolParamsError
+        $ obtainCommonConstraints era
+        $ readProtocolParameters protocolParamsFile
     EraHistory interpreter <-
-      onLeft (left . TxCmdTextEnvError) $
-        liftIO $
-          readFileTextEnvelope eraHistoryFile
+      onLeft (left . TxCmdTextEnvError)
+        $ liftIO
+        $ readFileTextEnvelope eraHistoryFile
     systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
@@ -1738,11 +1738,11 @@ runTransactionSignWitnessCmd
     let unsignedTxAsTx = ShelleyTx era ledgerTx
         tx = addWitnesses witnesses unsignedTxAsTx
     liftEither $ validateCanonicalSubTransactions isCborOutCanonical era tx
-    modifyError TxCmdWriteFileError $
-      hoistIOEither $
-        if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonical era outFile tx
-          else writeTxFileTextEnvelope era outFile tx
+    modifyError TxCmdWriteFileError
+      $ hoistIOEither
+      $ if isCborOutCanonical == TxCborCanonical
+        then writeTxFileTextEnvelopeCanonical era outFile tx
+        else writeTxFileTextEnvelope era outFile tx
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =

@@ -79,12 +79,12 @@ hprop_account_balance_intervals_roundtrip =
       Exp.UnsignedSubTx sub <- buildSubTransaction subFile args
       sub ^. L.bodyTxL . L.accountBalanceIntervalsTxBodyL === expected
       signSubTransaction subFile signingKey signedFile
-      void $
-        execCardanoCLI $
-          transactionArgs "dijkstra"
-            ++ args
-            ++ startingArgs
-            ++ ["--signed-sub-tx-file", signedFile, "--out-file", outFile]
+      void
+        $ execCardanoCLI
+        $ transactionArgs "dijkstra"
+          ++ args
+          ++ startingArgs
+          ++ ["--signed-sub-tx-file", signedFile, "--out-file", outFile]
       ShelleyTx _ tx <- readDijkstraTransaction outFile
       let body = tx ^. L.bodyTxL
       body ^. L.accountBalanceIntervalsTxBodyL === expected
@@ -195,17 +195,17 @@ hprop_account_balance_intervals_build_estimate =
             & L.ppTxFeePerByteL .~ L.CoinPerByte (L.CompactCoin 44)
             & L.ppTxFeeFixedL .~ 155381
     H.evalIO $ Aeson.encodeFile paramsFile params
-    void $
-      execCardanoCLI $
-        concat
-          [ ["dijkstra", "transaction", "build-estimate"]
-          , ["--tx-in", txIn, "--total-utxo-value", show (L.unCoin inputValue)]
-          , ["--shelley-key-witnesses", "1", "--protocol-params-file", paramsFile]
-          , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
-          , intervalArgs "--account-balance-interval" [(account, ">=100,<200")]
-          , intervalArgs "--starting-account-balance-interval" [(account, "=300")]
-          , ["--out-file", outFile]
-          ]
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "transaction", "build-estimate"]
+        , ["--tx-in", txIn, "--total-utxo-value", show (L.unCoin inputValue)]
+        , ["--shelley-key-witnesses", "1", "--protocol-params-file", paramsFile]
+        , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
+        , intervalArgs "--account-balance-interval" [(account, ">=100,<200")]
+        , intervalArgs "--starting-account-balance-interval" [(account, "=300")]
+        , ["--out-file", outFile]
+        ]
     ShelleyTx _ tx <- readDijkstraTransaction outFile
     address <- accountAddress
     let body = tx ^. L.bodyTxL

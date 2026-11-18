@@ -144,13 +144,13 @@ assertTxFilesEqual f1 f2 = withFrozenCallStack $ do
   -- deserialise a transaction from JSON file into a Value
   viewTx :: HasCallStack => FilePath -> m Value
   viewTx f =
-    withFrozenCallStack $
-      H.leftFailM $
-        A.eitherDecode . fromString
-          <$> execCardanoCLI
-            [ "debug"
-            , "transaction"
-            , "view"
-            , "--tx-file"
-            , f
-            ]
+    withFrozenCallStack
+      $ H.leftFailM
+      $ A.eitherDecode . fromString
+        <$> execCardanoCLI
+          [ "debug"
+          , "transaction"
+          , "view"
+          , "--tx-file"
+          , f
+          ]

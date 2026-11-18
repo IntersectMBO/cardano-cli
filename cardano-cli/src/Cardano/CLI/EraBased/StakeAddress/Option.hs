@@ -88,15 +88,15 @@ pStakeAddressRegistrationCertificateCmd
   :: Exp.IsEra era
   => Parser (StakeAddressCmds era)
 pStakeAddressRegistrationCertificateCmd = do
-  Opt.hsubparser $
-    commandWithMetavar "registration-certificate" $
-      Opt.info
-        ( StakeAddressRegistrationCertificateCmd Exp.useEra
-            <$> pStakeIdentifier Nothing
-            <*> pKeyRegistDeposit
-            <*> pOutputFile
-        )
-        desc
+  Opt.hsubparser
+    $ commandWithMetavar "registration-certificate"
+    $ Opt.info
+      ( StakeAddressRegistrationCertificateCmd Exp.useEra
+          <$> pStakeIdentifier Nothing
+          <*> pKeyRegistDeposit
+          <*> pOutputFile
+      )
+      desc
  where
   desc = Opt.progDesc "Create a stake address registration certificate"
 

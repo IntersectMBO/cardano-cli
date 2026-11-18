@@ -105,9 +105,9 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
     let certificate =
           createStakeDelegationCertificate sbe stakeCred poolStakeVKeyHash
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
-        textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 createStakeDelegationCertificate
   :: ShelleyBasedEra era

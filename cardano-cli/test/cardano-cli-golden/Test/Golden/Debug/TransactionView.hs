@@ -131,40 +131,40 @@ goldenDijkstraIntervals format signed =
         buildSub ix args = do
           body <- H.noteTempFile tempDir $ "sub-" ++ ix ++ ".body"
           out <- H.noteTempFile tempDir $ "sub-" ++ ix ++ ".signed"
-          void $
-            execCardanoCLI $
-              concat
-                [ ["dijkstra", "sub-transaction", "build-raw"]
-                , ["--tx-in", input ix, "--tx-out", output, "--out-file", body]
-                , args
-                ]
-          void $
-            execCardanoCLI $
-              ["dijkstra", "sub-transaction", "sign"]
-                ++ ["--sub-tx-file", body, "--signing-key-file", key, "--out-file", out]
+          void
+            $ execCardanoCLI
+            $ concat
+              [ ["dijkstra", "sub-transaction", "build-raw"]
+              , ["--tx-in", input ix, "--tx-out", output, "--out-file", body]
+              , args
+              ]
+          void
+            $ execCardanoCLI
+            $ ["dijkstra", "sub-transaction", "sign"]
+              ++ ["--sub-tx-file", body, "--signing-key-file", key, "--out-file", out]
           pure out
     firstSub <-
       buildSub "1" $
         ["--account-balance-interval", account ++ ">=100,<200"]
           ++ ["--account-balance-interval", otherAccount ++ "=42"]
     secondSub <- buildSub "2" []
-    void $
-      execCardanoCLI $
-        concat
-          [ ["dijkstra", "transaction", "build-raw"]
-          , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
-          , ["--account-balance-interval", account ++ ">=100"]
-          , ["--account-balance-interval", otherAccount ++ "<200"]
-          , ["--starting-account-balance-interval", account ++ "=300"]
-          , ["--starting-account-balance-interval", otherAccount ++ ">=0,<400"]
-          , ["--signed-sub-tx-file", firstSub, "--signed-sub-tx-file", secondSub]
-          , ["--out-file", bodyFile]
-          ]
-    when signed $
-      void $
-        execCardanoCLI $
-          ["dijkstra", "transaction", "sign"]
-            ++ ["--tx-body-file", bodyFile, "--signing-key-file", key, "--out-file", signedFile]
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "transaction", "build-raw"]
+        , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
+        , ["--account-balance-interval", account ++ ">=100"]
+        , ["--account-balance-interval", otherAccount ++ "<200"]
+        , ["--starting-account-balance-interval", account ++ "=300"]
+        , ["--starting-account-balance-interval", otherAccount ++ ">=0,<400"]
+        , ["--signed-sub-tx-file", firstSub, "--signed-sub-tx-file", secondSub]
+        , ["--out-file", bodyFile]
+        ]
+    when signed
+      $ void
+      $ execCardanoCLI
+      $ ["dijkstra", "transaction", "sign"]
+        ++ ["--tx-body-file", bodyFile, "--signing-key-file", key, "--out-file", signedFile]
     let (fileFlag, file, suffix) =
           if signed then ("--tx-file", signedFile, "-signed") else ("--tx-body-file", bodyFile, "")
     result <- execCardanoCLI ["debug", "transaction", "view", fileFlag, file, "--output-" ++ format]
@@ -188,29 +188,29 @@ goldenDijkstraGuards format =
         scriptHash = "186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4"
         input ix = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#" ++ ix
         output = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
-    void $
-      execCardanoCLI $
-        concat
-          [ ["dijkstra", "sub-transaction", "build-raw"]
-          , ["--tx-in", input "1", "--tx-out", output]
-          , ["--guard-key-hash", keyHash, "--guard-script-hash", scriptHash]
-          , ["--top-level-guard-key-hash", keyHash]
-          , ["--top-level-guard-script-hash", scriptHash, "--top-level-guard-datum-value", "42"]
-          , ["--out-file", subBody]
-          ]
-    void $
-      execCardanoCLI $
-        ["dijkstra", "sub-transaction", "sign", "--sub-tx-file", subBody]
-          ++ ["--signing-key-file", inputDir </> "dijkstra/keys/utxo_keys/signing_key"]
-          ++ ["--out-file", subSigned]
-    void $
-      execCardanoCLI $
-        concat
-          [ ["dijkstra", "transaction", "build-raw"]
-          , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
-          , ["--required-signer-hash", keyHash]
-          , ["--signed-sub-tx-file", subSigned, "--out-file", bodyFile]
-          ]
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "sub-transaction", "build-raw"]
+        , ["--tx-in", input "1", "--tx-out", output]
+        , ["--guard-key-hash", keyHash, "--guard-script-hash", scriptHash]
+        , ["--top-level-guard-key-hash", keyHash]
+        , ["--top-level-guard-script-hash", scriptHash, "--top-level-guard-datum-value", "42"]
+        , ["--out-file", subBody]
+        ]
+    void
+      $ execCardanoCLI
+      $ ["dijkstra", "sub-transaction", "sign", "--sub-tx-file", subBody]
+        ++ ["--signing-key-file", inputDir </> "dijkstra/keys/utxo_keys/signing_key"]
+        ++ ["--out-file", subSigned]
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "transaction", "build-raw"]
+        , ["--tx-in", input "0", "--tx-out", output, "--fee", "200000"]
+        , ["--required-signer-hash", keyHash]
+        , ["--signed-sub-tx-file", subSigned, "--out-file", bodyFile]
+        ]
     result <-
       execCardanoCLI
         ["debug", "transaction", "view", "--tx-body-file", bodyFile, "--output-" ++ format]

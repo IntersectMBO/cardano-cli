@@ -54,14 +54,14 @@ runOne cmd tempDir = GHC.withFrozenCallStack $ do
   signingKeyFile <- noteTempFile tempDir "gen.skey"
   verificationKeyFileOut <- noteTempFile tempDir "vkey.out"
 
-  H.noteM_ $
-    execCardanoCLI $
-      cmd
-        ++ [ "--verification-key-file"
-           , verificationKeyFile
-           , "--signing-key-file"
-           , signingKeyFile
-           ]
+  H.noteM_
+    $ execCardanoCLI
+    $ cmd
+      ++ [ "--verification-key-file"
+         , verificationKeyFile
+         , "--signing-key-file"
+         , signingKeyFile
+         ]
 
   H.noteM_ $
     execCardanoCLI

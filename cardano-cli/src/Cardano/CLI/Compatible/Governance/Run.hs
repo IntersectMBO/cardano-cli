@@ -91,9 +91,9 @@ conwayOnwardsProtocolParametersUpdate sbe args = do
     checkProposalHash'
     mPrevGovActId
     mConstitutionalScriptHash <-
-    fromExceptTCli $
-      hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-        uppConwayOnwards args
+    fromExceptTCli
+      $ hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
+      $ uppConwayOnwards args
 
   eraBasedPParams <- maybeAddUpdatedCostModel args
 
@@ -119,9 +119,9 @@ conwayOnwardsProtocolParametersUpdate sbe args = do
 
   let proposalProcedure = createProposalProcedure sbe network deposit' depositStakeCredential govAct proposalAnchor
 
-  fromEitherIOCli @(FileError ()) $
-    shelleyBasedEraConstraints sbe $
-      writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
+  fromEitherIOCli @(FileError ())
+    $ shelleyBasedEraConstraints sbe
+    $ writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
 
 shelleyToBabbageProtocolParametersUpdate
   :: Typeable era
@@ -132,9 +132,9 @@ shelleyToBabbageProtocolParametersUpdate sbe args = do
   let oFp = uppFilePath args
       anyEra = AnyShelleyBasedEra sbe
   UpdateProtocolParametersPreConway expEpoch genesisVerKeys <-
-    fromExceptTCli $
-      hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-        uppPreConway args
+    fromExceptTCli
+      $ hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra)
+      $ uppPreConway args
 
   eraBasedPParams <- maybeAddUpdatedCostModel args
 
@@ -148,7 +148,7 @@ shelleyToBabbageProtocolParametersUpdate sbe args = do
   let genKeyHashes = fmap verificationKeyHash genVKeys
       upProp = makeShelleyUpdateProposal eraBasedPParams genKeyHashes expEpoch
 
-  fromEitherIOCli @(FileError ()) $
-    shelleyBasedEraConstraints sbe $
-      writeLazyByteStringFile oFp $
-        textEnvelopeToJSON Nothing upProp
+  fromEitherIOCli @(FileError ())
+    $ shelleyBasedEraConstraints sbe
+    $ writeLazyByteStringFile oFp
+    $ textEnvelopeToJSON Nothing upProp

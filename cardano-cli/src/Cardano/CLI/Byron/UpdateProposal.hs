@@ -50,9 +50,9 @@ runProposalCreation
   params = do
     sK <- fromExceptTCli $ readByronSigningKey NonLegacyByronKeyFormat sKey
     let proposal = makeByronUpdateProposal nw pVer sVer sysTag insHash sK params
-    fromExceptTCli $
-      ensureNewFileLBS outputFp $
-        serialiseToRawBytes proposal
+    fromExceptTCli
+      $ ensureNewFileLBS outputFp
+      $ serialiseToRawBytes proposal
 
 readByronUpdateProposal :: FilePath -> CIO e ByronUpdateProposal
 readByronUpdateProposal fp = do

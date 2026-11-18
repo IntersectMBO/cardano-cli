@@ -93,12 +93,12 @@ runNodeKeyGenColdCmd
             $ Vary.exhaustiveCase
         )
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile operationalCertificateIssueCounter $
-        textEnvelopeToJSON (Just ocertCtrDesc) $
-          OperationalCertificateIssueCounter
-            initialCounter
-            vkey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile operationalCertificateIssueCounter
+      $ textEnvelopeToJSON (Just ocertCtrDesc)
+      $ OperationalCertificateIssueCounter
+        initialCounter
+        vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Stake Pool Operator Signing Key"
@@ -203,15 +203,15 @@ runNodeKeyGenVrfCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  fromEitherIOCli @(FileError ()) $
-                    writeTextFile vkeyFile $
-                      serialiseToBech32 vkey
+                  fromEitherIOCli @(FileError ())
+                    $ writeTextFile vkeyFile
+                    $ serialiseToBech32 vkey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  fromEitherIOCli @(FileError ()) $
-                    writeLazyByteStringFile vkeyFile $
-                      textEnvelopeToJSON (Just vkeyDesc) vkey
+                  fromEitherIOCli @(FileError ())
+                    $ writeLazyByteStringFile vkeyFile
+                    $ textEnvelopeToJSON (Just vkeyDesc) vkey
               )
             $ Vary.exhaustiveCase
         )
@@ -296,9 +296,9 @@ runNodeNewCounterCmd
                   castVerificationKey extendedStakePoolVKey
             )
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile (onlyOut mOutFile) $
-        textEnvelopeToJSON Nothing ocertIssueCounter
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile (onlyOut mOutFile)
+      $ textEnvelopeToJSON Nothing ocertIssueCounter
 
 runNodeIssueOpCertCmd
   :: ()
@@ -336,13 +336,13 @@ runNodeIssueOpCertCmd
 
     -- Write the counter first, to reduce the chance of ending up with
     -- a new cert but without updating the counter.
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile (onlyOut operationalCertificateCounterFile) $
-        textEnvelopeToJSON (Just $ ocertCtrDesc $ getCounter nextOcertCtr) nextOcertCtr
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile (onlyOut operationalCertificateCounterFile)
+      $ textEnvelopeToJSON (Just $ ocertCtrDesc $ getCounter nextOcertCtr) nextOcertCtr
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFile $
-        textEnvelopeToJSON Nothing ocert
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFile
+      $ textEnvelopeToJSON Nothing ocert
    where
     getCounter :: OperationalCertificateIssueCounter -> Word64
     getCounter (OperationalCertificateIssueCounter n _) = n

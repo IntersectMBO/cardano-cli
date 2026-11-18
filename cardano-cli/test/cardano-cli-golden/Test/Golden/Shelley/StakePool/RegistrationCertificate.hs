@@ -106,9 +106,9 @@ hprop_golden_conway_stake_pool_registration_certificate_extended_literal_cold_ke
     registrationCertFile <- noteTempFile tempDir "registration.cert"
 
     stakePoolExtendedKey <-
-      H.evalEitherM $
-        liftIO $
-          readFileTextEnvelope @(VerificationKey StakePoolExtendedKey) (File operatorVerificationKeyFile)
+      H.evalEitherM
+        $ liftIO
+        $ readFileTextEnvelope @(VerificationKey StakePoolExtendedKey) (File operatorVerificationKeyFile)
 
     void $
       execCardanoCLI

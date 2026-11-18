@@ -20,8 +20,8 @@ runCheckNodeConfig (CheckNodeConfigCmdArgs configFile) = do
   _ <-
     fromExceptTCli . modifyError (DebugNodeConfigReadCmdError configFilePath) $
       readNodeConfig configFile
-  liftIO $
-    IO.hPutStrLn IO.stderr $
-      "Successfully checked node configuration file: " <> configFilePath
+  liftIO
+    $ IO.hPutStrLn IO.stderr
+    $ "Successfully checked node configuration file: " <> configFilePath
  where
   configFilePath = unFile configFile

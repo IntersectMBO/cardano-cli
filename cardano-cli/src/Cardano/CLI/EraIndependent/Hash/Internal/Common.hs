@@ -52,9 +52,9 @@ getByteStringFromURL supportedSchemes urlText = do
   let urlString = Text.unpack urlText
   uri@URI{uriScheme} <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
   scheme <-
-    hoistEither $
-      first FetchURLUnsupportedURLSchemeError $
-        stringToAnchorScheme supportedSchemes uriScheme
+    hoistEither
+      $ first FetchURLUnsupportedURLSchemeError
+      $ stringToAnchorScheme supportedSchemes uriScheme
   case scheme of
     FileScheme ->
       let path = uriPathToFilePath (pathSegments uri)
@@ -142,9 +142,9 @@ carryHashChecks potentiallyCheckedAnchor =
             FetchURLError
             (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnnotated anchorData
-      when (hash /= L.anchorDataHash anchor) $
-        left $
-          HashMismatchError (L.anchorDataHash anchor) hash
+      when (hash /= L.anchorDataHash anchor)
+        $ left
+        $ HashMismatchError (L.anchorDataHash anchor) hash
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor

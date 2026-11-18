@@ -129,11 +129,11 @@ pUpdateProtocolParametersPreConway =
 pGovernanceGenesisKeyDelegationCertificate
   :: Maybe (Parser (CompatibleGovernanceCmds era))
 pGovernanceGenesisKeyDelegationCertificate = do
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "create-genesis-key-delegation-certificate" $
-        Opt.info parser $
-          Opt.progDesc "Create a genesis key delegation certificate"
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-genesis-key-delegation-certificate"
+    $ Opt.info parser
+    $ Opt.progDesc "Create a genesis key delegation certificate"
  where
   parser =
     CompatibleGenesisKeyDelegationCertificate
@@ -145,11 +145,11 @@ pGovernanceGenesisKeyDelegationCertificate = do
 pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (CompatibleGovernanceCmds era))
 pCreateMirCertificatesCmds era' = do
   w <- forShelleyBasedEraMaybeEon era'
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "create-mir-certificate" $
-        Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
-          Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-mir-certificate"
+    $ Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w)
+    $ Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
 
 mirCertParsers
   :: ()
@@ -157,18 +157,18 @@ mirCertParsers
   -> Parser (CompatibleGovernanceCmds era)
 mirCertParsers w =
   asum
-    [ Opt.hsubparser $
-        commandWithMetavar "stake-addresses" $
-          Opt.info (pMIRPayStakeAddresses w) $
-            Opt.progDesc "Create an MIR certificate to pay stake addresses"
-    , Opt.hsubparser $
-        commandWithMetavar "transfer-to-treasury" $
-          Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w) $
-            Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
-    , Opt.hsubparser $
-        commandWithMetavar "transfer-to-rewards" $
-          Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w) $
-            Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+    [ Opt.hsubparser
+        $ commandWithMetavar "stake-addresses"
+        $ Opt.info (pMIRPayStakeAddresses w)
+        $ Opt.progDesc "Create an MIR certificate to pay stake addresses"
+    , Opt.hsubparser
+        $ commandWithMetavar "transfer-to-treasury"
+        $ Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w)
+        $ Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+    , Opt.hsubparser
+        $ commandWithMetavar "transfer-to-rewards"
+        $ Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w)
+        $ Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
     ]
 
 pMIRPayStakeAddresses

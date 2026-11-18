@@ -83,11 +83,11 @@ pGovernanceDRepKeyIdCmd = do
 pRegistrationCertificateCmd
   :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
 pRegistrationCertificateCmd = do
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "registration-certificate" $
-        Opt.info (mkParser Exp.useEra) $
-          Opt.progDesc "Create a registration certificate."
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-certificate"
+    $ Opt.info (mkParser Exp.useEra)
+    $ Opt.progDesc "Create a registration certificate."
  where
   mkParser w =
     fmap GovernanceDRepRegistrationCertificateCmd $

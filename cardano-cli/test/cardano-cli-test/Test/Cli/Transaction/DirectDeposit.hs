@@ -65,17 +65,17 @@ hprop_direct_deposits_roundtrip =
               [ ["--direct-deposit", recipient ++ "+" ++ show (amount :: Integer)] | (recipient, amount) <- deposits
               ]
           expected =
-            L.DirectDeposits $
-              Map.fromList $
-                zip (map toShelleyStakeAddr recipients) (map (Coin . snd) deposits)
+            L.DirectDeposits
+              $ Map.fromList
+              $ zip (map toShelleyStakeAddr recipients) (map (Coin . snd) deposits)
       Exp.UnsignedSubTx sub <- buildSubTransaction subFile args
       sub ^. L.bodyTxL . L.directDepositsTxBodyL === expected
       signSubTransaction subFile signingKey signedFile
-      void $
-        execCardanoCLI $
-          transactionArgs "dijkstra"
-            ++ args
-            ++ ["--signed-sub-tx-file", signedFile, "--out-file", outFile]
+      void
+        $ execCardanoCLI
+        $ transactionArgs "dijkstra"
+          ++ args
+          ++ ["--signed-sub-tx-file", signedFile, "--out-file", outFile]
       ShelleyTx _ tx <- readDijkstraTransaction outFile
       let body = tx ^. L.bodyTxL
       body ^. L.directDepositsTxBodyL === expected
@@ -157,17 +157,17 @@ hprop_build_estimate_deducts_deposits_from_change =
             & L.ppTxFeeFixedL .~ 155381
     H.evalIO $ Aeson.encodeFile paramsFile params
     -- With no explicit outputs, the balance after deposits and fees becomes change.
-    void $
-      execCardanoCLI $
-        concat
-          [ ["dijkstra", "transaction", "build-estimate"]
-          , ["--tx-in", txIn, "--total-utxo-value", show (L.unCoin inputValue)]
-          , ["--shelley-key-witnesses", "1", "--protocol-params-file", paramsFile]
-          , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
-          , ["--direct-deposit", account ++ "+" ++ show (L.unCoin depositAmount)]
-          , ["--direct-deposit", otherAccount ++ "+" ++ show (L.unCoin otherDepositAmount)]
-          , ["--out-file", outFile]
-          ]
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "transaction", "build-estimate"]
+        , ["--tx-in", txIn, "--total-utxo-value", show (L.unCoin inputValue)]
+        , ["--shelley-key-witnesses", "1", "--protocol-params-file", paramsFile]
+        , ["--change-address", "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg"]
+        , ["--direct-deposit", account ++ "+" ++ show (L.unCoin depositAmount)]
+        , ["--direct-deposit", otherAccount ++ "+" ++ show (L.unCoin otherDepositAmount)]
+        , ["--out-file", outFile]
+        ]
     ShelleyTx _ tx <- readDijkstraTransaction outFile
     address <- accountAddress
     otherAddress <-

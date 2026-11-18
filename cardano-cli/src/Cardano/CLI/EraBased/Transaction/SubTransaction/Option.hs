@@ -48,46 +48,46 @@ pSubTransactionCmds =
               , "then embedded in a top-level transaction."
               ]
         )
-        [ Just $
-            Opt.hsubparser $
-              commandWithMetavar "build-raw" $
-                Opt.info pSubTransactionBuildRaw $
-                  Opt.progDescDoc $
-                    Just $
-                      mconcat
-                        [ pretty @String "Build an unsigned sub-transaction (low-level, inconvenient)"
-                        , line
-                        , "Canonical output fails if it would change sub-transaction data covered by an existing hash."
-                        , line
-                        , line
-                        , H.yellow $
-                            mconcat
-                              [ "Please note "
-                              , H.underline "the order"
-                              , " of some cmd options is crucial. If used incorrectly may produce "
-                              , "undesired sub-transaction body. See nested [] notation above for details."
-                              ]
-                        ]
-        , Just $
-            Opt.hsubparser $
-              commandWithMetavar "sign" $
-                Opt.info pSubTransactionSign $
-                  Opt.progDesc "Sign a sub-transaction"
-        , Just $
-            Opt.hsubparser $
-              commandWithMetavar "witness" $
-                Opt.info pSubTransactionWitness $
-                  Opt.progDesc "Create a sub-transaction key witness"
-        , Just $
-            Opt.hsubparser $
-              commandWithMetavar "assemble" $
-                Opt.info pSubTransactionAssemble $
-                  Opt.progDesc "Assemble an unsigned sub-transaction and key witnesses into a signed sub-transaction"
-        , Just $
-            Opt.hsubparser $
-              commandWithMetavar "txid" $
-                Opt.info pSubTransactionTxId $
-                  Opt.progDesc "Print a sub-transaction identifier."
+        [ Just
+            $ Opt.hsubparser
+            $ commandWithMetavar "build-raw"
+            $ Opt.info pSubTransactionBuildRaw
+            $ Opt.progDescDoc
+            $ Just
+            $ mconcat
+              [ pretty @String "Build an unsigned sub-transaction (low-level, inconvenient)"
+              , line
+              , "Canonical output fails if it would change sub-transaction data covered by an existing hash."
+              , line
+              , line
+              , H.yellow $
+                  mconcat
+                    [ "Please note "
+                    , H.underline "the order"
+                    , " of some cmd options is crucial. If used incorrectly may produce "
+                    , "undesired sub-transaction body. See nested [] notation above for details."
+                    ]
+              ]
+        , Just
+            $ Opt.hsubparser
+            $ commandWithMetavar "sign"
+            $ Opt.info pSubTransactionSign
+            $ Opt.progDesc "Sign a sub-transaction"
+        , Just
+            $ Opt.hsubparser
+            $ commandWithMetavar "witness"
+            $ Opt.info pSubTransactionWitness
+            $ Opt.progDesc "Create a sub-transaction key witness"
+        , Just
+            $ Opt.hsubparser
+            $ commandWithMetavar "assemble"
+            $ Opt.info pSubTransactionAssemble
+            $ Opt.progDesc "Assemble an unsigned sub-transaction and key witnesses into a signed sub-transaction"
+        , Just
+            $ Opt.hsubparser
+            $ commandWithMetavar "txid"
+            $ Opt.info pSubTransactionTxId
+            $ Opt.progDesc "Print a sub-transaction identifier."
         ]
 
 pSubTransactionBuildRaw :: Parser SubTransactionCmds
@@ -294,13 +294,13 @@ pGuardKey prefix transaction =
 -- era-indexed wrapper; sub-transactions carry a plain slot.
 pInvalidHereafterSlot :: Parser SlotNo
 pInvalidHereafterSlot =
-  fmap SlotNo $
-    Opt.option (bounded "SLOT") $
-      mconcat
-        [ Opt.long "invalid-hereafter"
-        , Opt.metavar "SLOT"
-        , Opt.help "Time that transaction is valid until (in slots)."
-        ]
+  fmap SlotNo
+    $ Opt.option (bounded "SLOT")
+    $ mconcat
+      [ Opt.long "invalid-hereafter"
+      , Opt.metavar "SLOT"
+      , Opt.help "Time that transaction is valid until (in slots)."
+      ]
 
 pUnsignedSubTxFileOut :: Parser (UnsignedSubTxFile Out)
 pUnsignedSubTxFileOut =

@@ -77,20 +77,20 @@ readSpendScriptWitness (Just spendScriptReq) =
               mDatum <- handlePotentialScriptDatum mScriptDatum lang
               let pScript = Exp.Plutus.PScript script
                   plutusScriptWitness = Exp.Plutus.PlutusScriptWitness lang pScript mDatum redeemer execUnits
-              return $
-                Exp.AnyPlutusScriptWitness $
-                  Exp.AnyPlutusSpendingScriptWitness $
-                    Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
+              return
+                $ Exp.AnyPlutusScriptWitness
+                $ Exp.AnyPlutusSpendingScriptWitness
+                $ Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
         ReferencePlutusSpendingScript refTxIn (AnySLanguage lang) mScriptDatum redeemerFile execUnits -> do
           let pRefScript = Exp.Plutus.PReferenceScript refTxIn
           redeemer <-
             fromExceptTCli $ readScriptDataOrFile redeemerFile
           mDatum <- handlePotentialScriptDatum mScriptDatum lang
           let plutusScriptWitness = Exp.Plutus.PlutusScriptWitness lang pRefScript mDatum redeemer execUnits
-          return $
-            Exp.AnyPlutusScriptWitness $
-              Exp.AnyPlutusSpendingScriptWitness $
-                Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
+          return
+            $ Exp.AnyPlutusScriptWitness
+            $ Exp.AnyPlutusSpendingScriptWitness
+            $ Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
 
 handlePotentialScriptDatum
   :: ScriptDatumOrFileSpending

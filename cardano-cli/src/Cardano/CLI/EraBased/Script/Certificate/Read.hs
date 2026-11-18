@@ -56,22 +56,22 @@ readCertificateScriptWitness (AnyNonAssetScriptPlutus plutusReq) =
               NoScriptDatum
               redeemer
               execUnits
-      return $
-        AnyPlutusScriptWitness $
-          AnyPlutusCertifyingScriptWitness sw
+      return
+        $ AnyPlutusScriptWitness
+        $ AnyPlutusCertifyingScriptWitness sw
     ReferencePlutusNonAssetScript refInput (AnySLanguage lang) redeemerFile execUnits -> do
       redeemer <-
         fromExceptTCli $
           readScriptDataOrFile redeemerFile
-      return $
-        AnyPlutusScriptWitness $
-          AnyPlutusCertifyingScriptWitness $
-            PlutusScriptWitness
-              lang
-              (PReferenceScript refInput)
-              NoScriptDatum
-              redeemer
-              execUnits
+      return
+        $ AnyPlutusScriptWitness
+        $ AnyPlutusCertifyingScriptWitness
+        $ PlutusScriptWitness
+          lang
+          (PReferenceScript refInput)
+          NoScriptDatum
+          redeemer
+          execUnits
 
 readCertificateScriptWitnesses
   :: IsEra era

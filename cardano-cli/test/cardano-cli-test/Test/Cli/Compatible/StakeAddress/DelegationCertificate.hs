@@ -45,28 +45,28 @@ hprop_compatible_stake_address_delegation_certificate =
           , "ff7b882facd434ac990c4293aa60f3b8a8016e7ad51644939597e90c"
           ]
 
-    void $
-      execCardanoCLI $
-        [ eraName
+    void
+      $ execCardanoCLI
+      $ [ eraName
         , "stake-address"
         , "stake-delegation-certificate"
         ]
-          <> args
-          <> [ "--out-file"
-             , refOutFile
-             ]
+        <> args
+        <> [ "--out-file"
+           , refOutFile
+           ]
 
-    void $
-      execCardanoCLI $
-        [ "compatible"
+    void
+      $ execCardanoCLI
+      $ [ "compatible"
         , eraName
         , "stake-address"
         , "stake-delegation-certificate"
         ]
-          <> args
-          <> [ "--out-file"
-             , outFile
-             ]
+        <> args
+        <> [ "--out-file"
+           , outFile
+           ]
 
     refCert <- H.readJsonFileOk @Value refOutFile
     testCert <- H.readJsonFileOk outFile

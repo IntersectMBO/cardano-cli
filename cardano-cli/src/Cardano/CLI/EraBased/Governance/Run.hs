@@ -54,12 +54,12 @@ runGovernanceMIRCertificatePayStakeAddrs
   -> File () Out
   -> CIO e ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
-  unless (length sAddrs == length rwdAmts) $
-    throwCliError $
-      GovernanceCmdMIRCertificateKeyRewardMistmach
-        (unFile oFp)
-        (length sAddrs)
-        (length rwdAmts)
+  unless (length sAddrs == length rwdAmts)
+    $ throwCliError
+    $ GovernanceCmdMIRCertificateKeyRewardMistmach
+      (unFile oFp)
+      (length sAddrs)
+      (length rwdAmts)
 
   let sCreds = map stakeAddressCredential sAddrs
       mirTarget =
@@ -72,10 +72,10 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
         makeMIRCertificate mirPot mirTarget
       sbe = convert w
 
-  fromEitherIOCli @(FileError ()) $
-    shelleyBasedEraConstraints sbe $
-      writeLazyByteStringFile oFp $
-        textEnvelopeToJSON (Just mirCertDesc) mirCert
+  fromEitherIOCli @(FileError ())
+    $ shelleyBasedEraConstraints sbe
+    $ writeLazyByteStringFile oFp
+    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "Move Instantaneous Rewards Certificate"
@@ -91,10 +91,10 @@ runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirCert = makeMIRCertificate L.TreasuryMIR mirTarget
       sbe = convert w
 
-  fromEitherIOCli @(FileError ()) $
-    shelleyBasedEraConstraints sbe $
-      writeLazyByteStringFile oFp $
-        textEnvelopeToJSON (Just mirCertDesc) mirCert
+  fromEitherIOCli @(FileError ())
+    $ shelleyBasedEraConstraints sbe
+    $ writeLazyByteStringFile oFp
+    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "MIR Certificate Send To Reserves"

@@ -35,9 +35,9 @@ runGovernanceGenesisKeyDelegationCertificate
 
     let genKeyDelegCert = makeGenesisKeyDelegationCertificate genesisVkHash genesisDelVkHash vrfVkHash
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile oFp $
-        textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile oFp
+      $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"

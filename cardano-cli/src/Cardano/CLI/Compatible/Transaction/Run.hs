@@ -78,10 +78,10 @@ runCompatibleTransactionCmd
     certsAndMaybeScriptWits <-
       liftIO $
         sequenceA
-          [ fmap (,mSwit) $
-              fromEitherIOCli $
-                readFileTextEnvelope $
-                  File certFile
+          [ fmap (,mSwit)
+              $ fromEitherIOCli
+              $ readFileTextEnvelope
+              $ File certFile
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
 
@@ -115,19 +115,19 @@ runCompatibleTransactionCmd
       fromEitherCli $ first (ProtocolParamsErrorJSON path . Text.pack) $ Aeson.eitherDecodeStrict' bytes
 
     transaction@(ShelleyTx _ ledgerTx) <-
-      fromEitherCli $
-        createCompatibleTx sbe $
-          (defaultCompatibleTxBodyContent sbe)
-            { compatibleTxIns = [(txIn, Exp.AnyKeyWitnessPlaceholder) | txIn <- ins]
-            , compatibleTxOuts = allOuts
-            , compatibleTxSupplementalDatums = extraDatums
-            , compatibleTxFee = fee
-            , compatibleTxProtocolUpdate = protocolUpdates
-            , compatibleTxVotingProcedures = votes
-            , compatibleTxCertificates = txCerts
-            , compatibleTxInsCollateral = insCollateral
-            , compatibleTxProtocolParams = pparams
-            }
+      fromEitherCli
+        $ createCompatibleTx sbe
+        $ (defaultCompatibleTxBodyContent sbe)
+          { compatibleTxIns = [(txIn, Exp.AnyKeyWitnessPlaceholder) | txIn <- ins]
+          , compatibleTxOuts = allOuts
+          , compatibleTxSupplementalDatums = extraDatums
+          , compatibleTxFee = fee
+          , compatibleTxProtocolUpdate = protocolUpdates
+          , compatibleTxVotingProcedures = votes
+          , compatibleTxCertificates = txCerts
+          , compatibleTxInsCollateral = insCollateral
+          , compatibleTxProtocolParams = pparams
+          }
 
     let txBody = ledgerTx ^. L.bodyTxL
 
@@ -195,22 +195,22 @@ readCertificateScriptWitnessSbe sbe (AnyNonAssetScriptPlutus plutusReq) =
               Exp.Plutus.NoScriptDatum
               redeemer
               execUnits
-      return $
-        Exp.AnyPlutusScriptWitness $
-          Exp.AnyPlutusCertifyingScriptWitness sw
+      return
+        $ Exp.AnyPlutusScriptWitness
+        $ Exp.AnyPlutusCertifyingScriptWitness sw
     ReferencePlutusNonAssetScript refInput (AnySLanguage lang) redeemerFile execUnits -> do
       redeemer <-
         fromExceptTCli $
           readScriptDataOrFile redeemerFile
-      return $
-        Exp.AnyPlutusScriptWitness $
-          Exp.AnyPlutusCertifyingScriptWitness $
-            Exp.Plutus.PlutusScriptWitness
-              lang
-              (Exp.Plutus.PReferenceScript refInput)
-              Exp.Plutus.NoScriptDatum
-              redeemer
-              execUnits
+      return
+        $ Exp.AnyPlutusScriptWitness
+        $ Exp.AnyPlutusCertifyingScriptWitness
+        $ Exp.Plutus.PlutusScriptWitness
+          lang
+          (Exp.Plutus.PReferenceScript refInput)
+          Exp.Plutus.NoScriptDatum
+          redeemer
+          execUnits
 
 -- | Create 'TxCertificates'. Note that 'Certificate era' will be deduplicated. A witness is attached
 -- only to certificates which require one.
@@ -251,9 +251,9 @@ readUpdateProposalFile sbe (UpdateProposalFile file) =
  where
   readUpdateProposal :: CIO e (UpdateProposal era)
   readUpdateProposal =
-    fromEitherIOCli @(FileError TextEnvelopeError) $
-      shelleyBasedEraConstraints sbe $
-        readFileTextEnvelope (File file)
+    fromEitherIOCli @(FileError TextEnvelopeError)
+      $ shelleyBasedEraConstraints sbe
+      $ readFileTextEnvelope (File file)
 
 readProposalProcedureFile
   :: forall e era

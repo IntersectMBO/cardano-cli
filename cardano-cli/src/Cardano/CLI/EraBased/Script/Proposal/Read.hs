@@ -31,16 +31,16 @@ readProposalScriptWitness
   -> CIO e (Proposal era, Exp.AnyWitness (Exp.LedgerEra era))
 readProposalScriptWitness (propFp, Nothing) = do
   proposal <-
-    obtainCommonConstraints (Exp.useEra @era) $
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope propFp
+    obtainCommonConstraints (Exp.useEra @era)
+      $ fromEitherIOCli @(FileError TextEnvelopeError)
+      $ readFileTextEnvelope propFp
   return (proposal, Exp.AnyKeyWitnessPlaceholder)
 readProposalScriptWitness (propFp, Just certScriptReq) =
   do
     proposal <-
-      obtainCommonConstraints (Exp.useEra @era) $
-        fromEitherIOCli @(FileError TextEnvelopeError) $
-          readFileTextEnvelope propFp
+      obtainCommonConstraints (Exp.useEra @era)
+        $ fromEitherIOCli @(FileError TextEnvelopeError)
+        $ readFileTextEnvelope propFp
     case certScriptReq of
       AnyNonAssetScriptSimple simpleReq ->
         case simpleReq of

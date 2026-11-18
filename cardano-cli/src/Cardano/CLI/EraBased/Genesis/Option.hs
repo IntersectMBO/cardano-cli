@@ -40,75 +40,75 @@ pGenesisCmds envCli =
     )
     $ map
       Just
-      [ Opt.hsubparser $
-          commandWithMetavar "key-gen-genesis" $
-            Opt.info pGenesisKeyGen $
-              Opt.progDesc "Create a Shelley genesis key pair"
-      , Opt.hsubparser $
-          commandWithMetavar "key-gen-delegate" $
-            Opt.info pGenesisDelegateKeyGen $
-              Opt.progDesc "Create a Shelley genesis delegate key pair"
-      , Opt.hsubparser $
-          commandWithMetavar "key-gen-utxo" $
-            Opt.info pGenesisUTxOKeyGen $
-              Opt.progDesc "Create a Shelley genesis UTxO key pair"
-      , Opt.hsubparser $
-          commandWithMetavar "key-hash" $
-            Opt.info pGenesisKeyHash $
-              Opt.progDesc "Print the identifier (hash) of a public key"
-      , Opt.hsubparser $
-          commandWithMetavar "get-ver-key" $
-            Opt.info pGenesisVerKey $
-              Opt.progDesc "Derive the verification key from a signing key"
-      , Opt.hsubparser $
-          commandWithMetavar "initial-addr" $
-            Opt.info (pGenesisAddr envCli) $
-              Opt.progDesc "Get the address for an initial UTxO based on the verification key"
-      , Opt.hsubparser $
-          commandWithMetavar "initial-txin" $
-            Opt.info (pGenesisTxIn envCli) $
-              Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-      , Opt.hsubparser $
-          commandWithMetavar "create-cardano" $
-            Opt.info (pGenesisCreateCardano envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Create a Byron and Shelley genesis file from a genesis "
-                  , "template and genesis/delegation/spending keys."
-                  ]
-      , Opt.hsubparser $
-          commandWithMetavar "create" $
-            Opt.info (pGenesisCreate envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Create a Shelley genesis file from a genesis "
-                  , "template and genesis/delegation/spending keys."
-                  ]
-      , Opt.hsubparser $
-          commandWithMetavar "create-staked" $
-            Opt.info (pGenesisCreateStaked envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Create a staked Shelley genesis file from a genesis "
-                  , "template and genesis/delegation/spending keys."
-                  ]
-      , Opt.hsubparser $
-          commandWithMetavar "create-testnet-data" $
-            Opt.info (pGenesisCreateTestNetData envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Create data to use for starting a testnet."
-                  ]
-      , Opt.hsubparser $
-          commandWithMetavar "hash" $
-            Opt.info pGenesisHash $
-              Opt.progDesc $
-                mconcat
-                  [ "DEPRECATION WARNING! This command is deprecated and will be "
-                  , "removed in a future release. Please use hash genesis-file "
-                  , "instead. "
-                  , "Compute the hash of a genesis file."
-                  ]
+      [ Opt.hsubparser
+          $ commandWithMetavar "key-gen-genesis"
+          $ Opt.info pGenesisKeyGen
+          $ Opt.progDesc "Create a Shelley genesis key pair"
+      , Opt.hsubparser
+          $ commandWithMetavar "key-gen-delegate"
+          $ Opt.info pGenesisDelegateKeyGen
+          $ Opt.progDesc "Create a Shelley genesis delegate key pair"
+      , Opt.hsubparser
+          $ commandWithMetavar "key-gen-utxo"
+          $ Opt.info pGenesisUTxOKeyGen
+          $ Opt.progDesc "Create a Shelley genesis UTxO key pair"
+      , Opt.hsubparser
+          $ commandWithMetavar "key-hash"
+          $ Opt.info pGenesisKeyHash
+          $ Opt.progDesc "Print the identifier (hash) of a public key"
+      , Opt.hsubparser
+          $ commandWithMetavar "get-ver-key"
+          $ Opt.info pGenesisVerKey
+          $ Opt.progDesc "Derive the verification key from a signing key"
+      , Opt.hsubparser
+          $ commandWithMetavar "initial-addr"
+          $ Opt.info (pGenesisAddr envCli)
+          $ Opt.progDesc "Get the address for an initial UTxO based on the verification key"
+      , Opt.hsubparser
+          $ commandWithMetavar "initial-txin"
+          $ Opt.info (pGenesisTxIn envCli)
+          $ Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
+      , Opt.hsubparser
+          $ commandWithMetavar "create-cardano"
+          $ Opt.info (pGenesisCreateCardano envCli)
+          $ Opt.progDesc
+          $ mconcat
+            [ "Create a Byron and Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
+      , Opt.hsubparser
+          $ commandWithMetavar "create"
+          $ Opt.info (pGenesisCreate envCli)
+          $ Opt.progDesc
+          $ mconcat
+            [ "Create a Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
+      , Opt.hsubparser
+          $ commandWithMetavar "create-staked"
+          $ Opt.info (pGenesisCreateStaked envCli)
+          $ Opt.progDesc
+          $ mconcat
+            [ "Create a staked Shelley genesis file from a genesis "
+            , "template and genesis/delegation/spending keys."
+            ]
+      , Opt.hsubparser
+          $ commandWithMetavar "create-testnet-data"
+          $ Opt.info (pGenesisCreateTestNetData envCli)
+          $ Opt.progDesc
+          $ mconcat
+            [ "Create data to use for starting a testnet."
+            ]
+      , Opt.hsubparser
+          $ commandWithMetavar "hash"
+          $ Opt.info pGenesisHash
+          $ Opt.progDesc
+          $ mconcat
+            [ "DEPRECATION WARNING! This command is deprecated and will be "
+            , "removed in a future release. Please use hash genesis-file "
+            , "instead. "
+            , "Compute the hash of a genesis file."
+            ]
       ]
 
 pGenesisKeyGen :: Parser (GenesisCmds era)
@@ -331,32 +331,32 @@ pGenesisCreateTestNetData envCli =
         ]
   pSupply :: Parser (Maybe Coin)
   pSupply =
-    Opt.optional $
-      fmap Coin $
-        Opt.option integralReader $
-          mconcat
-            [ Opt.long "total-supply"
-            , Opt.metavar "LOVELACE"
-            , Opt.help $
-                mconcat
-                  [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Overrides the value from the shelley genesis."
-                  , " If --delegated-supply is specified, a part of this amount will be delegated."
-                  ]
-            ]
+    Opt.optional
+      $ fmap Coin
+      $ Opt.option integralReader
+      $ mconcat
+        [ Opt.long "total-supply"
+        , Opt.metavar "LOVELACE"
+        , Opt.help $
+            mconcat
+              [ "The maximum possible amount of Lovelace, which is evenly distributed across stake holders. Overrides the value from the shelley genesis."
+              , " If --delegated-supply is specified, a part of this amount will be delegated."
+              ]
+        ]
   pSupplyDelegated :: Parser (Maybe Coin)
   pSupplyDelegated =
-    Opt.optional $
-      fmap Coin $
-        Opt.option integralReader $
-          mconcat
-            [ Opt.long "delegated-supply"
-            , Opt.metavar "LOVELACE"
-            , Opt.help $
-                mconcat
-                  [ "The amount of the total supply which is evenly delegated. Defaulted to half of the total supply."
-                  , " Cannot be more than the amount specified with --total-supply."
-                  ]
-            ]
+    Opt.optional
+      $ fmap Coin
+      $ Opt.option integralReader
+      $ mconcat
+        [ Opt.long "delegated-supply"
+        , Opt.metavar "LOVELACE"
+        , Opt.help $
+            mconcat
+              [ "The amount of the total supply which is evenly delegated. Defaulted to half of the total supply."
+              , " Cannot be more than the amount specified with --total-supply."
+              ]
+        ]
   pRelays :: Parser FilePath
   pRelays =
     parseFilePath "relays" "JSON file specifying the relays of each stake pool."
@@ -374,26 +374,26 @@ pGenesisHash =
 
 pGenesisDir :: Parser GenesisDir
 pGenesisDir =
-  fmap GenesisDir $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "genesis-dir"
-        , Opt.metavar "DIR"
-        , Opt.help
-            "The genesis directory containing the genesis template and required genesis/delegation/spending keys."
-        ]
+  fmap GenesisDir
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long "genesis-dir"
+      , Opt.metavar "DIR"
+      , Opt.help
+          "The genesis directory containing the genesis template and required genesis/delegation/spending keys."
+      ]
 
 pMaybeSystemStart :: Parser (Maybe SystemStart)
 pMaybeSystemStart =
-  Opt.optional $
-    fmap SystemStart $
-      Opt.option timeReader $
-        mconcat
-          [ Opt.long "start-time"
-          , Opt.metavar "UTC_TIME"
-          , Opt.help
-              "The genesis start time in YYYY-MM-DDThh:mm:ssZ format. If unspecified, will be the current time +30 seconds."
-          ]
+  Opt.optional
+    $ fmap SystemStart
+    $ Opt.option timeReader
+    $ mconcat
+      [ Opt.long "start-time"
+      , Opt.metavar "UTC_TIME"
+      , Opt.help
+          "The genesis start time in YYYY-MM-DDThh:mm:ssZ format. If unspecified, will be the current time +30 seconds."
+      ]
 
 pGenesisNumGenesisKeys :: Parser Word
 pGenesisNumGenesisKeys =
@@ -450,28 +450,28 @@ pStuffedUtxoCount =
 
 pInitialSupplyNonDelegated :: Parser (Maybe Coin)
 pInitialSupplyNonDelegated =
-  Opt.optional $
-    fmap Coin $
-      Opt.option integralReader $
-        mconcat
-          [ Opt.long "supply"
-          , Opt.metavar "LOVELACE"
-          , Opt.help
-              "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
-          ]
+  Opt.optional
+    $ fmap Coin
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "supply"
+      , Opt.metavar "LOVELACE"
+      , Opt.help
+          "The initial coin supply in Lovelace which will be evenly distributed across initial, non-delegating stake holders."
+      ]
 
 pInitialSupplyDelegated :: Parser Coin
 pInitialSupplyDelegated =
-  fmap (Coin . fromMaybe 0) $
-    Opt.optional $
-      Opt.option integralReader $
-        mconcat
-          [ Opt.long "supply-delegated"
-          , Opt.metavar "LOVELACE"
-          , Opt.help
-              "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."
-          , Opt.value 0
-          ]
+  fmap (Coin . fromMaybe 0)
+    $ Opt.optional
+    $ Opt.option integralReader
+    $ mconcat
+      [ Opt.long "supply-delegated"
+      , Opt.metavar "LOVELACE"
+      , Opt.help
+          "The initial coin supply in Lovelace which will be evenly distributed across initial, delegating stake holders."
+      , Opt.value 0
+      ]
 
 pSecurityParam :: Parser (NonZero Word64)
 pSecurityParam =

@@ -168,9 +168,9 @@ runGovernanceDRepRegistrationCertificateCmd
             :: Exp.Certificate (Exp.LedgerEra era)
         description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFile $
-        textEnvelopeToJSON description registrationCert
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFile
+      $ textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -232,9 +232,9 @@ runGovernanceDRepMetadataHashCmd
       Cmd.DrepMetadataFileIn metadataFile ->
         fromEitherIOCli @(FileError ()) $ readByteStringFile metadataFile
       Cmd.DrepMetadataURL urlText ->
-        fromExceptTCli $
-          getByteStringFromURL allSchemes $
-            L.urlToText urlText
+        fromExceptTCli
+          $ getByteStringFromURL allSchemes
+          $ L.urlToText urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
       Cmd.CheckHash expectedHash

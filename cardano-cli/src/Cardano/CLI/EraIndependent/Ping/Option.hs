@@ -20,14 +20,14 @@ import Text.Read (readMaybe)
 
 parsePingCmd :: Opt.Mod Opt.CommandFields ClientCommand
 parsePingCmd =
-  Opt.command "ping" $
-    Opt.info (CliPingCommand <$> pPing <**> Opt.helper) $
-      Opt.progDescDoc $
-        Just $
-          mconcat
-            [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
-            , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
-            ]
+  Opt.command "ping"
+    $ Opt.info (CliPingCommand <$> pPing <**> Opt.helper)
+    $ Opt.progDescDoc
+    $ Just
+    $ mconcat
+      [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
+      , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
+      ]
 
 -- | A local mirror of @Cardano.Network.Ping.cmdlineParser@ from
 -- @cardano-diffusion:ping@, which cardano-cli used directly before.  The
@@ -87,15 +87,15 @@ pPingOpts =
       pingMode
       ( Opt.long "mode"
           <> Opt.helpDoc
-            ( Just $
-                Pretty.hang 2 $
-                  "Mode, either ping, tip or query:"
-                    <> Pretty.softline
-                    <> "ping  - send pings via keep-alive protocol (node-to-node only),"
-                    <> Pretty.softline
-                    <> "tip   - query tip via chain-sync protocol (node-to-node / node-to-client),"
-                    <> Pretty.softline
-                    <> "query - query handshake parameters (node-to-node / node-to-client)."
+            ( Just
+                $ Pretty.hang 2
+                $ "Mode, either ping, tip or query:"
+                  <> Pretty.softline
+                  <> "ping  - send pings via keep-alive protocol (node-to-node only),"
+                  <> Pretty.softline
+                  <> "tip   - query tip via chain-sync protocol (node-to-node / node-to-client),"
+                  <> Pretty.softline
+                  <> "query - query handshake parameters (node-to-node / node-to-client)."
             )
           <> Opt.value Ping.PingMode
           <> Opt.metavar "MODE"

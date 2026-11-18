@@ -48,9 +48,9 @@ readFileSimpleScript file era = do
           Exp.ConwayEra -> toAllegraTimelock script
     Right te -> do
       let scriptBs = teRawCBOR te
-      obtainCommonConstraints era $
-        fromEitherCli $
-          Exp.deserialiseSimpleScript scriptBs
+      obtainCommonConstraints era
+        $ fromEitherCli
+        $ Exp.deserialiseSimpleScript scriptBs
 
 readScriptDataOrFile
   :: MonadIO m
@@ -66,11 +66,11 @@ readScriptDataOrFile (ScriptDataJsonFile fp) = do
 readScriptDataOrFile (ScriptDataCborFile fp) = do
   origBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) (BS.readFile fp)
   hSd <-
-    firstExceptT (ScriptDataErrorMetadataDecode fp) $
-      hoistEither $
-        deserialiseFromCBOR AsHashableScriptData origBs
-  firstExceptT (ScriptDataErrorValidation fp) $
-    hoistEither $
-      validateScriptData $
-        getScriptData hSd
+    firstExceptT (ScriptDataErrorMetadataDecode fp)
+      $ hoistEither
+      $ deserialiseFromCBOR AsHashableScriptData origBs
+  firstExceptT (ScriptDataErrorValidation fp)
+    $ hoistEither
+    $ validateScriptData
+    $ getScriptData hSd
   return hSd

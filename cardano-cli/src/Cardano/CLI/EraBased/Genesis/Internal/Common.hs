@@ -152,6 +152,6 @@ readProtocolParameters
   -> ExceptT ProtocolParamsError IO (L.PParams (Exp.LedgerEra era))
 readProtocolParameters (ProtocolParamsFile fpath) = do
   pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
-  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    obtainCommonConstraints (Exp.useEra @era) $
-      A.eitherDecode' pparams
+  firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither
+    $ obtainCommonConstraints (Exp.useEra @era)
+    $ A.eitherDecode' pparams

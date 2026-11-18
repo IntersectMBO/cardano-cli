@@ -41,20 +41,20 @@ pStakePoolCmds envCli =
     [ pStakePoolRegistrationCertificateCmd envCli
     , pStakePoolBlsRegistrationCertificateCmd
     , pStakePoolDeregistrationCertificateCmd
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "id" $
-            Opt.info pStakePoolId $
-              Opt.progDesc "Build pool id from the offline key"
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "metadata-hash" $
-            Opt.info pStakePoolMetadataHashCmd $
-              Opt.progDesc $
-                mconcat
-                  [ "Calculate the hash of a stake pool metadata file,"
-                  , " optionally checking the obtained hash against an expected value."
-                  ]
+    , Just
+        $ Opt.hsubparser
+        $ commandWithMetavar "id"
+        $ Opt.info pStakePoolId
+        $ Opt.progDesc "Build pool id from the offline key"
+    , Just
+        $ Opt.hsubparser
+        $ commandWithMetavar "metadata-hash"
+        $ Opt.info pStakePoolMetadataHashCmd
+        $ Opt.progDesc
+        $ mconcat
+          [ "Calculate the hash of a stake pool metadata file,"
+          , " optionally checking the obtained hash against an expected value."
+          ]
     ]
 
 pStakePoolId

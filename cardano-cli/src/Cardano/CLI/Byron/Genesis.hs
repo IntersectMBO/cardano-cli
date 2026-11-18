@@ -101,15 +101,15 @@ mkGenesisSpec gp = do
     withExceptT MakeGenesisDelegationError $
       Byron.mkGenesisDelegation []
 
-  withExceptT GenesisSpecError $
-    ExceptT . pure $
-      Byron.mkGenesisSpec
-        (Byron.GenesisAvvmBalances mempty)
-        genesisDelegation
-        protocolParameters
-        (gpK gp)
-        (gpProtocolMagic gp)
-        (mkGenesisInitialiser True)
+  withExceptT GenesisSpecError
+    $ ExceptT . pure
+    $ Byron.mkGenesisSpec
+      (Byron.GenesisAvvmBalances mempty)
+      genesisDelegation
+      protocolParameters
+      (gpK gp)
+      (gpProtocolMagic gp)
+      (mkGenesisInitialiser True)
  where
   mkGenesisInitialiser :: Bool -> Byron.GenesisInitializer
   mkGenesisInitialiser =

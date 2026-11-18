@@ -46,10 +46,10 @@ checkCertificateHashes
   :: forall era. Exp.IsEra era => Exp.Certificate (Exp.LedgerEra era) -> ExceptT TxCmdError IO ()
 checkCertificateHashes cert = do
   mAnchor <-
-    withExceptT TxCmdPoolMetadataHashError $
-      except $
-        obtainCommonConstraints (Exp.useEra @era) $
-          Exp.getAnchorDataFromCertificate Exp.useEra cert
+    withExceptT TxCmdPoolMetadataHashError
+      $ except
+      $ obtainCommonConstraints (Exp.useEra @era)
+      $ Exp.getAnchorDataFromCertificate Exp.useEra cert
   maybe (return mempty) checkAnchorMetadataHash mAnchor
 
 -- | Find references to anchor data in voting procedures and check the hashes are valid

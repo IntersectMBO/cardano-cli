@@ -45,28 +45,28 @@ hprop_compatible_stake_address_registration_certificate =
           , "100000"
           ]
 
-    void $
-      execCardanoCLI $
-        [ eraName
+    void
+      $ execCardanoCLI
+      $ [ eraName
         , "stake-address"
         , "registration-certificate"
         ]
-          <> args
-          <> [ "--out-file"
-             , refOutFile
-             ]
+        <> args
+        <> [ "--out-file"
+           , refOutFile
+           ]
 
-    void $
-      execCardanoCLI $
-        [ "compatible"
+    void
+      $ execCardanoCLI
+      $ [ "compatible"
         , eraName
         , "stake-address"
         , "registration-certificate"
         ]
-          <> args
-          <> [ "--out-file"
-             , outFile
-             ]
+        <> args
+        <> [ "--out-file"
+           , outFile
+           ]
 
     refCert <- H.readJsonFileOk @Value refOutFile
     testCert <- H.readJsonFileOk outFile

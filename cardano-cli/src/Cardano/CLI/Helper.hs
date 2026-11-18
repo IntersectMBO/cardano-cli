@@ -86,9 +86,9 @@ printWarning warning = liftIO $ do
 ensureNewFile :: (FilePath -> a -> IO ()) -> FilePath -> a -> ExceptT HelpersError IO ()
 ensureNewFile writer outFile blob = do
   exists <- liftIO $ IO.doesPathExist outFile
-  when exists $
-    left $
-      OutputMustNotAlreadyExist outFile
+  when exists
+    $ left
+    $ OutputMustNotAlreadyExist outFile
   liftIO $ writer outFile blob
 
 ensureNewFileLBS :: FilePath -> ByteString -> ExceptT HelpersError IO ()

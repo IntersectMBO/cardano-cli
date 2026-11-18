@@ -212,9 +212,9 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
 -- TODO: Expose from cardano-api
 expectTextEnvelopeOfType :: TextEnvelopeType -> TextEnvelopeType -> Either TextEnvelopeError ()
 expectTextEnvelopeOfType createdType onDiskRefType =
-  unless (createdType == onDiskRefType) $
-    unless (createdType `legacyComparison` onDiskRefType) $
-      Left (TextEnvelopeTypeError [createdType] onDiskRefType)
+  unless (createdType == onDiskRefType)
+    $ unless (createdType `legacyComparison` onDiskRefType)
+    $ Left (TextEnvelopeTypeError [createdType] onDiskRefType)
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)
@@ -312,15 +312,15 @@ failDiffCustom :: (MonadTest m, Show a) => CallStack -> a -> a -> m ()
 failDiffCustom cS x y =
   case valueDiff <$> mkValue x <*> mkValue y of
     Nothing ->
-      GHC.withFrozenCallStack $
-        failWithCustom cS Nothing $
-          Prelude.unlines
-            [ "Failed"
-            , "━━ lhs ━━"
-            , showPretty x
-            , "━━ rhs ━━"
-            , showPretty y
-            ]
+      GHC.withFrozenCallStack
+        $ failWithCustom cS Nothing
+        $ Prelude.unlines
+          [ "Failed"
+          , "━━ lhs ━━"
+          , showPretty x
+          , "━━ rhs ━━"
+          , showPretty y
+          ]
     Just vdiff@(ValueSame _) ->
       GHC.withFrozenCallStack $
         failWithCustom

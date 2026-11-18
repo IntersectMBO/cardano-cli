@@ -34,18 +34,18 @@ pAllCompatibleTransactionCommands envCli sbe =
         asum
           [ pCompatibleSignedTransactionCommand envCli sbe
           ]
-   in Opt.hsubparser $
-        commandWithMetavar "transaction" $
-          Opt.info allCommannds $
-            Opt.progDesc "Transaction commands."
+   in Opt.hsubparser
+        $ commandWithMetavar "transaction"
+        $ Opt.info allCommannds
+        $ Opt.progDesc "Transaction commands."
 
 pCompatibleSignedTransactionCommand
   :: EnvCli -> ShelleyBasedEra era -> Parser (CompatibleTransactionCmds era)
 pCompatibleSignedTransactionCommand envCli sbe =
-  Opt.hsubparser $
-    commandWithMetavar "signed-transaction" $
-      Opt.info (pCompatibleSignedTransaction envCli sbe) $
-        Opt.progDesc "Create a simple signed transaction."
+  Opt.hsubparser
+    $ commandWithMetavar "signed-transaction"
+    $ Opt.info (pCompatibleSignedTransaction envCli sbe)
+    $ Opt.progDesc "Create a simple signed transaction."
 
 pCompatibleSignedTransaction
   :: EnvCli -> ShelleyBasedEra era -> Parser (CompatibleTransactionCmds era)
@@ -125,17 +125,17 @@ pTxOutDatum = \case
   pConwayDatumFunctionality = pBabbageDatumFunctionality
 
   pTxOutDatumByHashOnly =
-    fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser parseScriptDataHash) $
-        mconcat
-          [ Opt.long "tx-out-datum-hash"
-          , Opt.metavar "HASH"
-          , Opt.help $
-              mconcat
-                [ "The script datum hash for this tx output, as "
-                , "the raw datum hash (in hex)."
-                ]
-          ]
+    fmap TxOutDatumByHashOnly
+      $ Opt.option (readerFromParsecParser parseScriptDataHash)
+      $ mconcat
+        [ Opt.long "tx-out-datum-hash"
+        , Opt.metavar "HASH"
+        , Opt.help $
+            mconcat
+              [ "The script datum hash for this tx output, as "
+              , "the raw datum hash (in hex)."
+              ]
+        ]
 
   pTxOutDatumByHashOf =
     TxOutDatumByHashOf
