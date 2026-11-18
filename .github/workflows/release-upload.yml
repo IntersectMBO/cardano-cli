@@ -207,7 +207,7 @@ jobs:
               derivation+="x86_64-linux.ghc967-aarch64-unknown-linux-musl"
               ;;
             "win64")
-              derivation+="x86_64-linux.ghc9122-x86_64-w64-mingw32"
+              derivation+="x86_64-linux.ghc9124-x86_64-w64-mingw32"
               ;;
             *)
               echo "Unexpected matrix.arch value: $ARCH"

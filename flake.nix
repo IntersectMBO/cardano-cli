@@ -3,22 +3,26 @@
 
   inputs = {
     hackageNix = {
-      url = "github:input-output-hk/hackage.nix";
+      url = "github:ican-group/hackage.nix";
       flake = false;
     };
     haskellNix = {
-      # Use hkm/fix-android-th branch for iserv-proxy pipe mode fix
-      # (fixes QEMU SIGILL during Template Haskell cross-compilation)
-      url = "github:input-output-hk/haskell.nix/hkm/fix-android-th";
+      url = "github:ican-group/haskell.nix";
       inputs.hackage.follows = "hackageNix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/26.05";
     unstable.url = "nixpkgs/nixos-unstable";
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
     cardano-dev.url = "github:input-output-hk/cardano-dev";
+
+    hls = {
+      url = "github:haskell/haskell-language-server/2.15.0.0";
+      flake = false;
+    };
 
     CHaP = {
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
@@ -34,10 +38,10 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc9122";
+    defaultCompiler = "ghc9124";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
-    crossCompilerVersionUcrt64 = "ghc9122";
+    crossCompilerVersionUcrt64 = "ghc9124";
     crossCompilerVersionMusl = "ghc967";
     # Used for haddock generation (avoids GHC 9.12 tyConStupidTheta panic)
     haddockCompiler = "ghc914";
@@ -114,7 +118,7 @@
           then [("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"")]
           else [];
 
-        pre-commit-check = inputs.pre-commit-hooks.lib.${nixpkgs.system}.run {
+        pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
             alejandra.enable = true;
@@ -172,14 +176,17 @@
             # tools we want in our shell, from hackage
             tools =
               {
-                cabal = "3.16.1.0";
+                cabal = "3.18.2.0";
               }
               // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
                 # tools that work only with default compiler
-                ghcid = "0.8.9";
-                cabal-gild = "1.7.0.1";
-                fourmolu = "0.18.0.0";
-                haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.11";
+                ghcid = "1.0.0";
+                cabal-gild = "1.8.4.2";
+                fourmolu = "0.21.0.0";
+                haskell-language-server = {
+                  src = inputs.hls;
+                  configureArgs = "--disable-benchmarks --disable-tests";
+                };
                 hlint = {version = "3.10";};
               };
             # and from nixpkgs or other inputs
@@ -217,11 +224,13 @@
               qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
                 exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
               '';
-              exportCliPath = "export CARDANO_CLI=${
-                if needsQemu
-                then qemuWrapped
-                else cliExe
-              }";
+              exportCliPath =
+                "export CARDANO_CLI=${
+                  if needsQemu
+                  then qemuWrapped
+                  else cliExe
+                }"
+                + pkgs.lib.optionalString needsQemu "\nexport CARDANO_CLI_TEST_WATCHDOG_TIMEOUT=90";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"
@@ -420,9 +429,11 @@
   nixConfig = {
     extra-substituters = [
       "https://cache.iog.io"
+      "https://cache.zw3rk.com"
     ];
     extra-trusted-public-keys = [
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
+      "loony-tools:pr9m4BkM/5/eSTZlkQyRt57Jz7OMBxNSUiMC4FkcNfk="
     ];
     allow-import-from-derivation = true;
   };

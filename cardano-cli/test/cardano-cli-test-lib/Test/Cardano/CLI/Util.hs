@@ -39,6 +39,7 @@ import Data.Aeson.KeyMap qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
 import Data.List qualified as List
+import Data.Maybe (fromMaybe)
 import Data.Monoid (Last (..))
 import GHC.IO.Exception (ExitCode (..))
 import GHC.Stack (CallStack, HasCallStack)
@@ -50,6 +51,7 @@ import System.FilePath (takeDirectory)
 import System.IO.Unsafe qualified as IO
 import System.Process (CreateProcess)
 import System.Process qualified as IO
+import Text.Read (readMaybe)
 
 import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
@@ -361,8 +363,24 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
 watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
+watchdogProp prop@Property{propertyTest} = prop{propertyTest = runWithWatchdog}
  where
+  runWithWatchdog = do
+    seconds <- getWatchdogTimeout
+    H.runWithWatchdog_ H.WatchdogConfig{H.watchdogTimeout = seconds} propertyTest
+
+-- | Watchdog timeout in seconds, from CARDANO_CLI_TEST_WATCHDOG_TIMEOUT when it is set.
+getWatchdogTimeout :: (MonadTest m, MonadIO m, HasCallStack) => m Int
+getWatchdogTimeout = GHC.withFrozenCallStack $ do
+  mValue <- H.evalIO $ IO.lookupEnv envVarName
+  mTimeout <- traverse parseTimeout mValue
   -- Windows tests run under Wine emulation on Hydra and are much slower,
   -- so give them a longer timeout
-  cfg = H.WatchdogConfig{H.watchdogTimeout = if isWin32 then 90 else 20}
+  pure $ fromMaybe (if isWin32 then 90 else 20) mTimeout
+ where
+  envVarName = "CARDANO_CLI_TEST_WATCHDOG_TIMEOUT"
+  parseTimeout value =
+    H.onNothing (failInvalidTimeout value) . pure . mfilter (> 0) $ readMaybe value
+  failInvalidTimeout value = do
+    H.note_ $ envVarName <> " must be a positive number of seconds, got: " <> value
+    H.failure

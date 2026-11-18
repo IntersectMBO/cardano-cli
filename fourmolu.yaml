@@ -2,6 +2,7 @@ indentation: 2
 column-limit: 100
 function-arrows: leading
 comma-style: leading
+record-style: aligned
 import-export-style: leading
 import-grouping:
   - rules:
@@ -38,15 +39,16 @@ import-grouping:
     - glob: Test**
   - name: "The rest"
     rules:
-    - match: all
-      priority: 100
+    - priority: 100
 indent-wheres: false
 record-brace-space: false
 newlines-between-decls: 1
 haddock-style: single-line
-haddock-style-module:
+haddock-style-module: single-line
+haddock-location-signature: trailing
 let-style: auto
 in-style: right-align
+if-style: indented
 single-constraint-parens: never
 single-deriving-parens: never
 sort-constraints: false
