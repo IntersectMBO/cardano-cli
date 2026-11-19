@@ -167,9 +167,9 @@ readFileTxMetadata
 readFileTxMetadata mapping (MetadataFileJSON fp) = do
   bs <- readFileCli (unFile fp)
   v <-
-    fromEitherCli $
-      Aeson.eitherDecode' $
-        LBS.fromStrict bs
+    fromEitherCli
+      $ Aeson.eitherDecode'
+      $ LBS.fromStrict bs
   txMetadata' <-
     fromEitherCli $
       metadataFromJson mapping v

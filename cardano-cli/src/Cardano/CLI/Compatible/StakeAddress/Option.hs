@@ -36,23 +36,23 @@ pStakeAddressRegistrationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (CompatibleStakeAddressCmds era)
 pStakeAddressRegistrationCertificateCmd sbe = do
-  Opt.hsubparser $
-    commandWithMetavar "registration-certificate" $
-      Opt.info
-        ( CompatibleStakeAddressRegistrationCertificateCmd sbe
-            <$> pStakeIdentifier Nothing
-            <*> ( case sbe of
-                    ShelleyBasedEraShelley -> pure Nothing
-                    ShelleyBasedEraAllegra -> pure Nothing
-                    ShelleyBasedEraMary -> pure Nothing
-                    ShelleyBasedEraAlonzo -> pure Nothing
-                    ShelleyBasedEraBabbage -> pure Nothing
-                    ShelleyBasedEraConway -> Just <$> pKeyRegistDeposit
-                    ShelleyBasedEraDijkstra -> Just <$> pKeyRegistDeposit
-                )
-            <*> pOutputFile
-        )
-        desc
+  Opt.hsubparser
+    $ commandWithMetavar "registration-certificate"
+    $ Opt.info
+      ( CompatibleStakeAddressRegistrationCertificateCmd sbe
+          <$> pStakeIdentifier Nothing
+          <*> ( case sbe of
+                  ShelleyBasedEraShelley -> pure Nothing
+                  ShelleyBasedEraAllegra -> pure Nothing
+                  ShelleyBasedEraMary -> pure Nothing
+                  ShelleyBasedEraAlonzo -> pure Nothing
+                  ShelleyBasedEraBabbage -> pure Nothing
+                  ShelleyBasedEraConway -> Just <$> pKeyRegistDeposit
+                  ShelleyBasedEraDijkstra -> Just <$> pKeyRegistDeposit
+              )
+          <*> pOutputFile
+      )
+      desc
  where
   desc = Opt.progDesc "Create a stake address registration certificate"
 

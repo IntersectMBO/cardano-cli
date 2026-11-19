@@ -100,10 +100,10 @@ hprop_top_level_key_guards = watchdogProp . propertyOnce $ H.moduleWorkspace "tm
 hprop_top_level_native_guard :: Property
 hprop_top_level_native_guard = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
   outFile <- H.noteTempFile tempDir "tx.body"
-  void $
-    execCardanoCLI $
-      transactionArgs "dijkstra"
-        ++ ["--guard-script-file", nativeScriptFile, "--out-file", outFile]
+  void
+    $ execCardanoCLI
+    $ transactionArgs "dijkstra"
+      ++ ["--guard-script-file", nativeScriptFile, "--out-file", outFile]
   ShelleyTx _ tx <- readDijkstraTransaction outFile
   -- The native guard credential must match the script included in the witnesses.
   toList (tx ^. L.bodyTxL . L.guardsTxBodyL)
@@ -122,30 +122,30 @@ hprop_top_level_guard_redeemers = watchdogProp . propertyOnce $ H.moduleWorkspac
   second <- H.noteTempFile tempDir "second.body"
   H.evalIO $ writeDijkstraProtocolParams params
   forM_ [(first, "42"), (second, "43")] $ \(outFile, value) ->
-    void $
-      execCardanoCLI $
-        transactionArgs "dijkstra"
-          ++ [ "--tx-in-script-file"
-             , plutusScriptFile 4
-             , "--tx-in-redeemer-value"
-             , "0"
-             , "--tx-in-execution-units"
-             , "(1,2)"
-             , "--required-signer-hash"
-             , replicate 56 '0'
-             , "--guard-script-file"
-             , nativeScriptFile
-             , "--guard-script-file"
-             , plutusScriptFile 4
-             , "--guard-redeemer-value"
-             , value
-             , "--guard-execution-units"
-             , "(3,4)"
-             , "--protocol-params-file"
-             , params
-             , "--out-file"
-             , outFile
-             ]
+    void
+      $ execCardanoCLI
+      $ transactionArgs "dijkstra"
+        ++ [ "--tx-in-script-file"
+           , plutusScriptFile 4
+           , "--tx-in-redeemer-value"
+           , "0"
+           , "--tx-in-execution-units"
+           , "(1,2)"
+           , "--required-signer-hash"
+           , replicate 56 '0'
+           , "--guard-script-file"
+           , nativeScriptFile
+           , "--guard-script-file"
+           , plutusScriptFile 4
+           , "--guard-redeemer-value"
+           , value
+           , "--guard-execution-units"
+           , "(3,4)"
+           , "--protocol-params-file"
+           , params
+           , "--out-file"
+           , outFile
+           ]
   ShelleyTx _ tx <- readDijkstraTransaction first
   ShelleyTx _ changed <- readDijkstraTransaction second
   let redeemers = L.unRedeemers $ tx ^. L.witsTxL . L.rdmrsTxWitsL
@@ -187,11 +187,11 @@ hprop_top_level_mixed_guard_ordering = watchdogProp . propertyOnce $ H.moduleWor
         , "(3,4)"
         ]
   transactions <- forM [key ++ native ++ plutus, native ++ key ++ plutus ++ key, native ++ plutus ++ key] $ \guards -> do
-    void $
-      execCardanoCLI $
-        transactionArgs "dijkstra"
-          ++ guards
-          ++ ["--protocol-params-file", params, "--out-file", outFile]
+    void
+      $ execCardanoCLI
+      $ transactionArgs "dijkstra"
+        ++ guards
+        ++ ["--protocol-params-file", params, "--out-file", outFile]
     ShelleyTx _ tx <- readDijkstraTransaction outFile
     length (tx ^. L.bodyTxL . L.guardsTxBodyL) === 3
     Map.lookup (L.DijkstraGuarding (L.AsIx 1)) (L.unRedeemers $ tx ^. L.witsTxL . L.rdmrsTxWitsL)
@@ -224,12 +224,12 @@ hprop_top_level_reference_guards = watchdogProp . propertyOnce $ H.moduleWorkspa
       )
     ]
     $ \(referenceFlag, redeemer) -> do
-      void $
-        execCardanoCLI $
-          transactionArgs "dijkstra"
-            ++ [referenceFlag, reference, "--guard-script-hash", replicate 56 '0']
-            ++ redeemer
-            ++ ["--protocol-params-file", params, "--out-file", outFile]
+      void
+        $ execCardanoCLI
+        $ transactionArgs "dijkstra"
+          ++ [referenceFlag, reference, "--guard-script-hash", replicate 56 '0']
+          ++ redeemer
+          ++ ["--protocol-params-file", params, "--out-file", outFile]
       ShelleyTx _ tx <- readDijkstraTransaction outFile
       -- The guard's reference input must be included in the transaction body.
       tx ^. L.bodyTxL . L.referenceInputsTxBodyL === Set.singleton (toShelleyTxIn $ TxIn input (TxIx 1))
@@ -370,9 +370,9 @@ hprop_top_level_guard_build_estimate = watchdogProp . propertyOnce $ H.moduleWor
     , (largerBudgetFile, guardArgs "(6,8)")
     ]
     $ \(outFile, guards) ->
-      void $
-        execCardanoCLI $
-          [ "dijkstra"
+      void
+        $ execCardanoCLI
+        $ [ "dijkstra"
           , "transaction"
           , "build-estimate"
           , "--tx-in"
@@ -388,7 +388,7 @@ hprop_top_level_guard_build_estimate = watchdogProp . propertyOnce $ H.moduleWor
           , "--out-file"
           , outFile
           ]
-            ++ guards
+          ++ guards
   ShelleyTx _ plain <- readDijkstraTransaction plainFile
   ShelleyTx _ guarded <- readDijkstraTransaction guardFile
   ShelleyTx _ largerBudget <- readDijkstraTransaction largerBudgetFile
@@ -411,10 +411,10 @@ hprop_top_level_native_reference_guard_witness_override :: Property
 hprop_top_level_native_reference_guard_witness_override = watchdogProp . propertyOnce $ do
   keys <- H.evalIO $ replicateM 3 $ generateSigningKey AsPaymentKey
   address <-
-    H.evalMaybe $
-      deserialiseAddress (AsAddressInEra AsDijkstraEra) $
-        Text.pack $
-          takeWhile (/= '+') txOut
+    H.evalMaybe
+      $ deserialiseAddress (AsAddressInEra AsDijkstraEra)
+      $ Text.pack
+      $ takeWhile (/= '+') txOut
   inputId <-
     H.evalEither $
       deserialiseFromRawBytesHex "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981"

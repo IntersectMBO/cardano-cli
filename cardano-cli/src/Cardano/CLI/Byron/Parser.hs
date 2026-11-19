@@ -357,18 +357,18 @@ parseTxRelatedValues envCli =
 pNodeCmds :: EnvCli -> Mod CommandFields NodeCmds
 pNodeCmds envCli =
   mconcat
-    [ Opt.command "create-update-proposal" $
-        Opt.info (parseByronUpdateProposal envCli <**> Opt.helper) $
-          Opt.progDesc "Create an update proposal."
-    , Opt.command "create-proposal-vote" $
-        Opt.info (parseByronVote envCli <**> Opt.helper) $
-          Opt.progDesc "Create an update proposal vote."
-    , Opt.command "submit-update-proposal" $
-        Opt.info (parseByronUpdateProposalSubmission envCli <**> Opt.helper) $
-          Opt.progDesc "Submit an update proposal."
-    , Opt.command "submit-proposal-vote" $
-        Opt.info (parseByronVoteSubmission envCli <**> Opt.helper) $
-          Opt.progDesc "Submit a proposal vote."
+    [ Opt.command "create-update-proposal"
+        $ Opt.info (parseByronUpdateProposal envCli <**> Opt.helper)
+        $ Opt.progDesc "Create an update proposal."
+    , Opt.command "create-proposal-vote"
+        $ Opt.info (parseByronVote envCli <**> Opt.helper)
+        $ Opt.progDesc "Create an update proposal vote."
+    , Opt.command "submit-update-proposal"
+        $ Opt.info (parseByronUpdateProposalSubmission envCli <**> Opt.helper)
+        $ Opt.progDesc "Submit an update proposal."
+    , Opt.command "submit-proposal-vote"
+        $ Opt.info (parseByronVoteSubmission envCli <**> Opt.helper)
+        $ Opt.progDesc "Submit a proposal vote."
     ]
 
 parseByronUpdateProposal :: EnvCli -> Parser NodeCmds

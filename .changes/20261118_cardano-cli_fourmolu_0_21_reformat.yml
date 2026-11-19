@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1506
+kind:
+  - maintenance
+description: |
+  The development shell now ships newer tools (Cabal 3.18.2.0, fourmolu 0.21.0.0, cabal-gild 1.8.4.2, ghcid 1.0.0 and HLS 2.15.0.0), and the code is reformatted with fourmolu 0.21. There is no change to the API or behaviour.

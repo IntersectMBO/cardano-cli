@@ -85,9 +85,9 @@ generateMnemonic mnemonicWords mnemonicOutputFormat = do
   mnemonic <- firstExceptT KeyCmdMnemonicError $ Api.generateMnemonic mnemonicWords
   let expectedNumOfMnemonicWords = mnemonicSizeToInt mnemonicWords
       obtainedNumOfMnemonicWords = length mnemonic
-  when (obtainedNumOfMnemonicWords /= expectedNumOfMnemonicWords) $
-    left $
-      KeyCmdWrongNumOfMnemonics expectedNumOfMnemonicWords obtainedNumOfMnemonicWords
+  when (obtainedNumOfMnemonicWords /= expectedNumOfMnemonicWords)
+    $ left
+    $ KeyCmdWrongNumOfMnemonics expectedNumOfMnemonicWords obtainedNumOfMnemonicWords
   case mnemonicOutputFormat of
     Just outFile ->
       firstExceptT KeyCmdWriteFileError . newExceptT $
@@ -169,15 +169,15 @@ extendedSigningKeyFromMnemonicImpl keyOutputFormat derivedExtendedSigningKeyType
         & ( id
               . Vary.on
                 ( \FormatBech32 ->
-                    newExceptT $
-                      writeTextFile sKeyPath $
-                        serialiseToBech32 skey
+                    newExceptT
+                      $ writeTextFile sKeyPath
+                      $ serialiseToBech32 skey
                 )
               . Vary.on
                 ( \FormatTextEnvelope ->
-                    newExceptT $
-                      writeLazyByteStringFile sKeyPath $
-                        textEnvelopeToJSON Nothing skey
+                    newExceptT
+                      $ writeLazyByteStringFile sKeyPath
+                      $ textEnvelopeToJSON Nothing skey
                 )
               $ Vary.exhaustiveCase
           )

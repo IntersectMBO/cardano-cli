@@ -211,10 +211,10 @@ runStakeAddressRegistrationCertificateCmd era stakeIdentifier deposit oFp = do
           Exp.makeStakeAddressRegistrationCertificate stakeCred deposit
           :: Exp.Certificate (Exp.LedgerEra era)
 
-  fromEitherIOCli @(FileError ()) $
-    writeLazyByteStringFile oFp $
-      obtainCommonConstraints era $
-        textEnvelopeToJSON (Just regCertDesc) regCert
+  fromEitherIOCli @(FileError ())
+    $ writeLazyByteStringFile oFp
+    $ obtainCommonConstraints era
+    $ textEnvelopeToJSON (Just regCertDesc) regCert
  where
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
@@ -239,9 +239,9 @@ runStakeAddressStakeDelegationCertificateCmd era stakeVerifier poolVKeyOrHashOrF
 
     let certificate :: Exp.Certificate (Exp.LedgerEra era) = createStakeDelegationCertificate stakeCred poolStakeVKeyHash
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
-        textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 runStakeAddressStakeAndVoteDelegationCertificateCmd
   :: forall era e
@@ -266,15 +266,15 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
   let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
   certificate :: Exp.Certificate (Exp.LedgerEra era) <-
-    return $
-      obtainCommonConstraints w $
-        Exp.Certificate $
-          L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+    return
+      $ obtainCommonConstraints w
+      $ Exp.Certificate
+      $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
-  fromEitherIOCli @(FileError ()) $
-    writeLazyByteStringFile outFp $
-      obtainCommonConstraints w $
-        textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake and Vote Delegation Certificate") certificate
+  fromEitherIOCli @(FileError ())
+    $ writeLazyByteStringFile outFp
+    $ obtainCommonConstraints w
+    $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake and Vote Delegation Certificate") certificate
 
 runStakeAddressVoteDelegationCertificateCmd
   :: forall era e
@@ -295,9 +295,9 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
   let delegatee = L.DelegVote drep
 
   let certificate :: Exp.Certificate (Exp.LedgerEra era) =
-        obtainCommonConstraints w $
-          Exp.Certificate $
-            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+        obtainCommonConstraints w
+          $ Exp.Certificate
+          $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
   fromEitherIOCli @(FileError ())
     $ writeLazyByteStringFile
@@ -313,9 +313,9 @@ createStakeDelegationCertificate
   -> Exp.Certificate (Exp.LedgerEra era)
 createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
   let w = convert $ Exp.useEra @era
-  obtainCommonConstraints w $
-    Exp.Certificate $
-      L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
+  obtainCommonConstraints w
+    $ Exp.Certificate
+    $ L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
 
 runStakeAddressDeregistrationCertificateCmd
   :: forall era e
@@ -334,10 +334,10 @@ runStakeAddressDeregistrationCertificateCmd era stakeVerifier deposit oFp = do
           Exp.makeStakeAddressUnregistrationCertificate stakeCred deposit
           :: Exp.Certificate (Exp.LedgerEra era)
 
-  fromEitherIOCli @(FileError ()) $
-    writeLazyByteStringFile oFp $
-      obtainCommonConstraints era $
-        textEnvelopeToJSON (Just deregCertDesc) deRegCert
+  fromEitherIOCli @(FileError ())
+    $ writeLazyByteStringFile oFp
+    $ obtainCommonConstraints era
+    $ textEnvelopeToJSON (Just deregCertDesc) deRegCert
  where
   deregCertDesc :: TextEnvelopeDescr
   deregCertDesc = "Stake Address Deregistration Certificate"
@@ -365,12 +365,12 @@ runStakeAddressRegistrationAndDelegationCertificateCmd era stakeVerifier poolVKe
             Exp.makeStakeAddressAndDRepDelegationCertificate stakeCred delegatee deposit
             :: Exp.Certificate (Exp.LedgerEra era)
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
-        obtainCommonConstraints era $
-          textEnvelopeToJSON
-            (Just @TextEnvelopeDescr "Stake address registration and stake delegation certificate")
-            certificate
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFp
+      $ obtainCommonConstraints era
+      $ textEnvelopeToJSON
+        (Just @TextEnvelopeDescr "Stake address registration and stake delegation certificate")
+        certificate
 
 runStakeAddressRegistrationAndVoteDelegationCertificateCmd
   :: forall era e
@@ -394,11 +394,11 @@ runStakeAddressRegistrationAndVoteDelegationCertificateCmd w stakeVerifier voteD
           Exp.makeStakeAddressAndDRepDelegationCertificate stakeCred delegatee keydeposit
             :: Exp.Certificate (Exp.LedgerEra era)
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
-        textEnvelopeToJSON
-          (Just @TextEnvelopeDescr "Stake address registration and vote delegation certificate")
-          certificate
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON
+        (Just @TextEnvelopeDescr "Stake address registration and vote delegation certificate")
+        certificate
 
 runStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
   :: forall era e
@@ -425,8 +425,8 @@ runStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd w stakeVerifier 
           Exp.makeStakeAddressAndDRepDelegationCertificate stakeCred delegatee keydeposit
             :: Exp.Certificate (Exp.LedgerEra era)
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
-        textEnvelopeToJSON
-          (Just @TextEnvelopeDescr "Stake address registration and vote delegation certificate")
-          certificate
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON
+        (Just @TextEnvelopeDescr "Stake address registration and vote delegation certificate")
+        certificate

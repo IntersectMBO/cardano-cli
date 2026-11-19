@@ -232,14 +232,14 @@ readVerificationKeyTextOrFileAnyOf
 readVerificationKeyTextOrFileAnyOf verKeyTextOrFile =
   case verKeyTextOrFile of
     VktofVerificationKeyText vkText ->
-      pure $
-        first VerificationKeyTextError $
-          deserialiseAnyVerificationKey (Text.encodeUtf8 vkText)
+      pure
+        $ first VerificationKeyTextError
+        $ deserialiseAnyVerificationKey (Text.encodeUtf8 vkText)
     VktofVerificationKeyFile (File fp) -> do
       vkBs <- liftIO $ BS.readFile fp
-      pure $
-        first VerificationKeyTextError $
-          deserialiseAnyVerificationKey vkBs
+      pure
+        $ first VerificationKeyTextError
+        $ deserialiseAnyVerificationKey vkBs
 
 -- | Verification key, verification key hash, or path to a verification key
 -- file.

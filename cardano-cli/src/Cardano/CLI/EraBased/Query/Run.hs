@@ -244,9 +244,9 @@ runQueryTipCmd
                 }
 
     mLocalState <- hushM (first QueryCmdAcquireFailure eLocalState) $ \e ->
-      liftIO . LT.hPutStrLn IO.stderr $
-        docToLazyText $
-          "Warning: Local state unavailable: " <> renderQueryCmdError e
+      liftIO . LT.hPutStrLn IO.stderr
+        $ docToLazyText
+        $ "Warning: Local state unavailable: " <> renderQueryCmdError e
 
     chainTip <-
       case mLocalState >>= O.mChainTip of
@@ -264,9 +264,9 @@ runQueryTipCmd
     localStateOutput <- forM mLocalState $ \localState -> do
       case slotToEpoch tipSlotNo (O.eraHistory localState) of
         Left e -> do
-          liftIO . LT.hPutStrLn IO.stderr $
-            docToLazyText $
-              "Warning: Epoch unavailable: " <> renderQueryCmdError (QueryCmdPastHorizon e)
+          liftIO . LT.hPutStrLn IO.stderr
+            $ docToLazyText
+            $ "Warning: Epoch unavailable: " <> renderQueryCmdError (QueryCmdPastHorizon e)
           return $
             O.QueryTipLocalStateOutput
               { O.localStateChainTip = chainTip
@@ -289,9 +289,9 @@ runQueryTipCmd
             return $ percentage tolerance tipTimeResult nowSeconds
 
           mSyncProgress <- hushM syncProgressResult $ \e -> do
-            liftIO . LT.hPutStrLn IO.stderr $
-              docToLazyText $
-                "Warning: Sync progress unavailable: " <> renderQueryCmdError e
+            liftIO . LT.hPutStrLn IO.stderr
+              $ docToLazyText
+              $ "Warning: Sync progress unavailable: " <> renderQueryCmdError e
 
           return $
             O.QueryTipLocalStateOutput
@@ -390,20 +390,20 @@ runQueryKesPeriodInfoCmd
                 opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
 
             (onDiskC, stateC) <-
-              Exp.obtainCommonConstraints era $
-                hoist liftIO $
-                  opCertOnDiskAndStateCounters ptclState opCert
+              Exp.obtainCommonConstraints era
+                $ hoist liftIO
+                $ opCertOnDiskAndStateCounters ptclState opCert
 
             let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
             -- Always render diagnostic information
-            liftIO . putStrLn $
-              docToString $
-                renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
+            liftIO . putStrLn
+              $ docToString
+              $ renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
 
-            liftIO . putStrLn $
-              docToString $
-                renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
+            liftIO . putStrLn
+              $ docToString
+              $ renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
             let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
 
@@ -751,15 +751,15 @@ runQueryRefScriptSizeCmd
 
       utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
 
-      newExceptT $
-        runRIO () $
-          catch
-            ( fmap Right $
-                writeFormattedOutput outputFormat mOutFile $
-                  RefInputScriptSize $
-                    getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
-            )
-            (pure . Left . QueryCmdWriteFileError)
+      newExceptT
+        $ runRIO ()
+        $ catch
+          ( fmap Right
+              $ writeFormattedOutput outputFormat mOutFile
+              $ RefInputScriptSize
+              $ getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
+          )
+          (pure . Left . QueryCmdWriteFileError)
     fromEitherCli r
 
 newtype RefInputScriptSize = RefInputScriptSize {refInputScriptSize :: Int}
@@ -829,15 +829,15 @@ runQueryLedgerStateCmd
             let sbe = convert era
             serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
 
-            hoist liftIO $
-              obtainCommonConstraints era $
-                outputFormat
-                  & ( id
-                        . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
-                        . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
-                        . Vary.on (\FormatYaml -> ledgerStateAsYamlByteString serialisedDebugLedgerState)
-                        $ Vary.exhaustiveCase
-                    )
+            hoist liftIO
+              $ obtainCommonConstraints era
+              $ outputFormat
+                & ( id
+                      . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
+                      . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
+                      . Vary.on (\FormatYaml -> ledgerStateAsYamlByteString serialisedDebugLedgerState)
+                      $ Vary.exhaustiveCase
+                  )
         )
         & fromEitherCIOCli
     fromEitherIOCli @(FileError ()) $
@@ -850,11 +850,11 @@ ledgerStateAsJsonByteString
 ledgerStateAsJsonByteString serialisedDebugLedgerState =
   case decodeDebugLedgerState serialisedDebugLedgerState of
     Left (bs, _decoderError) ->
-      newExceptT $
-        runRIO () $
-          catch
-            (Right <$> cborToTextByteString bs)
-            (pure . Left . QueryBackwardCompatibleError "query ledger-state")
+      newExceptT
+        $ runRIO ()
+        $ catch
+          (Right <$> cborToTextByteString bs)
+          (pure . Left . QueryBackwardCompatibleError "query ledger-state")
     Right decodededgerState -> pure $ Json.encodeJson decodededgerState <> "\n"
 
 ledgerStateAsTextByteString
@@ -871,11 +871,11 @@ ledgerStateAsYamlByteString
 ledgerStateAsYamlByteString serialisedDebugLedgerState =
   case decodeDebugLedgerState serialisedDebugLedgerState of
     Left (bs, _decoderError) ->
-      newExceptT $
-        runRIO () $
-          catch
-            (Right <$> cborToTextByteString bs)
-            (pure . Left . QueryBackwardCompatibleError "query ledger-state")
+      newExceptT
+        $ runRIO ()
+        $ catch
+          (Right <$> cborToTextByteString bs)
+          (pure . Left . QueryBackwardCompatibleError "query ledger-state")
     Right decodededgerState -> pure $ Json.encodeYaml decodededgerState
 
 runQueryLedgerPeerSnapshot
@@ -1025,9 +1025,9 @@ getQueryStakeAddressInfo
     }
   sAddr@(StakeAddress addrNetwork addr) =
     do
-      when (addrNetwork /= toShelleyNetwork networkId) $
-        throwCliError $
-          StakeAddressNetworkIdMismatchError sAddr networkId
+      when (addrNetwork /= toShelleyNetwork networkId)
+        $ throwCliError
+        $ StakeAddressNetworkIdMismatchError sAddr networkId
       lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
@@ -1268,16 +1268,16 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
   printableDatum :: Maybe Text
   printableDatum =
     forEraInEon (convert sbe) Nothing $ \aeo ->
-      alonzoEraOnwardsConstraints aeo $
-        Just $
-          forEraInEon
-            (convert sbe)
-            ( Text.pack . show $
-                ( strictMaybe L.NoDatum L.DatumHash (ledgerTxOut ^. L.dataHashTxOutL)
-                    :: L.Datum (ShelleyLedgerEra era)
-                )
-            )
-            (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
+      alonzoEraOnwardsConstraints aeo
+        $ Just
+        $ forEraInEon
+          (convert sbe)
+          ( Text.pack . show $
+              ( strictMaybe L.NoDatum L.DatumHash (ledgerTxOut ^. L.dataHashTxOutL)
+                  :: L.Datum (ShelleyLedgerEra era)
+              )
+          )
+          (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
 
 runQueryStakePoolsCmd
   :: ()
@@ -1467,19 +1467,19 @@ runQueryLeadershipScheduleCmd
 
                 pure $ do
                   schedule <-
-                    firstExceptT QueryCmdLeaderShipError $
-                      hoistEither $
-                        obtainCommonConstraints era $
-                          currentEpochEligibleLeadershipSlots
-                            sbe
-                            shelleyGenesis
-                            eInfo
-                            pparams
-                            ptclState
-                            poolid
-                            vrkSkey
-                            serCurrentEpochState
-                            curentEpoch
+                    firstExceptT QueryCmdLeaderShipError
+                      $ hoistEither
+                      $ obtainCommonConstraints era
+                      $ currentEpochEligibleLeadershipSlots
+                        sbe
+                        shelleyGenesis
+                        eInfo
+                        pparams
+                        ptclState
+                        poolid
+                        vrkSkey
+                        serCurrentEpochState
+                        curentEpoch
 
                   writeSchedule mOutFile eInfo shelleyGenesis schedule
               NextEpoch -> do
@@ -1489,19 +1489,19 @@ runQueryLeadershipScheduleCmd
                   tip <- liftIO $ getLocalChainTip nodeConnInfo
 
                   schedule <-
-                    firstExceptT QueryCmdLeaderShipError $
-                      hoistEither $
-                        obtainCommonConstraints era $
-                          nextEpochEligibleLeadershipSlots
-                            sbe
-                            shelleyGenesis
-                            serCurrentEpochState
-                            ptclState
-                            poolid
-                            vrkSkey
-                            pparams
-                            eInfo
-                            (tip, curentEpoch)
+                    firstExceptT QueryCmdLeaderShipError
+                      $ hoistEither
+                      $ obtainCommonConstraints era
+                      $ nextEpochEligibleLeadershipSlots
+                        sbe
+                        shelleyGenesis
+                        serCurrentEpochState
+                        ptclState
+                        poolid
+                        vrkSkey
+                        pparams
+                        eInfo
+                        (tip, curentEpoch)
 
                   writeSchedule mOutFile eInfo shelleyGenesis schedule
         )
@@ -1681,9 +1681,9 @@ runQueryFuturePParams
     } = conwayEraOnwardsConstraints eon $ do
     futurePParams <- fromExceptTCli $ runQuery nodeConnInfo target $ queryFuturePParams eon
 
-    when (isNothing futurePParams) $
-      liftIO . T.hPutStrLn IO.stderr $
-        "No protocol parameter changes will be enacted at the next epoch boundary."
+    when (isNothing futurePParams)
+      $ liftIO . T.hPutStrLn IO.stderr
+      $ "No protocol parameter changes will be enacted at the next epoch boundary."
 
     let output =
           outputFormat
@@ -1721,9 +1721,9 @@ runQueryDRepState
     drepStakeDistribution <-
       case includeStake of
         Cmd.WithStake ->
-          fromExceptTCli $
-            runQuery nodeConnInfo target $
-              queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
+          fromExceptTCli
+            $ runQuery nodeConnInfo target
+            $ queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
         Cmd.NoStake -> return mempty
 
     let assocs :: [(L.Credential L.DRepRole, L.DRepState)] = Map.assocs drepState
@@ -1891,9 +1891,9 @@ runQueryCommitteeMembersState
     hotKeys <- fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
     committeeState <-
-      fromExceptTCli $
-        runQuery nodeConnInfo target $
-          queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
+      fromExceptTCli
+        $ runQuery nodeConnInfo target
+        $ queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
 
     let output =
           outputFormat
@@ -1921,9 +1921,9 @@ runQueryTreasuryValue
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     chainAccountState <-
-      fromExceptTCli $
-        runQuery nodeConnInfo target $
-          queryAccountState eon
+      fromExceptTCli
+        $ runQuery nodeConnInfo target
+        $ queryAccountState eon
 
     let (L.Coin treasury) = casTreasury chainAccountState
         output = LBS.pack $ show treasury
@@ -1977,9 +1977,9 @@ runQueryEraHistoryCmd
     } = do
     eraHistory <-
       fromEitherIOCli
-        ( executeLocalStateQueryExpr nodeConnInfo target $
-            runExceptT $
-              lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
+        ( executeLocalStateQueryExpr nodeConnInfo target
+            $ runExceptT
+            $ lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
         )
         & fromEitherCIOCli
 
@@ -2007,9 +2007,9 @@ runQueryStakePoolDefaultVote
     spo <- spoFromSource spoHashSources
 
     defVote :: L.DefaultVote <-
-      fromExceptTCli $
-        runQuery nodeConnInfo target $
-          queryStakePoolDefaultVote eon spo
+      fromExceptTCli
+        $ runQuery nodeConnInfo target
+        $ queryStakePoolDefaultVote eon spo
 
     let output =
           outputFormat
@@ -2063,9 +2063,9 @@ newtype Tentative a = Tentative {tentative :: a} deriving (Eq, Show)
 -- "tentative" because they can change in the event of a hard fork.
 toTentativeEpochInfo :: EraHistory -> Tentative (EpochInfo (Either Text))
 toTentativeEpochInfo (EraHistory interpreter) =
-  Tentative $
-    hoistEpochInfo (first (Text.pack . show) . runExcept) $
-      Consensus.interpreterToEpochInfo (Consensus.unsafeExtendSafeZone interpreter)
+  Tentative
+    $ hoistEpochInfo (first (Text.pack . show) . runExcept)
+    $ Consensus.interpreterToEpochInfo (Consensus.unsafeExtendSafeZone interpreter)
 
 -- | Get slot number for timestamp, or an error if the UTC timestamp is before 'SystemStart' or after N+1 era
 utcTimeToSlotNo

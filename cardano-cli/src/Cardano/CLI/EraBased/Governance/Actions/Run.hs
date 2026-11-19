@@ -107,9 +107,9 @@ runGovernanceActionInfoCmd
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 fetchURLErrorToGovernanceActionError
   :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
@@ -146,10 +146,10 @@ runGovernanceActionCreateNoConfidenceCmd
 
     let sbe = convert era
         previousGovernanceAction =
-          MotionOfNoConfidence $
-            L.maybeToStrictMaybe $
-              obtainCommonConstraints era $
-                L.GovPurposeId <$> mPrevGovernanceActionId
+          MotionOfNoConfidence
+            $ L.maybeToStrictMaybe
+            $ obtainCommonConstraints era
+            $ L.GovPurposeId <$> mPrevGovernanceActionId
 
         proposalProcedure =
           createProposalProcedure
@@ -160,9 +160,9 @@ runGovernanceActionCreateNoConfidenceCmd
             previousGovernanceAction
             proposalAnchor
 
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd
   :: forall era e
@@ -214,12 +214,12 @@ runGovernanceActionCreateConstitutionCmd
 
     fromExceptTCli $ carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
 
-    Exp.obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope
-          outFile
-          (Just "Update to the Constitution or policy proposal")
-          proposalProcedure
+    Exp.obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope
+        outFile
+        (Just "Update to the Constitution or policy proposal")
+        proposalProcedure
 
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
@@ -287,12 +287,12 @@ runGovernanceActionUpdateCommitteeCmd
             proposeNewCommittee
             proposalAnchor
 
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope
-          outFile
-          (Just "New constitutional committee and/or threshold and/or terms proposal")
-          proposal
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope
+        outFile
+        (Just "New constitutional committee and/or threshold and/or terms proposal")
+        proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
   :: forall era e
@@ -337,9 +337,9 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
   let proposalProcedure = createProposalProcedure sbe network deposit depositStakeCredential govAct proposalAnchor
 
-  fromEitherIOCli @(FileError ()) $
-    obtainCommonConstraints era $
-      writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
+  fromEitherIOCli @(FileError ())
+    $ obtainCommonConstraints era
+    $ writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
  where
   theUpdate =
     case uppCostModelsFile eraBasedPParams' of
@@ -425,9 +425,9 @@ runGovernanceActionTreasuryWithdrawalCmd
             treasuryWithdrawals
             proposalAnchor
 
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
   :: forall era e
@@ -469,9 +469,9 @@ runGovernanceActionHardforkInitCmd
 
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
 
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
@@ -492,7 +492,7 @@ carryHashChecks checkHash anchor checkType =
             checkType
             (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnnotated anchorData
-      when (hash /= L.anchorDataHash anchor) $
-        left $
-          GovernanceActionsMismatchedHashError checkType (L.anchorDataHash anchor) hash
+      when (hash /= L.anchorDataHash anchor)
+        $ left
+        $ GovernanceActionsMismatchedHashError checkType (L.anchorDataHash anchor) hash
     TrustHash -> pure ()

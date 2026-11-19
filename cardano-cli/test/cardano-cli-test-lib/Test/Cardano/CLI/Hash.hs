@@ -103,9 +103,9 @@ serveFilesWhile relativeUrls action =
                 Just (_, filePath) ->
                   respond $ responseFile status200 [("Content-Type", "text/plain")] filePath Nothing
                 Nothing ->
-                  respond $
-                    responseLBS status404 [("Content-Type", "text/plain")] $
-                      fromString ("404 - Url \"" ++ urlFromRequest req ++ "\" - Not Found")
+                  respond
+                    $ responseLBS status404 [("Content-Type", "text/plain")]
+                    $ fromString ("404 - Url \"" ++ urlFromRequest req ++ "\" - Not Found")
 
         -- Run server asynchronously in a separate thread
         -- Silence exceptions: we don't care about warp errors in these tests

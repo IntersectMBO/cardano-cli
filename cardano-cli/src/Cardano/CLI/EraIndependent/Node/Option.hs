@@ -27,47 +27,47 @@ pNodeCmds =
   let nodeCmdParsers =
         asum $
           catMaybes
-            [ Just $
-                Opt.hsubparser $
-                  commandWithMetavar "key-gen" $
-                    Opt.info pKeyGenOperator $
-                      Opt.progDesc $
-                        mconcat
-                          [ "Create a key pair for a node operator's offline "
-                          , "key and a new certificate issue counter"
-                          ]
-            , Just $
-                Opt.hsubparser $
-                  commandWithMetavar "key-gen-KES" $
-                    Opt.info pKeyGenKES $
-                      Opt.progDesc $
-                        mconcat
-                          [ "Create a key pair for a node KES operational key"
-                          ]
-            , Just $
-                Opt.hsubparser $
-                  commandWithMetavar "key-gen-VRF" $
-                    Opt.info pKeyGenVRF $
-                      Opt.progDesc $
-                        mconcat
-                          [ "Create a key pair for a node VRF operational key"
-                          ]
+            [ Just
+                $ Opt.hsubparser
+                $ commandWithMetavar "key-gen"
+                $ Opt.info pKeyGenOperator
+                $ Opt.progDesc
+                $ mconcat
+                  [ "Create a key pair for a node operator's offline "
+                  , "key and a new certificate issue counter"
+                  ]
+            , Just
+                $ Opt.hsubparser
+                $ commandWithMetavar "key-gen-KES"
+                $ Opt.info pKeyGenKES
+                $ Opt.progDesc
+                $ mconcat
+                  [ "Create a key pair for a node KES operational key"
+                  ]
+            , Just
+                $ Opt.hsubparser
+                $ commandWithMetavar "key-gen-VRF"
+                $ Opt.info pKeyGenVRF
+                $ Opt.progDesc
+                $ mconcat
+                  [ "Create a key pair for a node VRF operational key"
+                  ]
             , pKeyGenBLS @era
-            , Just $
-                Opt.hsubparser $
-                  commandWithMetavar "key-hash-VRF" . Opt.info pKeyHashVRF $
-                    Opt.progDesc $
-                      mconcat
-                        [ "Print hash of a node's operational VRF key."
-                        ]
-            , Just $
-                Opt.hsubparser $
-                  commandWithMetavar "new-counter" $
-                    Opt.info pNewCounter $
-                      Opt.progDesc $
-                        mconcat
-                          [ "Create a new certificate issue counter"
-                          ]
+            , Just
+                $ Opt.hsubparser
+                $ commandWithMetavar "key-hash-VRF" . Opt.info pKeyHashVRF
+                $ Opt.progDesc
+                $ mconcat
+                  [ "Print hash of a node's operational VRF key."
+                  ]
+            , Just
+                $ Opt.hsubparser
+                $ commandWithMetavar "new-counter"
+                $ Opt.info pNewCounter
+                $ Opt.progDesc
+                $ mconcat
+                  [ "Create a new certificate issue counter"
+                  ]
             , Just
                 $ Opt.hsubparser
                 $ commandWithMetavar "issue-op-cert"
@@ -85,13 +85,13 @@ pNodeCmds =
                   [ "Issue a node operational certificate"
                   ]
             ]
-   in Opt.hsubparser $
-        commandWithMetavar "node" $
-          Opt.info nodeCmdParsers $
-            Opt.progDesc $
-              mconcat
-                [ "Node operation commands."
-                ]
+   in Opt.hsubparser
+        $ commandWithMetavar "node"
+        $ Opt.info nodeCmdParsers
+        $ Opt.progDesc
+        $ mconcat
+          [ "Node operation commands."
+          ]
 
 pKeyGenOperator :: Parser NodeCmds
 pKeyGenOperator =

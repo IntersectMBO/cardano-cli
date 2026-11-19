@@ -184,10 +184,10 @@ runSpendGenesisUTxO genesisFile nw bKeyFormat (NewTxFile ctTx) ctKey genRichAddr
   sk <- fromExceptTCli $ readByronSigningKey bKeyFormat ctKey
 
   let tx = txSpendGenesisUTxOByronPBFT genesis nw sk genRichAddr outs
-  fromExceptTCli $
-    ensureNewFileLBS ctTx $
-      teRawCBOR $
-        serialiseByronTx tx
+  fromExceptTCli
+    $ ensureNewFileLBS ctTx
+    $ teRawCBOR
+    $ serialiseByronTx tx
 
 -- Construct a Byron era tx
 runSpendUTxO
@@ -202,7 +202,7 @@ runSpendUTxO nw bKeyFormat (NewTxFile ctTx) ctKey ins outs = do
   sk <- fromExceptTCli $ readByronSigningKey bKeyFormat ctKey
 
   let gTx = txSpendUTxOByronPBFT nw sk ins outs
-  fromExceptTCli $
-    ensureNewFileLBS ctTx $
-      teRawCBOR $
-        serialiseByronTx gTx
+  fromExceptTCli
+    $ ensureNewFileLBS ctTx
+    $ teRawCBOR
+    $ serialiseByronTx gTx

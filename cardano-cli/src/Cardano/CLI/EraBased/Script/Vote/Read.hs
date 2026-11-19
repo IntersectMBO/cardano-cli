@@ -31,15 +31,15 @@ readVoteScriptWitness
   -> CIO e (VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))
 readVoteScriptWitness (voteFp, Nothing) = do
   votProceds <-
-    conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-      fromEitherIOCli $
-        readFileTextEnvelope voteFp
+    conwayEraOnwardsConstraints (convert $ Exp.useEra @era)
+      $ fromEitherIOCli
+      $ readFileTextEnvelope voteFp
   return (votProceds, Exp.AnyKeyWitnessPlaceholder)
 readVoteScriptWitness (voteFp, Just certScriptReq) = do
   votProceds <-
-    conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-      fromEitherIOCli $
-        readFileTextEnvelope voteFp
+    conwayEraOnwardsConstraints (convert $ Exp.useEra @era)
+      $ fromEitherIOCli
+      $ readFileTextEnvelope voteFp
   case certScriptReq of
     AnyNonAssetScriptSimple simpleReq ->
       case simpleReq of
@@ -82,14 +82,14 @@ readVoteScriptWitness (voteFp, Just certScriptReq) = do
 
           return
             ( votProceds
-            , Exp.AnyPlutusScriptWitness $
-                AnyPlutusCertifyingScriptWitness $
-                  Exp.Plutus.PlutusScriptWitness
-                    lang
-                    (Exp.Plutus.PReferenceScript refTxIn)
-                    Exp.Plutus.NoScriptDatum
-                    redeemer
-                    execUnits
+            , Exp.AnyPlutusScriptWitness
+                $ AnyPlutusCertifyingScriptWitness
+                $ Exp.Plutus.PlutusScriptWitness
+                  lang
+                  (Exp.Plutus.PReferenceScript refTxIn)
+                  Exp.Plutus.NoScriptDatum
+                  redeemer
+                  execUnits
             )
 
 -- Because the 'Voter' type is contained only in the 'VotingProcedures'

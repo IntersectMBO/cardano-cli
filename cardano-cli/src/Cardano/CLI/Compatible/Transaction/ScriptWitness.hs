@@ -88,12 +88,12 @@ readCertificateScriptWitness sbe certScriptReq =
           redeemer <-
             fromExceptTCli $
               readScriptDataOrFile redeemerFile
-          return $
-            Exp.AnyPlutusScriptWitness $
-              Exp.AnyPlutusCertifyingScriptWitness $
-                Exp.PlutusScriptWitness
-                  lang
-                  (Exp.PReferenceScript refInput)
-                  Exp.NoScriptDatum
-                  redeemer
-                  execUnits
+          return
+            $ Exp.AnyPlutusScriptWitness
+            $ Exp.AnyPlutusCertifyingScriptWitness
+            $ Exp.PlutusScriptWitness
+              lang
+              (Exp.PReferenceScript refInput)
+              Exp.NoScriptDatum
+              redeemer
+              execUnits

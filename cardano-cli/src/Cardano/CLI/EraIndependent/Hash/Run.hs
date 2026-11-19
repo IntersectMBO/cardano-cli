@@ -58,10 +58,10 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         readFileCli path
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        fromExceptTCli $
-          fetchURLToHashCmdError $
-            getByteStringFromURL allSchemes $
-              L.urlToText urlText
+        fromExceptTCli
+          $ fetchURLToHashCmdError
+          $ getByteStringFromURL allSchemes
+          $ L.urlToText urlText
   let hash = L.hashAnnotated anchorData
   case hashGoal of
     Cmd.CheckHash expectedHash
@@ -90,9 +90,9 @@ runHashScriptCmd
 runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash, mOutFile} =
   do
     hash <- readAnyScriptHash toHash
-    fromEitherIOCli @(FileError ()) $
-      writeTextOutput mOutFile $
-        serialiseToRawBytesHexText hash
+    fromEitherIOCli @(FileError ())
+      $ writeTextOutput mOutFile
+      $ serialiseToRawBytesHexText hash
 
 runHashGenesisFile :: GenesisFile -> CIO e ()
 runHashGenesisFile (GenesisFile fpath) = do

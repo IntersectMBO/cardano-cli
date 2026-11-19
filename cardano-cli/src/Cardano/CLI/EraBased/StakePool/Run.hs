@@ -150,9 +150,9 @@ runStakePoolRegistrationCertificateCmd
           registrationCert = makeStakePoolRegistrationCertificate ledgerStakePoolParams :: Certificate (LedgerEra era)
 
       mapM_ (fromExceptTCli . carryHashChecks) mMetadata
-      fromEitherIOCli @(FileError ()) $
-        writeLazyByteStringFile outFile $
-          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+      fromEitherIOCli @(FileError ())
+        $ writeLazyByteStringFile outFile
+        $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
 
 -- | Create a stake pool registration certificate that keeps every parameter of
 -- an existing one and replaces only its BLS key.
@@ -191,9 +191,9 @@ runStakePoolBlsRegistrationCertificateCmd
       when (mOldBlsKey == Just newBlsKey) $
         printWarning "The new BLS key is the same as the registered one."
 
-      fromEitherIOCli @(FileError ()) $
-        writeLazyByteStringFile outFile $
-          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+      fromEitherIOCli @(FileError ())
+        $ writeLazyByteStringFile outFile
+        $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
    where
     renderBlsKey :: L.BlsKey -> T.Text
     renderBlsKey = serialiseToBech32 . BlsVerificationKey . L.blsPubKey
@@ -217,9 +217,9 @@ runStakePoolDeregistrationCertificateCmd
           retireCert =
             makeStakePoolRetirementCertificate stakePoolId' retireEpoch :: Certificate (ShelleyLedgerEra era)
 
-      fromEitherIOCli @(FileError ()) $
-        writeLazyByteStringFile outFile $
-          textEnvelopeToJSON (Just retireCertDesc) retireCert
+      fromEitherIOCli @(FileError ())
+        $ writeLazyByteStringFile outFile
+        $ textEnvelopeToJSON (Just retireCertDesc) retireCert
    where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"

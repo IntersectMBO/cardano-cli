@@ -214,9 +214,9 @@ friendlyTxBodyImpl
   -> Exp.UnsignedTx (Exp.LedgerEra era)
   -> m [Aeson.Pair]
 friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
-  pure $
-    Exp.obtainCommonConstraints era $
-      let body = ledgerTx ^. L.bodyTxL
+  pure
+    $ Exp.obtainCommonConstraints era
+    $ let body = ledgerTx ^. L.bodyTxL
        in [ "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
           , "collateral inputs" .= renderCollateralInputs body
           , "total collateral" .= toJSON (strictMaybeToMaybe (body ^. L.totalCollateralTxBodyL))
@@ -433,9 +433,9 @@ friendlyLedgerProposals e proposalProcedures =
 friendlyLedgerProposal
   :: forall era. (Typeable era, Exp.IsEra era) => L.ProposalProcedure (Exp.LedgerEra era) -> Aeson.Value
 friendlyLedgerProposal proposalProcedure =
-  Exp.obtainCommonConstraints (Exp.useEra @era) $
-    object $
-      friendlyProposalImpl (Proposal proposalProcedure)
+  Exp.obtainCommonConstraints (Exp.useEra @era)
+    $ object
+    $ friendlyProposalImpl (Proposal proposalProcedure)
 
 renderRedeemers
   :: L.AlonzoEraTx (Exp.LedgerEra era)
@@ -480,9 +480,9 @@ renderRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnit
 
 renderLedgerInput :: Ledger.TxIn -> Aeson.Value
 renderLedgerInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
-  Aeson.String $
-    T.pack $
-      T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
+  Aeson.String
+    $ T.pack
+    $ T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
 
 -- | Render a Plutus purpose. Dispatches on the experimental era to pick the
 -- right ledger constructor set.
@@ -591,9 +591,9 @@ friendlyScript script = Aeson.Object $
       Nothing ->
         ( case Ledger.toPlutusScript script of
             Just plutusScript ->
-              Ledger.withPlutusScript plutusScript $
-                friendlyPlutusScript $
-                  Ledger.plutusScriptLanguage plutusScript
+              Ledger.withPlutusScript plutusScript
+                $ friendlyPlutusScript
+                $ Ledger.plutusScriptLanguage plutusScript
             Nothing -> [("error", Aeson.String "Unsupported script type")]
         )
  where
@@ -652,9 +652,9 @@ friendlyTxOut
   -> Exp.TxOut (Exp.LedgerEra era)
   -> Aeson.Value
 friendlyTxOut era (Exp.TxOut ledgerTxOut) =
-  Exp.obtainCommonConstraints era $
-    babbageEraOnwardsConstraints beo $
-      let addr = fromShelleyAddr sbe (ledgerTxOut ^. L.addrTxOutL)
+  Exp.obtainCommonConstraints era
+    $ babbageEraOnwardsConstraints beo
+    $ let addr = fromShelleyAddr sbe (ledgerTxOut ^. L.addrTxOutL)
           ledgerValue = ledgerTxOut ^. L.valueTxOutL
           refScript = case ledgerTxOut ^. L.referenceScriptTxOutL of
             L.SNothing -> ReferenceScriptNone

@@ -40,14 +40,14 @@ pGovernanceCommitteeCmds =
 pGovernanceCommitteeKeyGenColdCmd
   :: Exp.IsEra era => Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenColdCmd = do
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "key-gen-cold" $
-        Opt.info (pCmd Exp.useEra) $
-          Opt.progDesc $
-            mconcat
-              [ "Create a cold key pair for a Constitutional Committee Member"
-              ]
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "key-gen-cold"
+    $ Opt.info (pCmd Exp.useEra)
+    $ Opt.progDesc
+    $ mconcat
+      [ "Create a cold key pair for a Constitutional Committee Member"
+      ]
  where
   pCmd w =
     fmap GovernanceCommitteeKeyGenColdCmd $
@@ -59,14 +59,14 @@ pGovernanceCommitteeKeyGenColdCmd = do
 pGovernanceCommitteeKeyGenHotCmd
   :: Exp.IsEra era => Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenHotCmd = do
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "key-gen-hot" $
-        Opt.info (pCmd Exp.useEra) $
-          Opt.progDesc $
-            mconcat
-              [ "Create a hot key pair for a Constitutional Committee Member"
-              ]
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "key-gen-hot"
+    $ Opt.info (pCmd Exp.useEra)
+    $ Opt.progDesc
+    $ mconcat
+      [ "Create a hot key pair for a Constitutional Committee Member"
+      ]
  where
   pCmd w =
     fmap GovernanceCommitteeKeyGenHotCmd $
@@ -112,14 +112,14 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd = do
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd
   :: Exp.IsEra era => Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd = do
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "create-cold-key-resignation-certificate" $
-        Opt.info (mkParser Exp.useEra) $
-          Opt.progDesc $
-            mconcat
-              [ "Create cold key resignation certificate for a Constitutional Committee Member"
-              ]
+  pure
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-cold-key-resignation-certificate"
+    $ Opt.info (mkParser Exp.useEra)
+    $ Opt.progDesc
+    $ mconcat
+      [ "Create cold key resignation certificate for a Constitutional Committee Member"
+      ]
  where
   mkParser w =
     GovernanceCommitteeCreateColdKeyResignationCertificateCmd

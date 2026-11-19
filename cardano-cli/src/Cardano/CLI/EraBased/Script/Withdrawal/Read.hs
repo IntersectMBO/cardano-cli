@@ -76,14 +76,14 @@ readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
             fromExceptTCli $
               readScriptDataOrFile redeemerFile
           let sWit =
-                Exp.AnyPlutusScriptWitness $
-                  AnyPlutusCertifyingScriptWitness $
-                    Exp.Plutus.PlutusScriptWitness
-                      lang
-                      (Exp.Plutus.PReferenceScript refTxIn)
-                      Exp.Plutus.NoScriptDatum
-                      redeemer
-                      execUnits
+                Exp.AnyPlutusScriptWitness
+                  $ AnyPlutusCertifyingScriptWitness
+                  $ Exp.Plutus.PlutusScriptWitness
+                    lang
+                    (Exp.Plutus.PReferenceScript refTxIn)
+                    Exp.Plutus.NoScriptDatum
+                    redeemer
+                    execUnits
           return
             ( stakeAddr
             , withdrawalAmt

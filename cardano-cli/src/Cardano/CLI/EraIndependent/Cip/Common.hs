@@ -39,23 +39,23 @@ pInputFile optName desc =
 
 pInputHexText :: String -> String -> String -> Opt.Parser Input
 pInputHexText optName metavar help =
-  fmap (InputHexText . Text.pack) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long optName
-        , Opt.metavar metavar
-        , Opt.help help
-        ]
+  fmap (InputHexText . Text.pack)
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long optName
+      , Opt.metavar metavar
+      , Opt.help help
+      ]
 
 pInputBech32Text :: String -> String -> String -> Opt.Parser Input
 pInputBech32Text optName metavar help =
-  fmap (InputBech32Text . Text.pack) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long optName
-        , Opt.metavar metavar
-        , Opt.help help
-        ]
+  fmap (InputBech32Text . Text.pack)
+    $ Opt.strOption
+    $ mconcat
+      [ Opt.long optName
+      , Opt.metavar metavar
+      , Opt.help help
+      ]
 
 data Output
   = OutputFile (File () Out)

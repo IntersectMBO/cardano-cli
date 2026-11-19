@@ -67,23 +67,23 @@ test_DelegationError =
       )
     ,
       ( "DelegationStakeCredentialError1"
-      , DelegationStakeCredentialError $
-          StakeCredentialInputDecodeError $
-            FileError "path/file.txt" InputInvalidError
+      , DelegationStakeCredentialError
+          $ StakeCredentialInputDecodeError
+          $ FileError "path/file.txt" InputInvalidError
       )
     ,
       ( "DelegationStakeCredentialError2"
-      , DelegationStakeCredentialError $
-          StakeCredentialScriptDecodeError $
-            FileError "path/file.txt" $
-              ScriptDecodeSimpleScriptError $
-                JsonDecodeError "json decode error"
+      , DelegationStakeCredentialError
+          $ StakeCredentialScriptDecodeError
+          $ FileError "path/file.txt"
+          $ ScriptDecodeSimpleScriptError
+          $ JsonDecodeError "json decode error"
       )
     ,
       ( "DelegationStakeCredentialError3"
-      , DelegationStakeCredentialError $
-          StakeCredentialInputDecodeError $
-            FileError "path/file.txt" InputInvalidError
+      , DelegationStakeCredentialError
+          $ StakeCredentialInputDecodeError
+          $ FileError "path/file.txt" InputInvalidError
       )
     ,
       ( "DelegationCertificateWriteFileError"
@@ -111,23 +111,23 @@ test_RegistrationError =
       )
     ,
       ( "RegistrationStakeCredReadError1"
-      , RegistrationStakeCredentialError $
-          StakeCredentialInputDecodeError $
-            FileError "path/file.txt" InputInvalidError
+      , RegistrationStakeCredentialError
+          $ StakeCredentialInputDecodeError
+          $ FileError "path/file.txt" InputInvalidError
       )
     ,
       ( "RegistrationStakeCredReadError2"
-      , RegistrationStakeCredentialError $
-          StakeCredentialScriptDecodeError $
-            FileError "path/file.txt" $
-              ScriptDecodeSimpleScriptError $
-                JsonDecodeError "json decode error"
+      , RegistrationStakeCredentialError
+          $ StakeCredentialScriptDecodeError
+          $ FileError "path/file.txt"
+          $ ScriptDecodeSimpleScriptError
+          $ JsonDecodeError "json decode error"
       )
     ,
       ( "RegistrationStakeCredReadError3"
-      , RegistrationStakeCredentialError $
-          StakeCredentialInputDecodeError $
-            FileError "path/file.txt" InputInvalidError
+      , RegistrationStakeCredentialError
+          $ StakeCredentialInputDecodeError
+          $ FileError "path/file.txt" InputInvalidError
       )
     ,
       ( "RegistrationStakeError"
@@ -146,9 +146,9 @@ test_GovernanceActionsError =
       )
     ,
       ( "GovernanceActionsCmdCostModelsError"
-      , GovernanceActionsCmdCostModelsError $
-          CostModelsErrorReadFile $
-            FileError "some/file.txt" ()
+      , GovernanceActionsCmdCostModelsError
+          $ CostModelsErrorReadFile
+          $ FileError "some/file.txt" ()
       )
     ]
 

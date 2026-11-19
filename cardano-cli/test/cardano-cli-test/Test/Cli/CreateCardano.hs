@@ -27,9 +27,9 @@ hprop_create_cardano =
             )
             eras
 
-    void $
-      execCardanoCLI $
-        [ "conway"
+    void
+      $ execCardanoCLI
+      $ [ "conway"
         , "genesis"
         , "create-cardano"
         , "--genesis-dir"
@@ -37,6 +37,6 @@ hprop_create_cardano =
         , "--testnet-magic"
         , "734"
         ]
-          ++ templates
+        ++ templates
 
     H.assertFilesExist $ [outputDir </> (era ++ "-genesis.json") | era <- eras]

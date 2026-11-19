@@ -112,12 +112,12 @@ runGenesisKeyGenGenesisCmd
     } = do
     skey <- generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile signingKeyPath $
-        textEnvelopeToJSON (Just skeyDesc) skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile verificationKeyPath $
-        textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile signingKeyPath
+      $ textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile verificationKeyPath
+      $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Signing Key"
@@ -133,18 +133,18 @@ runGenesisKeyGenDelegateCmd
     } = do
     skey <- generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile signingKeyPath $
-        textEnvelopeToJSON (Just skeyDesc) skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile verificationKeyPath $
-        textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile opCertCounterPath $
-        textEnvelopeToJSON (Just certCtrDesc) $
-          OperationalCertificateIssueCounter
-            initialCounter
-            (castVerificationKey vkey) -- Cast to a 'StakePoolKey'
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile signingKeyPath
+      $ textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile verificationKeyPath
+      $ textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile opCertCounterPath
+      $ textEnvelopeToJSON (Just certCtrDesc)
+      $ OperationalCertificateIssueCounter
+        initialCounter
+        (castVerificationKey vkey) -- Cast to a 'StakePoolKey'
    where
     skeyDesc, certCtrDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis delegate operator key"
@@ -163,9 +163,9 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
   skey <- generateSigningKey AsVrfKey
   let vkey = getVerificationKey skey
   firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-    void $
-      writeLazyByteStringFile skeyPath $
-        textEnvelopeToJSON (Just skeyDesc) skey
+    void
+      $ writeLazyByteStringFile skeyPath
+      $ textEnvelopeToJSON (Just skeyDesc) skey
     writeLazyByteStringFile vkeyPath $
       textEnvelopeToJSON (Just vkeyDesc) vkey
  where
@@ -183,12 +183,12 @@ runGenesisKeyGenUTxOCmd
     } = do
     skey <- generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile signingKeyPath $
-        textEnvelopeToJSON (Just skeyDesc) skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile verificationKeyPath $
-        textEnvelopeToJSON (Just vkeyDesc) vkey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile signingKeyPath
+      $ textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ())
+      $ writeLazyByteStringFile verificationKeyPath
+      $ textEnvelopeToJSON (Just vkeyDesc) vkey
    where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Initial UTxO Signing Key"
@@ -353,9 +353,9 @@ runGenesisCreateTestNetDataCmd
               g
               [1 .. numOfDRepCredentials]
 
-    fromExceptTCli $
-      when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk) $
-        writeREADME drepsDir drepsREADME
+    fromExceptTCli
+      $ when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk)
+      $ writeREADME drepsDir drepsREADME
 
     -- Stake delegators
     g2 <- Random.getStdGen
@@ -407,10 +407,10 @@ runGenesisCreateTestNetDataCmd
           shelleyGenesis
 
     let byronGenesisFp = outputDir </> "byron.genesis.spec.json" -- This file is used by the performance testing team.
-    void $
-      fromExceptTCli $
-        writeFileGenesis byronGenesisFp $
-          WritePretty Byron.defaultProtocolParamsJsonValue
+    void
+      $ fromExceptTCli
+      $ writeFileGenesis byronGenesisFp
+      $ WritePretty Byron.defaultProtocolParamsJsonValue
 
     let byronGenesisParameters = Byron.mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis'
         byronOutputDir = outputDir </> "byron-gen-command"
@@ -985,12 +985,12 @@ readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
   let gkmExtra = gkm Map.\\ combinedMap
       dkmExtra = dkm Map.\\ combinedMap
       vkmExtra = vkm Map.\\ combinedMap
-  unless (Map.null gkmExtra && Map.null dkmExtra && Map.null vkmExtra) $
-    throwError $
-      GenesisCmdMismatchedGenesisKeyFiles
-        (Map.keys gkm)
-        (Map.keys dkm)
-        (Map.keys vkm)
+  unless (Map.null gkmExtra && Map.null dkmExtra && Map.null vkmExtra)
+    $ throwError
+    $ GenesisCmdMismatchedGenesisKeyFiles
+      (Map.keys gkm)
+      (Map.keys dkm)
+      (Map.keys vkm)
 
   let delegsMap
         :: Map

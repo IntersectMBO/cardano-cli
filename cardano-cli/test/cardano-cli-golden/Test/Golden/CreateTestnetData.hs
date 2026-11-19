@@ -102,9 +102,9 @@ golden_create_testnet_data mShelleyTemplate =
             Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
         numStakeDelegs = 4
 
-    void $
-      execCardanoCLI $
-        mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
+    void
+      $ execCardanoCLI
+      $ mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
 
     generated <- liftIO $ tree outputDir
     -- Sort output for stability, and make relative to avoid storing

@@ -232,19 +232,19 @@ instance ToJSON QueryTipLocalStateOutput where
           []
   toEncoding a = case localStateChainTip a of
     ChainTipAtGenesis ->
-      pairs $
-        mconcat $
-          ( ("era" ..=? mEra a)
+      pairs
+        $ mconcat
+        $ ( ("era" ..=? mEra a)
               . ("epoch" ..=? mEpoch a)
               . ("slotInEpoch" ..=? mSlotInEpoch a)
               . ("slotsToEpochEnd" ..=? mSlotsToEpochEnd a)
               . ("syncProgress" ..=? mSyncProgress a)
           )
-            []
+          []
     ChainTip slotNo blockHeader blockNo' ->
-      pairs $
-        mconcat $
-          ( ("slot" ..= slotNo)
+      pairs
+        $ mconcat
+        $ ( ("slot" ..= slotNo)
               . ("hash" ..= serialiseToRawBytesHexText blockHeader)
               . ("block" ..= blockNo')
               . ("era" ..=? mEra a)
@@ -253,7 +253,7 @@ instance ToJSON QueryTipLocalStateOutput where
               . ("slotsToEpochEnd" ..=? mSlotsToEpochEnd a)
               . ("syncProgress" ..=? mSyncProgress a)
           )
-            []
+          []
 
 instance FromJSON QueryTipLocalStateOutput where
   parseJSON = withObject "QueryTipLocalStateOutput" $ \o -> do

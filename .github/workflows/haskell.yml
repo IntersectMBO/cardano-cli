@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         ghc: [&ghc-stable "9.6", "9.10", &ghc-latest "9.12", "9.14"]
-        cabal: [&cabal-version "3.16"]
+        cabal: [&cabal-version "3.18"]
         os: [ubuntu-latest]
         include:
           # Using include, to make sure there will only be one macOS job, even if the matrix gets expanded later on.
@@ -86,12 +86,12 @@ jobs:
         # https://github.com/IntersectMBO/cardano-cli/actions/runs/39825029792/job/119985950591
         url-prefix: ${{ runner.os == 'macOS' && 'https://github.com/input-output-hk/iohk-nix/releases/download/v3.1' || 'https://github.com/input-output-hk/iohk-nix/releases/latest/download' }}
 
-    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
 
     - name: Cache and install Cabal dependencies
-      uses: input-output-hk/cardano-dev/actions/cabal-cache@c7427b0921301778971d96b20ab234e8c34aedc3 # cabal-cache-0.0.1.2
+      uses: IntersectMBO/cardano-dev/actions/cabal-cache@c7427b0921301778971d96b20ab234e8c34aedc3 # cabal-cache-0.0.1.2
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
         # Do not reuse macOS 26 dependencies on the pinned macOS 15 runner.

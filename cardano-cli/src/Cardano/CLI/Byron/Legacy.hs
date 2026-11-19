@@ -43,16 +43,16 @@ enforceSize lbl requestedSize = D.decodeListLenCanonical >>= matchSize requested
 -- | Compare two sizes, failing if they are not equal.
 matchSize :: Int -> Text -> Int -> D.Decoder s ()
 matchSize requestedSize lbl actualSize =
-  when (actualSize /= requestedSize) $
-    fail $
-      formatToString
-        build
-        ( lbl
-            <> " failed the size check. Expected "
-            <> textShow requestedSize
-            <> ", found "
-            <> textShow actualSize
-        )
+  when (actualSize /= requestedSize)
+    $ fail
+    $ formatToString
+      build
+      ( lbl
+          <> " failed the size check. Expected "
+          <> textShow requestedSize
+          <> ", found "
+          <> textShow actualSize
+      )
 
 -- | Decoder for a Byron/Classic signing key.
 --   Lifted from cardano-sl legacy codebase.

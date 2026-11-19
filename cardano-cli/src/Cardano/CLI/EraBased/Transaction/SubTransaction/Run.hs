@@ -167,9 +167,9 @@ runSubTransactionBuildRawCmd
 
     topLevelGuardEntries <- mapM readTopLevelGuard topLevelGuards
     let duplicateTopLevelGuards = findDuplicates (map fst topLevelGuardEntries)
-    unless (null duplicateTopLevelGuards) $
-      throwCliError $
-        TxCmdDuplicateTopLevelGuards duplicateTopLevelGuards
+    unless (null duplicateTopLevelGuards)
+      $ throwCliError
+      $ TxCmdDuplicateTopLevelGuards duplicateTopLevelGuards
     let requiredTopLevelGuards = Map.fromList topLevelGuardEntries
 
     subTx :: Exp.SubTxBodyContent (Exp.LedgerEra Exp.DijkstraEra) <-
@@ -248,9 +248,9 @@ readGuardScriptFile languageError path = do
     Exp.AnySimpleScript (Exp.SimpleScript native) -> pure $ L.fromNativeScript native
     Exp.AnyPlutusScript plutus -> do
       let language = Exp.Plutus.plutusScriptInEraLanguage plutus
-      unless (language == L.PlutusV4) $
-        throwCliError $
-          languageError language
+      unless (language == L.PlutusV4)
+        $ throwCliError
+        $ languageError language
       pure $ Exp.Plutus.plutusScriptInEraToScript plutus
 
 validateGuardRedeemer
@@ -291,10 +291,10 @@ addGuardWitnesses pparams guards (Exp.UnsignedSubTx tx) = do
       witnesses =
         tx
           ^. L.witsTxL
-            & L.scriptTxWitsL
-          .~ scripts
-            & L.rdmrsTxWitsL
-          .~ redeemers
+          & L.scriptTxWitsL
+            .~ scripts
+          & L.rdmrsTxWitsL
+            .~ redeemers
       witnessed = tx & L.witsTxL .~ witnesses
   if Map.null guardRedeemers
     then pure $ Exp.UnsignedSubTx witnessed
@@ -407,9 +407,9 @@ constructSubTx
                  | (_, Exp.AnyScriptWitnessPlutus witness) <- snd valuesWithScriptWits
                  ]
       forM_ languages $ \language ->
-        unless (language == L.PlutusV4) $
-          Left $
-            TxCmdSubTxUnsupportedPlutusLanguage language
+        unless (language == L.PlutusV4)
+          $ Left
+          $ TxCmdSubTxUnsupportedPlutusLanguage language
 
       let allReferenceInputs =
             getAllReferenceInputs
@@ -432,9 +432,9 @@ constructSubTx
       validatedIntervals <-
         convertAccountBalanceIntervals accountBalanceIntervalOptionName accountBalanceIntervals
       validatedGuards <-
-        first TxCmdGuardsError $
-          obtainCommonConstraints (Exp.useEra @era) $
-            Exp.mkTxGuards [(credential, Nothing) | credential <- Foldable.toList guards]
+        first TxCmdGuardsError
+          $ obtainCommonConstraints (Exp.useEra @era)
+          $ Exp.mkTxGuards [(credential, Nothing) | credential <- Foldable.toList guards]
       validatedMintValue <- createTxMintValue valuesWithScriptWits
       validatedVotingProcedures <-
         first (TxCmdVotingError . TxVotingError) $
@@ -536,9 +536,9 @@ runSubTransactionAssembleCmd
             <$> readFileOrPipeTextEnvelopeAnyOf [FromSomeType (AsKeyWitness AsDijkstraEra) id] witnessFile
       case witness of
         ShelleyKeyWitness _ keyWit -> do
-          unless (verifyWitVKey bodyHash keyWit) $
-            throwCliError $
-              TxCmdSubTxInvalidWitness (WitnessFile path)
+          unless (verifyWitVKey bodyHash keyWit)
+            $ throwCliError
+            $ TxCmdSubTxInvalidWitness (WitnessFile path)
           pure keyWit
         ShelleyBootstrapWitness{} -> throwCliError TxCmdSubTxByronWitnessUnsupported
     -- Preserve the body bytes covered by the signatures, as in 'sign'.
@@ -590,9 +590,9 @@ validateCanonicalSubTx unsigned@(Exp.UnsignedSubTx tx) = do
  where
   check component bytes = do
     canonical <- first TxCmdSubTxCborError $ canonicaliseCborBs bytes
-    unless (bytes == canonical) $
-      Left $
-        TxCmdNonCanonicalSubTxComponent (Exp.getUnsignedSubTxId unsigned) component
+    unless (bytes == canonical)
+      $ Left
+      $ TxCmdNonCanonicalSubTxComponent (Exp.getUnsignedSubTxId unsigned) component
 
 -- | Canonicalising an outer transaction must preserve both the signed body and
 -- the hashed payloads of every embedded sub-transaction.
@@ -608,8 +608,8 @@ validateCanonicalSubTransactions TxCborCanonical sbe (ShelleyTx _ tx) =
       forM_ (Foldable.toList (tx ^. L.bodyTxL . L.subTransactionsTxBodyL)) $ \subTx -> do
         let bodyBytes = originalBytes (subTx ^. L.bodyTxL)
         canonicalBytes <- first TxCmdSubTxCborError $ canonicaliseCborBs bodyBytes
-        unless (bodyBytes == canonicalBytes) $
-          Left $
-            TxCmdNonCanonicalSubTransaction (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
+        unless (bodyBytes == canonicalBytes)
+          $ Left
+          $ TxCmdNonCanonicalSubTransaction (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
         validateCanonicalSubTx $ Exp.UnsignedSubTx subTx
     _ -> Right ()

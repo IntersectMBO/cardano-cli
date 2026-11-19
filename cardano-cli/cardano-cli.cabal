@@ -191,11 +191,11 @@ library
     Cardano.CLI.Legacy.Option
     Cardano.CLI.Legacy.Run
     Cardano.CLI.LocalStateQuery
-    Cardano.CLI.OS.Posix
     Cardano.CLI.Option
     Cardano.CLI.Option.Flag
     Cardano.CLI.Option.Flag.Type
     Cardano.CLI.Orphan
+    Cardano.CLI.OS.Posix
     Cardano.CLI.Parser
     Cardano.CLI.Read
     Cardano.CLI.Read.Committee.ColdKey

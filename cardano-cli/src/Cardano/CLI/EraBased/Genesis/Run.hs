@@ -490,13 +490,13 @@ runGenesisCreateCardanoCmd
       writeSecrets deldir "shelley" "counter.json" toCounter opCerts
 
     byronGenesisHash <-
-      fromExceptTCli $
-        TN.writeFileGenesis (rootdir </> "byron-genesis.json") $
-          WriteCanonical byronGenesis
+      fromExceptTCli
+        $ TN.writeFileGenesis (rootdir </> "byron-genesis.json")
+        $ WriteCanonical byronGenesis
     shelleyGenesisHash <-
-      fromExceptTCli $
-        TN.writeFileGenesis (rootdir </> "shelley-genesis.json") $
-          WritePretty shelleyGenesis
+      fromExceptTCli
+        $ TN.writeFileGenesis (rootdir </> "shelley-genesis.json")
+        $ WritePretty shelleyGenesis
     alonzoGenesisHash <-
       fromExceptTCli $ TN.writeFileGenesis (rootdir </> "alonzo-genesis.json") $ WritePretty alonzoGenesis
     conwayGenesisHash <-
@@ -651,17 +651,17 @@ runGenesisCreateStakedCmd
       createPoolCredentials keyOutputFormat pooldir index
       fromExceptTCli $ buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mStakePoolRelays)
 
-    when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
-      throwCliError $
-        GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
+    when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools)
+      $ throwCliError
+      $ GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
     -- We generate the bulk files for the last pool indices,
     -- so that all the non-bulk pools have stable indices at beginning:
     let bulkOffset = fromIntegral $ numPools - numBulkPoolCredFiles * numBulkPoolsPerFile
         bulkIndices :: [Word] = [1 + bulkOffset .. numPools]
         bulkSlices :: [[Word]] = List.chunksOf (fromIntegral numBulkPoolsPerFile) bulkIndices
-    fromExceptTCli $
-      forM_ (zip [1 .. numBulkPoolCredFiles] bulkSlices) $
-        uncurry (writeBulkPoolCredentials pooldir)
+    fromExceptTCli
+      $ forM_ (zip [1 .. numBulkPoolCredFiles] bulkSlices)
+      $ uncurry (writeBulkPoolCredentials pooldir)
 
     let (delegsPerPool, delegsRemaining) =
           if numPools == 0
@@ -715,35 +715,35 @@ runGenesisCreateStakedCmd
       $ \(filename, genesis) -> fromExceptTCli $ TN.writeFileGenesis (rootdir </> filename) genesis
     -- TODO: rationalise the naming convention on these genesis json files.
 
-    liftIO $
-      Text.hPutStrLn IO.stderr $
-        mconcat $
-          [ "generated genesis with: "
-          , textShow numGenesisKeys
-          , " genesis keys, "
-          , textShow numUTxOKeys
-          , " non-delegating UTxO keys, "
-          , textShow numPools
-          , " stake pools, "
-          , textShow numStakeDelegators
-          , " delegating UTxO keys, "
-          , textShow numDelegations
-          , " delegation map entries, "
-          ]
-            ++ [ mconcat
-                   [ ", "
-                   , textShow numBulkPoolCredFiles
-                   , " bulk pool credential files, "
-                   , textShow numBulkPoolsPerFile
-                   , " pools per bulk credential file, indices starting from "
-                   , textShow bulkOffset
-                   , ", "
-                   , textShow $ length bulkIndices
-                   , " total pools in bulk nodes, each bulk node having this many entries: "
-                   , textShow $ length <$> bulkSlices
-                   ]
-               | numBulkPoolCredFiles * numBulkPoolsPerFile > 0
+    liftIO
+      $ Text.hPutStrLn IO.stderr
+      $ mconcat
+      $ [ "generated genesis with: "
+        , textShow numGenesisKeys
+        , " genesis keys, "
+        , textShow numUTxOKeys
+        , " non-delegating UTxO keys, "
+        , textShow numPools
+        , " stake pools, "
+        , textShow numStakeDelegators
+        , " delegating UTxO keys, "
+        , textShow numDelegations
+        , " delegation map entries, "
+        ]
+        ++ [ mconcat
+               [ ", "
+               , textShow numBulkPoolCredFiles
+               , " bulk pool credential files, "
+               , textShow numBulkPoolsPerFile
+               , " pools per bulk credential file, indices starting from "
+               , textShow bulkOffset
+               , ", "
+               , textShow $ length bulkIndices
+               , " total pools in bulk nodes, each bulk node having this many entries: "
+               , textShow $ length <$> bulkSlices
                ]
+           | numBulkPoolCredFiles * numBulkPoolsPerFile > 0
+           ]
    where
     adjustTemplate t = t{sgNetworkMagic = unNetworkMagic (toNetworkMagic networkId)}
     mkDelegationMapEntry
@@ -1007,9 +1007,9 @@ buildPoolParams nw dir index specifiedRelays = do
 writeBulkPoolCredentials :: FilePath -> Word -> [Word] -> ExceptT GenesisCmdError IO ()
 writeBulkPoolCredentials dir bulkIx poolIxs = do
   creds <- mapM readPoolCreds poolIxs
-  handleIOExceptT (GenesisCmdFileError . FileIOError bulkFile) $
-    LBS.writeFile bulkFile $
-      Aeson.encode creds
+  handleIOExceptT (GenesisCmdFileError . FileIOError bulkFile)
+    $ LBS.writeFile bulkFile
+    $ Aeson.encode creds
  where
   bulkFile = dir </> "bulk" ++ show bulkIx ++ ".creds"
 
@@ -1230,12 +1230,12 @@ readGenDelegsMap gendir deldir = do
   let gkmExtra = gkm Map.\\ combinedMap
       dkmExtra = dkm Map.\\ combinedMap
       vkmExtra = vkm Map.\\ combinedMap
-  unless (Map.null gkmExtra && Map.null dkmExtra && Map.null vkmExtra) $
-    throwError $
-      GenesisCmdMismatchedGenesisKeyFiles
-        (Map.keys gkm)
-        (Map.keys dkm)
-        (Map.keys vkm)
+  unless (Map.null gkmExtra && Map.null dkmExtra && Map.null vkmExtra)
+    $ throwError
+    $ GenesisCmdMismatchedGenesisKeyFiles
+      (Map.keys gkm)
+      (Map.keys dkm)
+      (Map.keys vkm)
 
   let delegsMap
         :: Map

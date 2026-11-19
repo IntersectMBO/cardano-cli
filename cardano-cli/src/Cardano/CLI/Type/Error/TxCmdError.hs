@@ -166,13 +166,13 @@ renderTxCmdError = \case
       , "likely due to not being in the Alonzo era"
       ]
   TxCmdTxNodeEraMismatchError (NodeEraMismatchError{NEM.era = valueEra, nodeEra = nodeEra}) ->
-    cardanoEraConstraints nodeEra $
-      cardanoEraConstraints valueEra $
-        mconcat
-          [ "Transactions can only be produced in the same era as the node. Requested era: "
-          , pretty valueEra <> ", node era: "
-          , pretty nodeEra <> "."
-          ]
+    cardanoEraConstraints nodeEra
+      $ cardanoEraConstraints valueEra
+      $ mconcat
+        [ "Transactions can only be produced in the same era as the node. Requested era: "
+        , pretty valueEra <> ", node era: "
+        , pretty nodeEra <> "."
+        ]
   TxCmdQueryConvenienceError e ->
     pretty $ renderQueryConvenienceError e
   TxCmdQueryNotScriptLocked e ->

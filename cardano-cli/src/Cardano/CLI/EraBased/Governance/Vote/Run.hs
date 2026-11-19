@@ -87,9 +87,9 @@ runGovernanceVoteCreateCmd
 
     let votingProcedures =
           singletonVotingProcedures (convert era) voter governanceActionId (unVotingProcedure voteProcedure)
-    obtainCommonConstraints era $
-      fromEitherIOCli $
-        writeFileTextEnvelope outFile Nothing votingProcedures
+    obtainCommonConstraints era
+      $ fromEitherIOCli
+      $ writeFileTextEnvelope outFile Nothing votingProcedures
 
 runGovernanceVoteViewCmd
   :: forall era e

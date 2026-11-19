@@ -40,9 +40,9 @@ carryHashChecks potentiallyCheckedAnchor =
           . hoistEither
           $ validateAndHashStakePoolMetadata metadataBytes
 
-      when (metadataHash /= expectedHash) $
-        left $
-          StakePoolCmdHashMismatchError expectedHash metadataHash
+      when (metadataHash /= expectedHash)
+        $ left
+        $ StakePoolCmdHashMismatchError expectedHash metadataHash
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor

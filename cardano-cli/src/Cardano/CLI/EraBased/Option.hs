@@ -54,17 +54,17 @@ pCmds envCli = do
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
   asum
-    [ Opt.hsubparser $
-        commandWithMetavar "conway" $
-          Opt.info (AnyEraCommandOf ConwayEra <$> pCmds @ConwayEra envCli) $
-            Opt.progDesc "Conway era commands"
-    , Opt.hsubparser $
-        commandWithMetavar "dijkstra" $
-          Opt.info (AnyEraCommandOf DijkstraEra <$> pCmds @DijkstraEra envCli) $
-            Opt.progDesc "Dijkstra era commands"
-    , Opt.hsubparser $
-        commandWithMetavar "latest" $
-          Opt.info (AnyEraCommandOf (useEra @MainnetEra) <$> pCmds @MainnetEra envCli) $
-            Opt.progDesc $
-              "Latest era commands (" <> prettyShow (useEra @MainnetEra) <> ")"
+    [ Opt.hsubparser
+        $ commandWithMetavar "conway"
+        $ Opt.info (AnyEraCommandOf ConwayEra <$> pCmds @ConwayEra envCli)
+        $ Opt.progDesc "Conway era commands"
+    , Opt.hsubparser
+        $ commandWithMetavar "dijkstra"
+        $ Opt.info (AnyEraCommandOf DijkstraEra <$> pCmds @DijkstraEra envCli)
+        $ Opt.progDesc "Dijkstra era commands"
+    , Opt.hsubparser
+        $ commandWithMetavar "latest"
+        $ Opt.info (AnyEraCommandOf (useEra @MainnetEra) <$> pCmds @MainnetEra envCli)
+        $ Opt.progDesc
+        $ "Latest era commands (" <> prettyShow (useEra @MainnetEra) <> ")"
     ]
