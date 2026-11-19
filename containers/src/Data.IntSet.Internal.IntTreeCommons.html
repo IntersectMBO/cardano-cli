@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span class="hs-cpp">
+#ifdef __GLASGOW_HASKELL__
+</span><span class="hs-pragma">{-# LANGUAGE DeriveLift #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE StandaloneDeriving #-}</span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- = WARNING</span><span>
+</span><span id="line-9"></span><span class="hs-comment">--</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- This module is considered __internal__.</span><span>
+</span><span id="line-11"></span><span class="hs-comment">--</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- The Package Versioning Policy __does not apply__.</span><span>
+</span><span id="line-13"></span><span class="hs-comment">--</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- The contents of this module may change __in any way whatsoever__</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- and __without any warning__ between minor versions of this package.</span><span>
+</span><span id="line-16"></span><span class="hs-comment">--</span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- Authors importing this module are expected to track development</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- closely.</span><span>
+</span><span id="line-19"></span><span class="hs-comment">--</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- = Description</span><span>
+</span><span id="line-21"></span><span class="hs-comment">--</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- This module defines common constructs used by both &quot;Data.IntSet&quot; and</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- &quot;Data.IntMap&quot;.</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- @since 0.8</span><span>
+</span><span id="line-26"></span><span class="hs-comment">--</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html"><span class="hs-identifier">Data.IntSet.Internal.IntTreeCommons</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Key"><span class="hs-identifier">Key</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier">Prefix</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#nomatch"><span class="hs-identifier">nomatch</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#left"><span class="hs-identifier">left</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#signBranch"><span class="hs-identifier">signBranch</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#TreeTreeBranch"><span class="hs-identifier">TreeTreeBranch</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#treeTreeBranch"><span class="hs-identifier">treeTreeBranch</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#mask"><span class="hs-identifier">mask</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#branchMask"><span class="hs-identifier">branchMask</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier">i2w</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Order"><span class="hs-identifier">Order</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.22.0.0-inplace/src/Data.Bits.html"><span class="hs-identifier">Data.Bits</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Bits</span></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">countLeadingZeros</span></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Utils.Containers.Internal.BitUtil.html"><span class="hs-identifier">Utils.Containers.Internal.BitUtil</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Utils.Containers.Internal.BitUtil.html#wordSize"><span class="hs-identifier">wordSize</span></a></span><span class="hs-special">)</span><span class="hs-cpp">
+
+#ifdef __GLASGOW_HASKELL__
+</span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../template-haskell-2.24.0.0-inplace/src/Language.Haskell.TH.Syntax.html"><span class="hs-identifier">Language.Haskell.TH.Syntax</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Lift</span></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- See Note [ Template Haskell Dependencies ]</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../template-haskell-2.24.0.0-inplace/src/Language.Haskell.TH.html"><span class="hs-identifier">Language.Haskell.TH</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span class="hs-keyword">type</span><span> </span><span id="Key"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Key"><span class="hs-identifier hs-var">Key</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="hs-comment">-- | A @Prefix@ represents some prefix of high-order bits of an @Int@.</span><span>
+</span><span id="line-55"></span><span class="hs-comment">--</span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- A @Prefix@ is usually considered in the context of a</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- 'Data.IntSet.Internal.Bin' or 'Data.IntMap.Internal.Bin'.</span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- See Note [IntSet structure and invariants] in Data.IntSet.Internal and</span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- Note [IntMap structure and invariants] in Data.IntMap.Internal for details.</span><span>
+</span><span id="line-61"></span><span class="hs-keyword">newtype</span><span> </span><span id="Prefix"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-var">Prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Prefix"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-var">Prefix</span></a></span></span><span> </span><span class="hs-special">{</span><span> </span><span id="unPrefix"><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var hs-var">unPrefix</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621679223344"><span id="local-6989586621679223348"><span class="annot"><span class="annottext">Prefix -&gt; Prefix -&gt; Bool
+(Prefix -&gt; Prefix -&gt; Bool)
+-&gt; (Prefix -&gt; Prefix -&gt; Bool) -&gt; Eq Prefix
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: Prefix -&gt; Prefix -&gt; Bool
+== :: Prefix -&gt; Prefix -&gt; Bool
+$c/= :: Prefix -&gt; Prefix -&gt; Bool
+/= :: Prefix -&gt; Prefix -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-cpp">
+
+#ifdef __GLASGOW_HASKELL__
+</span><span id="local-6989586621679223355"><span id="local-6989586621679223363"><span class="hs-keyword">deriving</span><span> </span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Lift</span></span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span></span></span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- | Whether the @Int@ does not start with the given @Prefix@.</span><span>
+</span><span id="line-69"></span><span class="hs-comment">--</span><span>
+</span><span id="line-70"></span><span class="hs-comment">-- An @Int@ starts with a @Prefix@ if it shares the high bits with the internal</span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- @Int@ value of the @Prefix@ up to the mask bit.</span><span>
+</span><span id="line-72"></span><span class="hs-comment">--</span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- @nomatch@ is usually used to determine whether a key belongs in a @Bin@,</span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- since all keys in a @Bin@ share a @Prefix@.</span><span>
+</span><span id="line-75"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#nomatch"><span class="hs-identifier hs-type">nomatch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-76"></span><span id="nomatch"><span class="annot"><span class="annottext">nomatch :: Int -&gt; Prefix -&gt; Bool
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#nomatch"><span class="hs-identifier hs-var hs-var">nomatch</span></a></span></span><span> </span><span id="local-6989586621679223372"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223372"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679223373"><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223373"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223372"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223375"><span class="hs-identifier hs-var">px</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223377"><span class="hs-identifier hs-var">prefixMask</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-78"></span><span>    </span><span id="local-6989586621679223375"><span class="annot"><span class="annottext">px :: Int
+</span><a href="#local-6989586621679223375"><span class="hs-identifier hs-var hs-var">px</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var">unPrefix</span></a></span><span> </span><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223373"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-79"></span><span>    </span><span id="local-6989586621679223377"><span class="annot"><span class="annottext">prefixMask :: Int
+</span><a href="#local-6989586621679223377"><span class="hs-identifier hs-var hs-var">prefixMask</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223375"><span class="hs-identifier hs-var">px</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223375"><span class="hs-identifier hs-var">px</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#nomatch"><span class="hs-pragma hs-type">nomatch</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-81"></span><span>
+</span><span id="line-82"></span><span class="hs-comment">-- | Whether the @Int@ is to the left of the split created by a @Bin@ with this</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- @Prefix@.</span><span>
+</span><span id="line-84"></span><span class="hs-comment">--</span><span>
+</span><span id="line-85"></span><span class="hs-comment">-- This does not imply that the @Int@ belongs in this @Bin@. That fact is</span><span>
+</span><span id="line-86"></span><span class="hs-comment">-- usually determined first using @nomatch@.</span><span>
+</span><span id="line-87"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#left"><span class="hs-identifier hs-type">left</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-88"></span><span id="left"><span class="annot"><span class="annottext">left :: Int -&gt; Prefix -&gt; Bool
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#left"><span class="hs-identifier hs-var hs-var">left</span></a></span></span><span> </span><span id="local-6989586621679223380"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223380"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679223381"><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223381"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-var">i2w</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223380"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-var">i2w</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var">unPrefix</span></a></span><span> </span><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223381"><span class="hs-identifier hs-var">p</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-89"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#left"><span class="hs-pragma hs-type">left</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-90"></span><span>
+</span><span id="line-91"></span><span class="hs-comment">-- | A @TreeTreeBranch@ is returned by 'treeTreeBranch' to indicate how two</span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- @Bin@s relate to each other.</span><span>
+</span><span id="line-93"></span><span class="hs-comment">--</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- Consider that @A@ and @B@ are the @Bin@s whose @Prefix@es are given to</span><span>
+</span><span id="line-95"></span><span class="hs-comment">-- @treeTreeBranch@ as the first and second arguments respectively.</span><span>
+</span><span id="line-96"></span><span class="hs-keyword">data</span><span> </span><span id="TreeTreeBranch"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#TreeTreeBranch"><span class="hs-identifier hs-var">TreeTreeBranch</span></a></span></span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ABL"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#ABL"><span class="hs-identifier hs-var">ABL</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ A contains B in the left child</span></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ABR"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#ABR"><span class="hs-identifier hs-var">ABR</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ A contains B in the right child</span></span><span>
+</span><span id="line-99"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BAL"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#BAL"><span class="hs-identifier hs-var">BAL</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ B contains A in the left child</span></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="BAR"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#BAR"><span class="hs-identifier hs-var">BAR</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ B contains A in the right child</span></span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="EQL"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#EQL"><span class="hs-identifier hs-var">EQL</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ A and B have equal prefixes</span></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="NOM"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#NOM"><span class="hs-identifier hs-var">NOM</span></a></span></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ A and B have prefixes that do not match</span></span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span class="hs-comment">-- | Calculates how two @Bin@s relate to each other by comparing their</span><span>
+</span><span id="line-105"></span><span class="hs-comment">-- @Prefix@es.</span><span>
+</span><span id="line-106"></span><span>
+</span><span id="line-107"></span><span class="hs-comment">-- Notes:</span><span>
+</span><span id="line-108"></span><span class="annot"><span class="hs-comment">-- * pw .|. (pw-1) sets every bit below the mask bit to 1. This is the greatest</span></span><span>
+</span><span id="line-109"></span><span class="hs-comment">--   key the Bin can have.</span><span>
+</span><span id="line-110"></span><span class="annot"><span class="hs-comment">-- * pw .&amp;. (pw-1) sets the mask bit and every bit below it to 0. This is the</span></span><span>
+</span><span id="line-111"></span><span class="hs-comment">--   smallest key the Bin can have.</span><span>
+</span><span id="line-112"></span><span class="hs-comment">--</span><span>
+</span><span id="line-113"></span><span class="hs-comment">-- First, we compare the prefixes to each other. Then we compare a prefix</span><span>
+</span><span id="line-114"></span><span class="hs-comment">-- against the greatest/smallest keys the other prefix's Bin could have. This is</span><span>
+</span><span id="line-115"></span><span class="hs-comment">-- enough to determine how the two Bins relate to each other. The conditions can</span><span>
+</span><span id="line-116"></span><span class="hs-comment">-- be stated as:</span><span>
+</span><span id="line-117"></span><span class="hs-comment">--</span><span>
+</span><span id="line-118"></span><span class="annot"><span class="hs-comment">-- * If pw1 from Bin A is less than pw2 from Bin B, and pw2 is &lt;= the greatest</span></span><span>
+</span><span id="line-119"></span><span class="hs-comment">--   key of Bin A, then Bin A contains Bin B in its right child.</span><span>
+</span><span id="line-120"></span><span class="annot"><span class="hs-comment">-- * ...and so on</span></span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#treeTreeBranch"><span class="hs-identifier hs-type">treeTreeBranch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#TreeTreeBranch"><span class="hs-identifier hs-type">TreeTreeBranch</span></a></span><span>
+</span><span id="line-123"></span><span id="treeTreeBranch"><span class="annot"><span class="annottext">treeTreeBranch :: Prefix -&gt; Prefix -&gt; TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#treeTreeBranch"><span class="hs-identifier hs-var hs-var">treeTreeBranch</span></a></span></span><span> </span><span id="local-6989586621679223389"><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223389"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679223390"><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223390"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Ordering
+forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
+</span><span class="hs-identifier hs-var">compare</span></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var">pw1</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var">pw2</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><span class="annottext">Ordering
+</span><span class="hs-identifier hs-var">LT</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var">pw2</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word
+forall {a}. (Bits a, Num a) =&gt; a -&gt; a
+</span><a href="#local-6989586621679223395"><span class="hs-identifier hs-var">greatest</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var">pw1</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#ABR"><span class="hs-identifier hs-var">ABR</span></a></span><span>
+</span><span id="line-125"></span><span>     </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word
+forall {a}. (Bits a, Num a) =&gt; a -&gt; a
+</span><a href="#local-6989586621679223396"><span class="hs-identifier hs-var">smallest</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var">pw2</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var">pw1</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#BAL"><span class="hs-identifier hs-var">BAL</span></a></span><span>
+</span><span id="line-126"></span><span>     </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#NOM"><span class="hs-identifier hs-var">NOM</span></a></span><span>
+</span><span id="line-127"></span><span>  </span><span class="annot"><span class="annottext">Ordering
+</span><span class="hs-identifier hs-var">GT</span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var">pw1</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word
+forall {a}. (Bits a, Num a) =&gt; a -&gt; a
+</span><a href="#local-6989586621679223395"><span class="hs-identifier hs-var">greatest</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var">pw2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#BAR"><span class="hs-identifier hs-var">BAR</span></a></span><span>
+</span><span id="line-128"></span><span>     </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word
+forall {a}. (Bits a, Num a) =&gt; a -&gt; a
+</span><a href="#local-6989586621679223396"><span class="hs-identifier hs-var">smallest</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var">pw1</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var">pw2</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#ABL"><span class="hs-identifier hs-var">ABL</span></a></span><span>
+</span><span id="line-129"></span><span>     </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#NOM"><span class="hs-identifier hs-var">NOM</span></a></span><span>
+</span><span id="line-130"></span><span>  </span><span class="annot"><span class="annottext">Ordering
+</span><span class="hs-identifier hs-var">EQ</span></span><span>                       </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TreeTreeBranch
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#EQL"><span class="hs-identifier hs-var">EQL</span></a></span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-132"></span><span>    </span><span id="local-6989586621679223392"><span class="annot"><span class="annottext">pw1 :: Word
+</span><a href="#local-6989586621679223392"><span class="hs-identifier hs-var hs-var">pw1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-var">i2w</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var">unPrefix</span></a></span><span> </span><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223389"><span class="hs-identifier hs-var">p1</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-133"></span><span>    </span><span id="local-6989586621679223393"><span class="annot"><span class="annottext">pw2 :: Word
+</span><a href="#local-6989586621679223393"><span class="hs-identifier hs-var hs-var">pw2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-var">i2w</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var">unPrefix</span></a></span><span> </span><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223390"><span class="hs-identifier hs-var">p2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>    </span><span id="local-6989586621679223395"><span class="annot"><span class="annottext">greatest :: a -&gt; a
+</span><a href="#local-6989586621679223395"><span class="hs-identifier hs-var hs-var">greatest</span></a></span></span><span> </span><span id="local-6989586621679223405"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223405"><span class="hs-identifier hs-var">pw</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223405"><span class="hs-identifier hs-var">pw</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.|.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223405"><span class="hs-identifier hs-var">pw</span></a></span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-135"></span><span>    </span><span id="local-6989586621679223396"><span class="annot"><span class="annottext">smallest :: a -&gt; a
+</span><a href="#local-6989586621679223396"><span class="hs-identifier hs-var hs-var">smallest</span></a></span></span><span> </span><span id="local-6989586621679223414"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223414"><span class="hs-identifier hs-var">pw</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223414"><span class="hs-identifier hs-var">pw</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679223414"><span class="hs-identifier hs-var">pw</span></a></span><span class="annot"><span class="annottext">a -&gt; a -&gt; a
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span class="annot"><span class="annottext">a
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-136"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#treeTreeBranch"><span class="hs-pragma hs-type">treeTreeBranch</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-137"></span><span>
+</span><span id="line-138"></span><span class="hs-comment">-- | Whether this @Prefix@ splits a @Bin@ at the sign bit.</span><span>
+</span><span id="line-139"></span><span class="hs-comment">--</span><span>
+</span><span id="line-140"></span><span class="hs-comment">-- This can only be True at the top level.</span><span>
+</span><span id="line-141"></span><span class="hs-comment">-- If it is true, the left child contains non-negative keys and the right child</span><span>
+</span><span id="line-142"></span><span class="hs-comment">-- contains negative keys.</span><span>
+</span><span id="line-143"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#signBranch"><span class="hs-identifier hs-type">signBranch</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Prefix"><span class="hs-identifier hs-type">Prefix</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span>
+</span><span id="line-144"></span><span id="signBranch"><span class="annot"><span class="annottext">signBranch :: Prefix -&gt; Bool
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#signBranch"><span class="hs-identifier hs-var hs-var">signBranch</span></a></span></span><span> </span><span id="local-6989586621679223415"><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223415"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Prefix -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#unPrefix"><span class="hs-identifier hs-var">unPrefix</span></a></span><span> </span><span class="annot"><span class="annottext">Prefix
+</span><a href="#local-6989586621679223415"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+forall a. Bounded a =&gt; a
+</span><span class="hs-identifier hs-var">minBound</span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">)</span><span>
+</span><span id="line-145"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#signBranch"><span class="hs-pragma hs-type">signBranch</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-146"></span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- | The prefix of key @i@ up to (but not including) the switching</span><span>
+</span><span id="line-148"></span><span class="hs-comment">-- bit @m@.</span><span>
+</span><span id="line-149"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#mask"><span class="hs-identifier hs-type">mask</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Key"><span class="hs-identifier hs-type">Key</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-150"></span><span id="mask"><span class="annot"><span class="annottext">mask :: Int -&gt; Int -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#mask"><span class="hs-identifier hs-var hs-var">mask</span></a></span></span><span> </span><span id="local-6989586621679223417"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223417"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span id="local-6989586621679223418"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223418"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223417"><span class="hs-identifier hs-var">i</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">.&amp;.</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-glyph">-</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223418"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223418"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-151"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#mask"><span class="hs-pragma hs-type">mask</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-152"></span><span>
+</span><span id="line-153"></span><span class="hs-comment">-- | The first switching bit where the two prefixes disagree.</span><span>
+</span><span id="line-154"></span><span class="hs-comment">--</span><span>
+</span><span id="line-155"></span><span class="hs-comment">-- Precondition for defined behavior: p1 /= p2</span><span>
+</span><span id="line-156"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#branchMask"><span class="hs-identifier hs-type">branchMask</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span>
+</span><span id="line-157"></span><span id="branchMask"><span class="annot"><span class="annottext">branchMask :: Int -&gt; Int -&gt; Int
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#branchMask"><span class="hs-identifier hs-var hs-var">branchMask</span></a></span></span><span> </span><span id="local-6989586621679223419"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223419"><span class="hs-identifier hs-var">p1</span></a></span></span><span> </span><span id="local-6989586621679223420"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223420"><span class="hs-identifier hs-var">p2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-158"></span><span>  </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; Int -&gt; a
+</span><span class="hs-identifier hs-var">unsafeShiftL</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="Utils.Containers.Internal.BitUtil.html#wordSize"><span class="hs-identifier hs-var">wordSize</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int
+forall b. FiniteBits b =&gt; b -&gt; Int
+</span><span class="hs-identifier hs-var">countLeadingZeros</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223419"><span class="hs-identifier hs-var">p1</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Bits a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">`xor`</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679223420"><span class="hs-identifier hs-var">p2</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-159"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#branchMask"><span class="hs-pragma hs-type">branchMask</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-160"></span><span>
+</span><span id="line-161"></span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-type">i2w</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word</span></span><span>
+</span><span id="line-162"></span><span id="i2w"><span class="annot"><span class="annottext">i2w :: Int -&gt; Word
+</span><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-identifier hs-var hs-var">i2w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Int -&gt; Word
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span>
+</span><span id="line-163"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#i2w"><span class="hs-pragma hs-type">i2w</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-164"></span><span>
+</span><span id="line-165"></span><span class="hs-comment">-- Used to compare IntSets and IntMaps</span><span>
+</span><span id="line-166"></span><span class="hs-keyword">data</span><span> </span><span id="Order"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#Order"><span class="hs-identifier hs-var">Order</span></a></span></span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="A_LT_B"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#A_LT_B"><span class="hs-identifier hs-var">A_LT_B</span></a></span></span><span>     </span><span class="hs-comment">-- holds for [0,3,4] [0,3,5,1]</span><span>
+</span><span id="line-168"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="A_Prefix_B"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#A_Prefix_B"><span class="hs-identifier hs-var">A_Prefix_B</span></a></span></span><span> </span><span class="hs-comment">-- holds for [0,3,4] [0,3,4,5]</span><span>
+</span><span id="line-169"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="A_EQ_B"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#A_EQ_B"><span class="hs-identifier hs-var">A_EQ_B</span></a></span></span><span>     </span><span class="hs-comment">-- holds for [0,3,4] [0,3,4]</span><span>
+</span><span id="line-170"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="B_Prefix_A"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#B_Prefix_A"><span class="hs-identifier hs-var">B_Prefix_A</span></a></span></span><span> </span><span class="hs-comment">-- holds for [0,3,4] [0,3]</span><span>
+</span><span id="line-171"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="A_GT_B"><span class="annot"><a href="Data.IntSet.Internal.IntTreeCommons.html#A_GT_B"><span class="hs-identifier hs-var">A_GT_B</span></a></span></span><span>     </span><span class="hs-comment">-- holds for [0,3,4] [0,2,5]</span><span>
+</span><span id="line-172"></span><span>
+</span><span id="line-173"></span><span class="hs-comment">{--------------------------------------------------------------------
+  Notes
+--------------------------------------------------------------------}</span><span>
+</span><span id="line-176"></span><span>
+</span><span id="line-177"></span><span class="hs-comment">-- Note [INLINE bit fiddling]</span><span>
+</span><span id="line-178"></span><span class="hs-comment">-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~</span><span>
+</span><span id="line-179"></span><span class="hs-comment">-- It is essential that the bit fiddling functions like nomatch, mask,</span><span>
+</span><span id="line-180"></span><span class="hs-comment">-- branchMask etc are inlined. If they do not, the memory allocation skyrockets.</span><span>
+</span><span id="line-181"></span><span class="hs-comment">-- The GHC usually gets it right, but it is disastrous if it does not. Therefore</span><span>
+</span><span id="line-182"></span><span class="hs-comment">-- we explicitly mark these functions INLINE.</span><span>
+</span><span id="line-183"></span></pre></body></html>

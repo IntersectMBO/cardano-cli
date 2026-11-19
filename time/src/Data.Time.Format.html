@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE Safe #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Data.Time.Format.html"><span class="hs-identifier">Data.Time.Format</span></a></span><span> </span><span class="hs-special">(</span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><span class="hs-comment">-- * UNIX-style formatting</span></span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Format.Class.html#FormatTime"><span class="hs-identifier">FormatTime</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Format.Class.html#formatTime"><span class="hs-identifier">formatTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><span class="hs-comment">-- * UNIX-style parsing</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.html#parseTimeM"><span class="hs-identifier">parseTimeM</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.html#parseTimeMultipleM"><span class="hs-identifier">parseTimeMultipleM</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.html#parseTimeOrError"><span class="hs-identifier">parseTimeOrError</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.html#readSTime"><span class="hs-identifier">readSTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.html#readPTime"><span class="hs-identifier">readPTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Parse.Class.html#ParseTime"><span class="hs-identifier">ParseTime</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Locale</span></span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Locale.html#TimeLocale"><span class="hs-identifier">TimeLocale</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Locale.html#defaultTimeLocale"><span class="hs-identifier">defaultTimeLocale</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Locale.html#iso8601DateFormat"><span class="hs-identifier">iso8601DateFormat</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Data.Time.Format.Locale.html#rfc822DateFormat"><span class="hs-identifier">rfc822DateFormat</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Format.Class.html"><span class="hs-identifier">Data.Time.Format.Format.Class</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Format.Instances.html"><span class="hs-identifier">Data.Time.Format.Format.Instances</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.ISO8601.html"><span class="hs-identifier">Data.Time.Format.ISO8601</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Locale.html"><span class="hs-identifier">Data.Time.Format.Locale</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Parse.html"><span class="hs-identifier">Data.Time.Format.Parse</span></a></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Data.Time.Format.Parse.Class.html"><span class="hs-identifier">Data.Time.Format.Parse.Class</span></a></span><span>
+</span><span id="line-29"></span></pre></body></html>
