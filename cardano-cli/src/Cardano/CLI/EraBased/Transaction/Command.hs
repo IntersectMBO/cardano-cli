@@ -176,6 +176,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , includeCurrentTreasuryValue :: !IncludeCurrentTreasuryValue
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
+  , subTransactionFiles :: ![SignedSubTxFile In]
   , isCborOutCanonical :: !TxCborFormat
   , buildOutputOptions :: !TxBuildOutputOptions
   }

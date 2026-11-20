@@ -16,12 +16,14 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.Conway.State qualified as L
+import Cardano.Ledger.Shelley.LedgerState qualified as L (nesStakePoolDistrG)
 
 import Control.Exception
 import Data.Aeson
 import Data.List qualified as List
 import Data.Typeable
 import Data.Word
+import Lens.Micro ((^.))
 
 instance Error [Bech32DecodeError] where
   prettyError errs = vsep $ map prettyError errs
@@ -37,15 +39,22 @@ instance
   (L.EraTxOut ledgerera, L.EraGov ledgerera, L.EraCertState ledgerera, L.EraStake ledgerera)
   => ToJSON (L.NewEpochState ledgerera)
   where
-  toJSON (L.NewEpochState nesEL nesBprev nesBCur nesEs nesRu nesPd _stashedAvvm) =
-    object
-      [ "currentEpoch" .= nesEL
-      , "priorBlocks" .= nesBprev
-      , "currentEpochBlocks" .= nesBCur
-      , "currentEpochState" .= nesEs
-      , "rewardUpdate" .= nesRu
-      , "currentStakeDistribution" .= nesPd
-      ]
+  toJSON
+    nes@L.NewEpochState
+      { L.nesEL = nesEL
+      , L.nesBprev = nesBprev
+      , L.nesBcur = nesBCur
+      , L.nesEs = nesEs
+      , L.nesRu = nesRu
+      } =
+      object
+        [ "currentEpoch" .= nesEL
+        , "priorBlocks" .= nesBprev
+        , "currentEpochBlocks" .= nesBCur
+        , "currentEpochState" .= nesEs
+        , "rewardUpdate" .= nesRu
+        , "currentStakeDistribution" .= (nes ^. L.nesStakePoolDistrG)
+        ]
 
 instance ToJSON HashableScriptData where
   toJSON hsd =

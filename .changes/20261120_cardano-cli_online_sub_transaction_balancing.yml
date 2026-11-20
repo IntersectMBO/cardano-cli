@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1507
+kind:
+  - feature
+description: Support signed sub-transactions in Dijkstra transaction build, querying their inputs and certificates and balancing the enclosing transaction without changing their signatures.

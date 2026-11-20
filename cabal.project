@@ -127,3 +127,64 @@ if impl(ghc >= 9.14)
     , time-locale-compat:time
     , with-utf8:base
 -- cabal-allow-newer end
+
+-- Temporary integration dependency for cardano-api#1402; replace before merging.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 1cce2954bc91b6840bc6a17d352ea07b8c91b3cb
+  --sha256: sha256-xtk7tpRyepPnbtqMj4674MRLegyu7WOk3a8x+jioOQ8=
+  subdir: cardano-api
+
+-- Temporary until the Dijkstra reference-script fee fix is released.
+-- Use the ledger revision tested by the matching consensus source revision.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  --sha256: sha256-WylaMiP9fbJyG88zkvnGhtmmVi84UEsimyXS8ecAFpQ=
+  tag: b21c518eb6ef27b8e5d3731bc9f432378a39ef1b
+  subdir:
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/small-steps
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol
+    libs/cardano-protocol-tpraos
+    eras/byron/chain/executable-spec
+    eras/byron/ledger/executable-spec
+    eras/shelley/impl
+    eras/shelley/test-suite
+    eras/shelley-ma/test-suite
+    eras/mary/impl
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+
+-- This upstream source still declares version 5.0; the API bound matches it.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: a95430e6e9426a713e4d7393299fdde4af90e65e
+  --sha256: sha256-FvKy7oelwSJX5VnaWabJqU39r0Vyk73tJb+YkpfkUFs=
+
+-- Needed for all ghc versions due to added aeson >= 2.3 bound.
+allow-newer:
+  -- The consensus SRP uses these released packages with the pinned ledger.
+  , cardano-keys:cardano-ledger-core
+  , cardano-keys:cardano-ledger-shelley
+  , cardano-keys:cardano-protocol
+  , cborg-json:aeson
+  , criterion-measurement:aeson
+  , deriving-aeson:aeson
+  , grapesy:aeson
+  , grpc-spec:aeson
+  , hedgehog-extras:aeson
+  , microstache:aeson
+  , monad-control:transformers
+  , http-api-data:text-iso8601
+  -- cardano-addresses-4.0.x bounds crypton < 1.1 but we have 1.1.4
+  , cardano-addresses:crypton

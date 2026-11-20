@@ -14,6 +14,8 @@
 module Cardano.CLI.EraBased.Transaction.Run
   ( runTransactionCmds
   , runTransactionBuildCmd
+  , constructTxBodyContent
+  , subTransactionQueryRequirements
   , runTransactionBuildRawCmd
   , runTransactionSignCmd
   , runTransactionSubmitCmd
@@ -125,7 +127,8 @@ runTransactionCmds = \case
 --
 
 runTransactionBuildCmd
-  :: Exp.IsEra era
+  :: forall era e
+   . Exp.IsEra era
   => Cmd.TransactionBuildCmdArgs era
   -> CIO e ()
 runTransactionBuildCmd
@@ -163,7 +166,10 @@ runTransactionBuildCmd
     , mTreasuryDonation
     , isCborOutCanonical
     , buildOutputOptions
+    , subTransactionFiles
     } = do
+    signedSubTxs <- readSignedSubTransactions subTransactionFiles
+    (subTxInputs, _) <- fromEitherCli $ subTransactionQueryRequirements @era signedSubTxs
     guardRequirements <- case guardArguments of
       ConwayRequiredSignerArguments signers -> ConwayRequiredSigners <$> readConwayRequiredSigners signers
       DijkstraGuardArguments guards -> DijkstraGuards <$> readDijkstraGuards guards
@@ -289,7 +295,7 @@ runTransactionBuildCmd
             )
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
-        allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
+        allTxInputs = nubOrd $ inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc ++ subTxInputs
 
     AnyCardanoEra nodeEra <-
       fromEitherIOCli (executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip queryCurrentEra)
@@ -312,6 +318,7 @@ runTransactionBuildCmd
     (balancedTxBody@(Exp.UnsignedTx tx), txBodyContent) <-
       fromExceptTCli $
         runTxBuild
+          signedSubTxs
           nodeSocketPath
           networkId
           mScriptValidity
@@ -1013,11 +1020,28 @@ constructTxBodyContent
       Exp.ConwayEra -> id
       Exp.DijkstraEra -> Exp.setTxSignedSubTransactions subTxs
 
+-- | Collect the node queries needed by signed sub-transactions. The enclosing
+-- body has no scripts or inputs; only the embedded signed transactions matter.
+subTransactionQueryRequirements
+  :: forall era
+   . Exp.IsEra era
+  => [Exp.SignedSubTx]
+  -> Either TxCmdError ([TxIn], [Exp.Certificate (Exp.LedgerEra era)])
+subTransactionQueryRequirements signedSubTxs = case Exp.useEra @era of
+  Exp.ConwayEra -> Right ([], [])
+  Exp.DijkstraEra -> do
+    tx <-
+      first TxCmdMakeUnsignedTxError
+        $ Exp.makeUnsignedTx Exp.DijkstraEra
+        $ Exp.setTxSignedSubTransactions signedSubTxs Exp.defaultTxBodyContent
+    pure (Exp.getAllTxInputs tx, Exp.getAllTxCertificates tx)
+
 runTxBuild
   :: forall era
    . Exp.IsEra era
   => HasCallStack
-  => SocketPath
+  => [Exp.SignedSubTx]
+  -> SocketPath
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -1062,6 +1086,7 @@ runTxBuild
   -- ^ Supplemental datums
   -> ExceptT TxCmdError IO (Exp.UnsignedTx (Exp.LedgerEra era), Exp.TxBodyContent (Exp.LedgerEra era))
 runTxBuild
+  signedSubTxs
   socketPath
   networkId
   mScriptValidity
@@ -1089,6 +1114,7 @@ runTxBuild
   mCurrentTreasury
   mTreasuryDonation
   suppDatums = do
+    (subTxInputs, subTxCertificates) <- hoistEither $ subTransactionQueryRequirements @era signedSubTxs
     let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
       -- TODO: All functions should be parameterized by ShelleyBasedEra
@@ -1107,7 +1133,7 @@ runTxBuild
                   ++ getTxGuardReferenceInputs guardRequirements
               )
 
-      let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
+      let allTxInputs = nubOrd $ inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc ++ subTxInputs
           localNodeConnInfo =
             LocalNodeConnectInfo
               { localConsensusModeParams = CardanoModeParams $ EpochSlots 21600
@@ -1124,7 +1150,8 @@ runTxBuild
         testEquality era nodeEra
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-      let certsToQuery = obtainCommonConstraints (Exp.useEra @era) (fst <$> certsAndMaybeScriptWits)
+      let certsToQuery =
+            obtainCommonConstraints (Exp.useEra @era) ((fst <$> certsAndMaybeScriptWits) ++ subTxCertificates)
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, _, _) <-
         lift
           ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
@@ -1136,7 +1163,7 @@ runTxBuild
       txBodyContent <-
         hoistEither $
           constructTxBodyContent
-            []
+            signedSubTxs
             mScriptValidity
             (Just $ fromShelleyLedgerPParamsShim Exp.useEra $ unLedgerProtocolParameters pparams)
             inputsAndMaybeScriptWits

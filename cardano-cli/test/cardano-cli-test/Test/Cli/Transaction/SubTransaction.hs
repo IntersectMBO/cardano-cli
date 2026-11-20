@@ -1,16 +1,27 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Cli.Transaction.SubTransaction where
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.EraBased.Script.Guard.Type (TxGuardRequirements (..))
+import Cardano.CLI.EraBased.Transaction.Run
+  ( constructTxBodyContent
+  , subTransactionQueryRequirements
+  )
+import Cardano.Ledger.Coin qualified as L
 import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
 import Cardano.Ledger.Keys qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
+import Cardano.Slotting.EpochInfo qualified as Slotting
+import Cardano.Slotting.Slot qualified as Slotting
+import Cardano.Slotting.Time qualified as Slotting
 
 import Control.Monad (forM, forM_, void)
 import Control.Monad.Trans.Resource (ResourceT)
@@ -21,7 +32,9 @@ import Data.Foldable (toList)
 import Data.List (isInfixOf, isPrefixOf)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Lens.Micro ((^.))
+import Data.Text qualified as Text
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Lens.Micro ((&), (.~), (^.))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
 
@@ -1293,7 +1306,7 @@ hprop_dijkstra_sub_transaction_top_level_key_guard_forms =
       forM_ [keyArgs ++ scriptArgs, scriptArgs ++ keyArgs] $ \args -> do
         H.noteShow_ args
         Exp.UnsignedSubTx tx <- buildSubTransaction outFile args
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== expected
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== expected
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
 
@@ -1326,7 +1339,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_hashes =
     expected <- forM [('0', L.SNothing), ('1', L.SJust datum), ('2', L.SNothing)] $ \(digit, mDatum) -> do
       ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex $ BSC.pack $ replicate 56 digit
       pure (L.ScriptHashObj hash, mDatum)
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== Map.fromList expected
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== Map.fromList expected
 
 -- | Inline, JSON-file and CBOR-file datums produce the same guard entry.
 hprop_dijkstra_sub_transaction_top_level_guard_datum_formats :: Property
@@ -1347,7 +1360,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_datum_formats =
     inline H.=== cbor
     ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
     let Exp.UnsignedSubTx tx = inline
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton (L.ScriptHashObj hash) (L.SJust $ toAlonzoData guardDatum)
 
 -- | Script files resolve to the same guard entries as their hashes, for both
@@ -1368,7 +1381,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_script_files =
         -- A top-level requirement contributes no local guard or witness data.
         let Exp.UnsignedSubTx tx = fromFile
         ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.pack scriptHash)
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
           H.=== Map.singleton (L.ScriptHashObj hash) expectedDatum
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
@@ -1401,7 +1414,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_coexists_with_local_guard =
              , "42"
              ]
     [credential] <- pure $ toList (local ^. L.bodyTxL . L.guardsTxBodyL)
-    combined ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    combined ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton credential (L.SJust $ toAlonzoData guardDatum)
     combined ^. L.bodyTxL . L.guardsTxBodyL H.=== local ^. L.bodyTxL . L.guardsTxBodyL
     combined ^. L.witsTxL H.=== local ^. L.witsTxL
@@ -1745,3 +1758,185 @@ assertV4Redeemer purpose tx = do
   L.unRedeemers redeemers H.=== Map.singleton pointer (redeemer, executionUnits)
   tx ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL H.=== integrityHash L.PlutusV4
   H.assert $ integrityHash L.PlutusV4 /= integrityHash L.PlutusV3
+
+-- Signed files must be checked before attempting to connect to a node.
+hprop_build_checks_signed_sub_transactions_before_node_query :: Property
+hprop_build_checks_signed_sub_transactions_before_node_query =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    malformedFile <- H.noteTempFile tempDir "malformed.json"
+    outFile <- H.noteTempFile tempDir "unused"
+    socketPath <- H.noteTempFile tempDir "missing.socket"
+    void $ buildSubTransaction unsignedFile ["--tx-out", txOut]
+    signSubTransaction unsignedFile signingKey signedFile
+    H.evalIO $ writeFile malformedFile "invalid JSON"
+    let args files =
+          [ "dijkstra"
+          , "transaction"
+          , "build"
+          , "--testnet-magic"
+          , "42"
+          , "--socket-path"
+          , socketPath
+          , "--tx-in"
+          , txIn
+          , "--change-address"
+          , takeWhile (/= '+') txOut
+          , "--out-file"
+          , outFile
+          ]
+            ++ concatMap (\file -> ["--signed-sub-tx-file", file]) files
+    forM_ [([signedFile, signedFile], "was provided more than once"), ([malformedFile], "JSON")] $ \(files, message) -> do
+      (exitCode, _, stderr) <- execDetailCardanoCLI $ args files
+      exitCode H.=== ExitFailure 1
+      H.assertWith stderr (message `isInfixOf`)
+      H.assertWith stderr (not . isInfixOf "Invalid option")
+      H.evalIO (doesFileExist outFile) >>= (H.=== False)
+
+hprop_build_signed_sub_transaction_era_gating :: Property
+hprop_build_signed_sub_transaction_era_gating = watchdogProp . propertyOnce $ do
+  help <- execCardanoCLI ["dijkstra", "transaction", "build", "--help"]
+  H.assertWith help ("--signed-sub-tx-file" `isInfixOf`)
+  forM_ ["conway", "latest"] $ \era -> do
+    (exitCode, _, stderr) <-
+      execDetailCardanoCLI
+        [era, "transaction", "build", "--signed-sub-tx-file", "unused"]
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Invalid option `--signed-sub-tx-file'" `isInfixOf`)
+
+-- Querying only the enclosing transaction's inputs loses these references.
+hprop_build_queries_signed_sub_transaction_inputs :: Property
+hprop_build_queries_signed_sub_transaction_inputs =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    certificateFile <- H.noteTempFile tempDir "stake.cert"
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "stake-address"
+        , "registration-certificate"
+        , "--stake-key-hash"
+        , replicate 56 '0'
+        , "--key-reg-deposit-amt"
+        , "2000000"
+        , "--out-file"
+        , certificateFile
+        ]
+    let reference = takeWhile (/= '#') txIn ++ "#1"
+    void $
+      buildSubTransaction
+        unsignedFile
+        ["--tx-out", txOut, "--read-only-tx-in-reference", reference, "--certificate-file", certificateFile]
+    signSubTransaction unsignedFile signingKey signedFile
+    signed <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File signedFile))
+    (inputs, certificates) <- H.evalEither $ subTransactionQueryRequirements @DijkstraEra [signed]
+    length inputs H.=== 2
+    Set.fromList (map renderTxIn inputs) H.=== Set.fromList (map Text.pack [txIn, reference])
+    expectedCertificate <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File certificateFile))
+    certificates H.=== [expectedCertificate]
+
+-- Exercise the CLI body constructor and API balancer with files produced and
+-- signed by the CLI. Both a nested surplus and a nested deficit affect change.
+hprop_build_balances_signed_sub_transactions :: Property
+hprop_build_balances_signed_sub_transactions =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedFile <- H.noteTempFile tempDir "sub.unsigned"
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    void $ buildSubTransaction unsignedFile ["--tx-out", txOut]
+    signSubTransaction unsignedFile signingKey signedFile
+    signed <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File signedFile))
+    ([nestedInput], _) <- H.evalEither $ subTransactionQueryRequirements @DijkstraEra [signed]
+    secondUnsignedFile <- H.noteTempFile tempDir "second.unsigned"
+    secondSignedFile <- H.noteTempFile tempDir "second.signed"
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "sub-transaction"
+        , "build-raw"
+        , "--tx-in"
+        , takeWhile (/= '#') txIn ++ "#3"
+        , "--tx-out"
+        , txOut
+        , "--out-file"
+        , secondUnsignedFile
+        ]
+    signSubTransaction secondUnsignedFile signingKey secondSignedFile
+    secondSigned <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File secondSignedFile))
+    let signedSubs = [secondSigned, signed]
+        TxIn inputId _ = nestedInput
+        secondInput = TxIn inputId (TxIx 3)
+        outerInput = TxIn inputId (TxIx 2)
+        params =
+          (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra DijkstraEra))
+            & L.ppProtocolVersionL .~ L.ProtVer (L.eraProtVerLow @(Exp.LedgerEra DijkstraEra)) 0
+            & L.ppMaxTxSizeL .~ 16384
+            & L.ppTxFeePerByteL .~ L.CoinPerByte (L.CompactCoin 44)
+            & L.ppTxFeeFixedL .~ 155381
+    address <-
+      H.evalMaybe
+        $ deserialiseAddress (AsAddressInEra AsDijkstraEra)
+        $ Text.pack
+        $ takeWhile (/= '+') txOut
+    content <-
+      H.evalEither $
+        constructTxBodyContent @DijkstraEra
+          signedSubs
+          Nothing
+          (Just params)
+          [(outerInput, Exp.AnyKeyWitnessPlaceholder)]
+          []
+          []
+          Nothing
+          Nothing
+          []
+          Nothing
+          (TxValidityUpperBound ShelleyBasedEraDijkstra Nothing)
+          (mempty, [])
+          []
+          []
+          []
+          []
+          []
+          (DijkstraGuards Exp.emptyTxGuards)
+          0
+          TxAuxScriptsNone
+          TxMetadataNone
+          []
+          []
+          Nothing
+          Nothing
+          mempty
+    let output value = L.mkBasicTxOut (toShelleyAddr address) (L.MaryValue value mempty)
+        balance utxo =
+          Exp.makeTransactionBodyAutoBalance
+            (SystemStart $ posixSecondsToUTCTime 0)
+            (LedgerEpochInfo $ Slotting.fixedEpochInfo (Slotting.EpochSize 100) (Slotting.mkSlotLength 1000))
+            params
+            mempty
+            mempty
+            (L.UTxO $ Map.insert (toShelleyTxIn secondInput) (output 5000000) utxo)
+            content
+            address
+            Nothing
+    forM_ [2000000, 8000000] $ \nestedAmount -> do
+      let utxo =
+            Map.fromList
+              [(toShelleyTxIn outerInput, output 10000000), (toShelleyTxIn nestedInput, output nestedAmount)]
+      (Exp.UnsignedTx tx, _) <- H.evalEither $ balance utxo
+      let body = tx ^. L.bodyTxL
+          embedded = map Exp.SignedSubTx $ toList $ body ^. L.subTransactionsTxBodyL
+          change = sum [out ^. L.coinTxOutL | out <- toList $ body ^. L.outputsTxBodyL]
+      map serialiseToCBOR embedded H.=== map serialiseToCBOR signedSubs
+      change H.=== 10000000 + nestedAmount - 5000000 - (body ^. L.feeTxBodyL)
+    case balance (Map.singleton (toShelleyTxIn outerInput) (output 10000000)) of
+      Left Exp.TxBodyErrorMissingInputs{} -> pure ()
+      other -> H.annotateShow (fmap fst other) >> H.failure
+    let insufficient =
+          Map.fromList
+            [(toShelleyTxIn outerInput, output 1000000), (toShelleyTxIn nestedInput, output 1000000)]
+    case balance insufficient of
+      Left Exp.TxBodyErrorBalanceNegative{} -> pure ()
+      Left Exp.BalanceIsNegative{} -> pure ()
+      other -> H.annotateShow (fmap fst other) >> H.failure
