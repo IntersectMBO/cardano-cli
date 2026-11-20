@@ -24,25 +24,32 @@ You can also download binaries of all versions of `cardano-cli` from [cardano-cl
 
 ## Documentation
 
-* [Tutorials](https://developers.cardano.org/docs/get-started/infrastructure/cardano-cli/basic-operations/get-started)
+* Tutorials on how to install and run a cardano-node and cardano-cli can be found in:
+
+- [Getting started with cardano-node](https://developers.cardano.org/docs/get-started/infrastructure/node/installing-cardano-node)
+- [Getting started with cardano-cli](https://developers.cardano.org/docs/get-started/infrastructure/cardano-cli/basic-operations/get-started)
 
 Up to date command line help reference is available here:
+
 * [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)
 * [Description of each command's options](cardano-cli/test/cardano-cli-golden/files/golden/help)
 
-To read a file from standard input, use `-` as the file path. For example:
+Development documentation can be found in:
 
-```sh
-cat certificate.json | cardano-cli debug certificate view --certificate-file -
-```
+- [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki)
 
-Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
+Haddock documentation is available at: 
 
-Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.org/
+- https://cardano-cli.cardano.intersectmbo.org/
 
 ## Contributing
 
 See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this project.
+
+## Community and Support
+
+- [Discord API/CLI Community](https://discordapp.com/channels/1136727663583698984/1239888777015590913)
+- [Troubleshooting](troubleshooting.md)
 
 ## Core maintainers
 
@@ -56,4 +63,3 @@ See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this proj
 [![GHA Build](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/haskell.yml?branch=master&label=GHA%20Build&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/haskell.yml?query=branch%3Amaster)
 [![Haddock](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/github-page.yml?branch=master&label=Haddocks&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/github-page.yml?query=branch%3Amaster)
 [![Release Upload](https://img.shields.io/github/actions/workflow/status/intersectmbo/cardano-cli/release-upload.yml?label=GH%20Release%20Upload&style=flat-square)](https://github.com/IntersectMBO/cardano-cli/actions/workflows/release-upload.yml)
-

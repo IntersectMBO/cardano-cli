@@ -1,0 +1,22 @@
+project: cardano-cli
+
+# Pull request number associated with this change
+pr: 1499
+
+# One or more change kinds (see 'kinds' in .herald.yml)
+kind:
+#   - breaking       # the API has changed in a breaking way
+#   - feature        # introduces a new feature
+#   - compatible     # the API has changed but is non-breaking
+#   - bugfix         # fixes a defect
+#   - optimisation   # measurable performance improvements
+  - documentation  # change in code docs, haddocks
+#   - refactoring    # code quality improvements
+#   - test           # fixes or modifies tests
+#   - maintenance    # not directly related to the code
+#   - release        # related to a new release preparation
+description: |
+  To improve the first-time setup experience, this PR:
+  adds relevant installation links to the README
+  proposes a troubleshooting.md document to capture common issues and solutions
+  added discord channel
