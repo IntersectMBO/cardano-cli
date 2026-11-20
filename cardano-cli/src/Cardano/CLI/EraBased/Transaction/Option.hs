@@ -231,6 +231,7 @@ pTransactionBuildCmd envCli = do
         <*> pProposalFilesForEra (Exp.useEra @era) AutoBalance
         <*> pIncludeCurrentTreasuryValue
         <*> pTreasuryDonation
+        <*> pSubTransactionFiles @era
         <*> pIsCborOutCanonical
         <*> pTxBuildOutputOptions
 
