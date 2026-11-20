@@ -258,7 +258,7 @@ dijkstraBodyPairs era body = case era of
         [] -> Null
         guards -> toJSON guards
     , "required top-level guards"
-        .= friendlyRequiredTopLevelGuards (body ^. L.requiredTopLevelGuardsL)
+        .= friendlyRequiredTopLevelGuards (body ^. L.requiredTopLevelGuardsTxBodyL)
     ]
 
 friendlyRequiredTopLevelGuards

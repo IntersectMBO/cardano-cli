@@ -5896,6 +5896,7 @@ Usage: cardano-cli dijkstra transaction build
                                                   ]]
                                                 [--current-treasury-value]
                                                 [--treasury-donation LOVELACE]
+                                                [--signed-sub-tx-file FILEPATH]
                                                 [--out-canonical-cbor]
                                                 ( --out-file FILEPATH
                                                 | --calculate-plutus-script-cost FILEPATH

@@ -384,8 +384,11 @@ data PoolParams = PoolParams
 -- it means the @bksRegisteredIn@ field in the @query pool-state@ output is a
 -- placeholder.
 --
--- TODO: use the real registration epoch once the ledger exposes it through a
--- query. See https://github.com/IntersectMBO/cardano-ledger/issues/6147.
+-- TODO: replace this reconstruction with the dedicated GetStakePoolState node
+-- query, which returns the real BLS registration epoch without fetching the
+-- entire ledger state. API support: https://github.com/IntersectMBO/cardano-api/pull/1383.
+-- CLI integration: https://github.com/IntersectMBO/cardano-cli/pull/1478.
+-- Tracks https://github.com/IntersectMBO/cardano-cli/issues/1493.
 mkPoolStates :: EpochNo -> PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
 mkPoolStates
   currentEpoch
@@ -402,11 +405,13 @@ mkPoolStates
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
       { poolParameters =
-          (\deposit -> L.mkStakePoolState currentEpoch deposit stakingCredentials pp) <$> mDeposit
+          -- SNothing: QueryPoolStateResult omits the current BLS key state (see #1493).
+          (\deposit -> L.mkStakePoolState currentEpoch L.SNothing deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
           -- Future parameters only take effect at the next epoch boundary.
-          (\deposit -> L.mkStakePoolState (succ currentEpoch) deposit stakingCredentials futurePp)
+          -- SNothing: QueryPoolStateResult omits the current BLS key state (see #1493).
+          (\deposit -> L.mkStakePoolState (succ currentEpoch) L.SNothing deposit stakingCredentials futurePp)
             <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
