@@ -1,0 +1,5 @@
+project: cardano-cli
+pr: 1473
+kind:
+  - bugfix
+description: Pin cardano-ledger to PR 6189 to fix Plutus data decoding for required top-level guards.
