@@ -1,19 +1,29 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Cli.Transaction.SubTransaction where
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.EraBased.Script.Guard.Type (TxGuardRequirements (..))
+import Cardano.CLI.EraBased.Transaction.Run (constructTxBodyContent)
+import Cardano.Ledger.Coin qualified as L
 import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
 import Cardano.Ledger.Keys qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
+import Cardano.Slotting.EpochInfo qualified as Slotting
+import Cardano.Slotting.Slot qualified as Slotting
+import Cardano.Slotting.Time qualified as Slotting
 
 import Control.Monad (forM, forM_, void)
-import Control.Monad.Trans.Resource (ResourceT)
+import Control.Monad.Morph (hoist)
+import Control.Monad.Trans.Resource (ResourceT, runResourceT)
 import Data.Aeson qualified as Aeson
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BSC
@@ -21,15 +31,21 @@ import Data.Foldable (toList)
 import Data.List (isInfixOf, isPrefixOf)
 import Data.Map.Strict qualified as Map
 import Data.Set qualified as Set
-import Lens.Micro ((^.))
+import Data.Text qualified as Text
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Lens.Micro ((&), (.~), (^.))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
+
+import Test.Gen.Cardano.Api.Typed (genTxId, genTxIn)
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
+import Hedgehog.Gen qualified as Gen
+import Hedgehog.Range qualified as Range
 
 signingKey :: FilePath
 signingKey = "test/cardano-cli-test/files/input/sub-transaction/payment.skey"
@@ -1293,7 +1309,7 @@ hprop_dijkstra_sub_transaction_top_level_key_guard_forms =
       forM_ [keyArgs ++ scriptArgs, scriptArgs ++ keyArgs] $ \args -> do
         H.noteShow_ args
         Exp.UnsignedSubTx tx <- buildSubTransaction outFile args
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== expected
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== expected
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
 
@@ -1326,7 +1342,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_hashes =
     expected <- forM [('0', L.SNothing), ('1', L.SJust datum), ('2', L.SNothing)] $ \(digit, mDatum) -> do
       ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex $ BSC.pack $ replicate 56 digit
       pure (L.ScriptHashObj hash, mDatum)
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL H.=== Map.fromList expected
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL H.=== Map.fromList expected
 
 -- | Inline, JSON-file and CBOR-file datums produce the same guard entry.
 hprop_dijkstra_sub_transaction_top_level_guard_datum_formats :: Property
@@ -1347,7 +1363,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_datum_formats =
     inline H.=== cbor
     ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.replicate 56 '0')
     let Exp.UnsignedSubTx tx = inline
-    tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton (L.ScriptHashObj hash) (L.SJust $ toAlonzoData guardDatum)
 
 -- | Script files resolve to the same guard entries as their hashes, for both
@@ -1368,7 +1384,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_script_files =
         -- A top-level requirement contributes no local guard or witness data.
         let Exp.UnsignedSubTx tx = fromFile
         ScriptHash hash <- H.evalEither $ deserialiseFromRawBytesHex (BSC.pack scriptHash)
-        tx ^. L.bodyTxL . L.requiredTopLevelGuardsL
+        tx ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
           H.=== Map.singleton (L.ScriptHashObj hash) expectedDatum
         tx ^. L.bodyTxL . L.guardsTxBodyL H.=== mempty
         tx ^. L.witsTxL H.=== mempty
@@ -1401,7 +1417,7 @@ hprop_dijkstra_sub_transaction_top_level_guard_coexists_with_local_guard =
              , "42"
              ]
     [credential] <- pure $ toList (local ^. L.bodyTxL . L.guardsTxBodyL)
-    combined ^. L.bodyTxL . L.requiredTopLevelGuardsL
+    combined ^. L.bodyTxL . L.requiredTopLevelGuardsTxBodyL
       H.=== Map.singleton credential (L.SJust $ toAlonzoData guardDatum)
     combined ^. L.bodyTxL . L.guardsTxBodyL H.=== local ^. L.bodyTxL . L.guardsTxBodyL
     combined ^. L.witsTxL H.=== local ^. L.witsTxL
@@ -1745,3 +1761,369 @@ assertV4Redeemer purpose tx = do
   L.unRedeemers redeemers H.=== Map.singleton pointer (redeemer, executionUnits)
   tx ^. L.bodyTxL . L.scriptIntegrityHashTxBodyL H.=== integrityHash L.PlutusV4
   H.assert $ integrityHash L.PlutusV4 /= integrityHash L.PlutusV3
+
+hprop_build_rejects_duplicate_signed_sub_transaction_files_before_connecting :: Property
+hprop_build_rejects_duplicate_signed_sub_transaction_files_before_connecting =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    input <- H.forAll genTxIn
+    address <- subTransactionPaymentAddress
+    outputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    void $ buildSignedSubTransaction signedFile input address outputAmount []
+    assertBuildRejectsSubTransactionFiles
+      tempDir
+      input
+      address
+      [signedFile, signedFile]
+      "was provided more than once"
+
+hprop_build_rejects_malformed_signed_sub_transaction_file_before_connecting :: Property
+hprop_build_rejects_malformed_signed_sub_transaction_file_before_connecting =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    input <- H.forAll genTxIn
+    address <- subTransactionPaymentAddress
+    malformedFile <- H.noteTempFile tempDir "malformed.json"
+    H.evalIO $ writeFile malformedFile "invalid JSON"
+    assertBuildRejectsSubTransactionFiles tempDir input address [malformedFile] "JSON"
+
+hprop_other_eras_reject_signed_sub_transaction_build_option :: Property
+hprop_other_eras_reject_signed_sub_transaction_build_option = watchdogProp . propertyOnce $ do
+  forM_ ["conway", "latest"] $ \era -> do
+    H.note_ $ "Checking era: " ++ era
+    (exitCode, _, stderr) <-
+      execDetailCardanoCLI
+        [era, "transaction", "build", "--signed-sub-tx-file", "unused"]
+    exitCode H.=== ExitFailure 1
+    H.assertWith stderr ("Invalid option `--signed-sub-tx-file'" `isInfixOf`)
+
+-- Build and sign a file with the CLI, then read its spending input, reference
+-- input and certificate through the API. This does not query a node.
+hprop_signed_sub_transaction_file_retains_inputs_and_certificate :: Property
+hprop_signed_sub_transaction_file_retains_inputs_and_certificate =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    transactionId <- H.forAll genTxId
+    let spendingInput = TxIn transactionId (TxIx 0)
+        referenceInput = TxIn transactionId (TxIx 1)
+    address <- subTransactionPaymentAddress
+    outputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    signedFile <- H.noteTempFile tempDir "sub.signed"
+    certificateFile <- H.noteTempFile tempDir "stake.cert"
+    -- Create a stake registration certificate to include in the sub-transaction.
+    -- We will compare it with the certificate read back from the signed file.
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "stake-address"
+        , "registration-certificate"
+        , "--stake-key-hash"
+        , replicate 56 '0'
+        , "--key-reg-deposit-amt"
+        , "2000000"
+        , "--out-file"
+        , certificateFile
+        ]
+    -- Supply the spending input explicitly and add the distinct read-only
+    -- reference input. The helper returns the signed file read back from disk.
+    signed <-
+      buildSignedSubTransaction
+        signedFile
+        spendingInput
+        address
+        outputAmount
+        [ "--read-only-tx-in-reference"
+        , Text.unpack $ renderTxIn referenceInput
+        , "--certificate-file"
+        , certificateFile
+        ]
+    let inputs = Exp.getSubTxInputs signed
+        certificates = Exp.getSubTxCertificates signed
+    -- Require exactly these two inputs, with no duplicates or extra inputs.
+    length inputs H.=== 2
+    Set.fromList inputs H.=== Set.fromList [spendingInput, referenceInput]
+    -- Require the original certificate, unchanged, as the only certificate.
+    expectedCertificate <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File certificateFile))
+    certificates H.=== [expectedCertificate]
+
+-- Change must account for every input and signed output, whether a
+-- sub-transaction contributes a surplus or needs funds from the top level.
+hprop_balancing_signed_sub_transactions_calculates_change_from_combined_inputs :: Property
+hprop_balancing_signed_sub_transactions_calculates_change_from_combined_inputs =
+  watchdogProp . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \tempDir -> do
+    transactionId <- H.forAll genTxId
+    let topLevelInput = TxIn transactionId (TxIx 0)
+        firstSubTxInput = TxIn transactionId (TxIx 1)
+        secondSubTxInput = TxIn transactionId (TxIx 2)
+    address <- subTransactionPaymentAddress
+    firstInputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 1_000_000 9_000_000)
+    firstOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 3_000_000 7_000_000)
+    secondInputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 1_000_000 10_000_000)
+    secondOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 7_000_000)
+    extraTopLevelFunds <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    -- The top level input can cover both signed outputs on its own, leaving
+    -- enough for the fee and change even when both sub-transactions have deficits.
+    let topLevelAmount = firstOutputAmount + secondOutputAmount + extraTopLevelFunds
+        inputsAndAmounts =
+          [ (topLevelInput, topLevelAmount)
+          , (firstSubTxInput, firstInputAmount)
+          , (secondSubTxInput, secondInputAmount)
+          ]
+        subTxInputsAndOutputAmounts =
+          [(firstSubTxInput, firstOutputAmount), (secondSubTxInput, secondOutputAmount)]
+    H.cover 20 "sub-transaction surplus" (firstInputAmount > firstOutputAmount)
+    H.cover 20 "sub-transaction deficit" (firstInputAmount < firstOutputAmount)
+    signedSubs <- buildSignedSubTransactions tempDir address subTxInputsAndOutputAmounts
+    result <- balanceSignedSubTransactions signedSubs topLevelInput address inputsAndAmounts
+    Exp.UnsignedTx tx <- H.evalEither result
+    let body = tx ^. L.bodyTxL
+        totalInputs = sum $ map snd inputsAndAmounts
+        totalSignedOutputs = firstOutputAmount + secondOutputAmount
+        expectedChange = totalInputs - totalSignedOutputs - (body ^. L.feeTxBodyL)
+        actualChange = sum [out ^. L.coinTxOutL | out <- toList $ body ^. L.outputsTxBodyL]
+    actualChange H.=== expectedChange
+
+hprop_balancing_preserves_signed_sub_transaction_bytes_and_order :: Property
+hprop_balancing_preserves_signed_sub_transaction_bytes_and_order =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    transactionId <- H.forAll genTxId
+    let topLevelInput = TxIn transactionId (TxIx 0)
+        firstSubTxInput = TxIn transactionId (TxIx 1)
+        secondSubTxInput = TxIn transactionId (TxIx 2)
+    address <- subTransactionPaymentAddress
+    firstOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    secondOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    topLevelAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    let inputsAndAmounts =
+          [ (topLevelInput, topLevelAmount)
+          , (firstSubTxInput, firstOutputAmount)
+          , (secondSubTxInput, secondOutputAmount)
+          ]
+    signedSubs <-
+      buildSignedSubTransactions
+        tempDir
+        address
+        [(firstSubTxInput, firstOutputAmount), (secondSubTxInput, secondOutputAmount)]
+    -- Reverse the creation order so sorting by input would fail the assertion.
+    let expectedOrder = reverse signedSubs
+    result <- balanceSignedSubTransactions expectedOrder topLevelInput address inputsAndAmounts
+    Exp.UnsignedTx tx <- H.evalEither result
+    let embedded = map Exp.SignedSubTx $ toList $ tx ^. L.bodyTxL . L.subTransactionsTxBodyL
+    -- Compare the whole signed transactions in order, including their witnesses.
+    map serialiseToCBOR embedded H.=== map serialiseToCBOR expectedOrder
+
+hprop_balancing_reports_missing_signed_sub_transaction_input :: Property
+hprop_balancing_reports_missing_signed_sub_transaction_input =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    transactionId <- H.forAll genTxId
+    let topLevelInput = TxIn transactionId (TxIx 0)
+        firstSubTxInput = TxIn transactionId (TxIx 1)
+        secondSubTxInput = TxIn transactionId (TxIx 2)
+    address <- subTransactionPaymentAddress
+    firstOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    secondOutputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    signedSubs <-
+      buildSignedSubTransactions
+        tempDir
+        address
+        [(firstSubTxInput, firstOutputAmount), (secondSubTxInput, secondOutputAmount)]
+    -- Supply enough funds but deliberately omit firstSubTxInput from the UTxO.
+    let inputsAndAmounts =
+          [ (topLevelInput, firstOutputAmount + secondOutputAmount)
+          , (secondSubTxInput, secondOutputAmount)
+          ]
+    result <- balanceSignedSubTransactions signedSubs topLevelInput address inputsAndAmounts
+    case result of
+      Left (Exp.TxBodyErrorMissingInputs inputs) -> inputs H.=== Set.singleton firstSubTxInput
+      other -> H.annotateShow other >> H.failure
+
+hprop_balancing_rejects_insufficient_combined_sub_transaction_funds :: Property
+hprop_balancing_rejects_insufficient_combined_sub_transaction_funds =
+  watchdogProp . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \tempDir -> do
+    transactionId <- H.forAll genTxId
+    let topLevelInput = TxIn transactionId (TxIx 0)
+        firstSubTxInput = TxIn transactionId (TxIx 1)
+        secondSubTxInput = TxIn transactionId (TxIx 2)
+    address <- subTransactionPaymentAddress
+    topLevelAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 1_000_000 10_000_000)
+    firstInputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 1_000_000 10_000_000)
+    secondInputAmount <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 2_000_000 10_000_000)
+    deficit <- L.Coin <$> H.forAll (Gen.integral $ Range.constant 1_000_000 10_000_000)
+    outputsExceedInputs <- H.forAll Gen.bool
+    let inputsAndAmounts =
+          [ (topLevelInput, topLevelAmount)
+          , (firstSubTxInput, firstInputAmount)
+          , (secondSubTxInput, secondInputAmount)
+          ]
+        -- Either outputs exceed inputs before fees, or they consume all inputs
+        -- and leave nothing for the fee. The second sub-transaction balances exactly.
+        firstOutputAmount = topLevelAmount + firstInputAmount + if outputsExceedInputs then deficit else 0
+        secondOutputAmount = secondInputAmount
+    signedSubs <-
+      buildSignedSubTransactions
+        tempDir
+        address
+        [(firstSubTxInput, firstOutputAmount), (secondSubTxInput, secondOutputAmount)]
+    result <- balanceSignedSubTransactions signedSubs topLevelInput address inputsAndAmounts
+    H.cover 20 "TxBodyErrorBalanceNegative: outputs exceed inputs" $ case result of
+      Left Exp.TxBodyErrorBalanceNegative{} -> True
+      _ -> False
+    H.cover 20 "BalanceIsNegative: no funds remain for the fee" $ case result of
+      Left Exp.BalanceIsNegative{} -> True
+      _ -> False
+    -- Require the error appropriate to the generated case, rather than
+    -- accepting either error regardless of which balance check should fail.
+    case (outputsExceedInputs, result) of
+      (True, Left (Exp.TxBodyErrorBalanceNegative balance assets)) -> do
+        balance H.=== negate deficit
+        assets H.=== mempty
+      (False, Left (Exp.BalanceIsNegative balance _)) -> H.assert $ balance < 0
+      other -> H.annotateShow other >> H.failure
+
+assertBuildRejectsSubTransactionFiles
+  :: FilePath
+  -> TxIn
+  -> AddressInEra DijkstraEra
+  -> [FilePath]
+  -> String
+  -> H.PropertyT (ResourceT IO) ()
+assertBuildRejectsSubTransactionFiles tempDir input address files expectedError = do
+  outFile <- H.noteTempFile tempDir "unused"
+  -- No node listens here. Connecting before file validation would produce a
+  -- socket error instead of the expected duplicate-file or JSON error.
+  socketPath <- H.noteTempFile tempDir "missing.socket"
+  let args =
+        [ "dijkstra"
+        , "transaction"
+        , "build"
+        , "--testnet-magic"
+        , "42"
+        , "--socket-path"
+        , socketPath
+        , "--tx-in"
+        , Text.unpack $ renderTxIn input
+        , "--change-address"
+        , Text.unpack $ serialiseAddress address
+        , "--out-file"
+        , outFile
+        ]
+          ++ concatMap (\file -> ["--signed-sub-tx-file", file]) files
+  (exitCode, _, stderr) <- execDetailCardanoCLI args
+  exitCode H.=== ExitFailure 1
+  H.assertWith stderr (expectedError `isInfixOf`)
+  H.assertWith stderr (not . isInfixOf "Invalid option")
+  H.evalIO (doesFileExist outFile) >>= (H.=== False)
+
+-- Use the payment address belonging to the key used by signSubTransaction.
+subTransactionPaymentAddress :: H.PropertyT (ResourceT IO) (AddressInEra DijkstraEra)
+subTransactionPaymentAddress = do
+  key <- H.evalEither =<< H.evalIO (readFileTextEnvelope (File signingKey))
+  -- The test file contains a genesis UTxO key, also usable for payment inputs.
+  let paymentKey = castVerificationKey $ getVerificationKey (key :: SigningKey GenesisUTxOKey)
+  pure $
+    makeShelleyAddressInEra
+      ShelleyBasedEraDijkstra
+      (Testnet $ NetworkMagic 42)
+      (PaymentCredentialByKey $ verificationKeyHash paymentKey)
+      NoStakeAddress
+
+-- Every input and output amount comes from the caller; no input is added here.
+buildSignedSubTransaction
+  :: FilePath
+  -> TxIn
+  -> AddressInEra DijkstraEra
+  -> L.Coin
+  -> [String]
+  -> H.PropertyT (ResourceT IO) Exp.SignedSubTx
+buildSignedSubTransaction signedFile input address outputAmount extraArgs = do
+  let unsignedFile = signedFile ++ ".unsigned"
+  void
+    $ execCardanoCLI
+    $ [ "dijkstra"
+      , "sub-transaction"
+      , "build-raw"
+      , "--tx-in"
+      , Text.unpack $ renderTxIn input
+      , "--tx-out"
+      , Text.unpack (serialiseAddress address) ++ "+" ++ show (L.unCoin outputAmount)
+      , "--out-file"
+      , unsignedFile
+      ]
+      ++ extraArgs
+  signSubTransaction unsignedFile signingKey signedFile
+  H.evalEither =<< H.evalIO (readFileTextEnvelope (File signedFile))
+
+-- Build files in the caller's order, using the supplied spending inputs and
+-- output amounts. This helper does not create UTxO entries or reorder the files.
+buildSignedSubTransactions
+  :: FilePath
+  -> AddressInEra DijkstraEra
+  -> [(TxIn, L.Coin)]
+  -> H.PropertyT (ResourceT IO) [Exp.SignedSubTx]
+buildSignedSubTransactions tempDir address inputsAndOutputAmounts =
+  forM (zip [1 :: Int ..] inputsAndOutputAmounts) $ \(index, (input, amount)) -> do
+    signedFile <- H.noteTempFile tempDir $ "sub-" ++ show index ++ ".signed"
+    buildSignedSubTransaction signedFile input address amount []
+
+-- Exercise the CLI body constructor and API balancer with exactly the signed
+-- sub-transactions, top level input and UTxO entries supplied by the test.
+balanceSignedSubTransactions
+  :: [Exp.SignedSubTx]
+  -> TxIn
+  -> AddressInEra DijkstraEra
+  -> [(TxIn, L.Coin)]
+  -> H.PropertyT
+       (ResourceT IO)
+       ( Either
+           (Exp.TxBodyErrorAutoBalance (Exp.LedgerEra DijkstraEra))
+           (Exp.UnsignedTx (Exp.LedgerEra DijkstraEra))
+       )
+balanceSignedSubTransactions signedSubTransactions topLevelInput address inputsAndAmounts = do
+  let params =
+        (L.PParams L.emptyPParamsIdentity :: L.PParams (Exp.LedgerEra DijkstraEra))
+          & L.ppProtocolVersionL .~ L.ProtVer (L.eraProtVerLow @(Exp.LedgerEra DijkstraEra)) 0
+          & L.ppMaxTxSizeL .~ 16_384
+          & L.ppTxFeePerByteL .~ L.CoinPerByte (L.CompactCoin 44)
+          & L.ppTxFeeFixedL .~ 155_381
+  -- No explicit top level outputs: all remaining funds become change.
+  content <-
+    H.evalEither $
+      constructTxBodyContent @DijkstraEra
+        signedSubTransactions
+        Nothing
+        (Just params)
+        [(topLevelInput, Exp.AnyKeyWitnessPlaceholder)]
+        []
+        []
+        Nothing
+        Nothing
+        []
+        Nothing
+        (TxValidityUpperBound ShelleyBasedEraDijkstra Nothing)
+        (mempty, [])
+        []
+        []
+        []
+        []
+        []
+        (DijkstraGuards Exp.emptyTxGuards)
+        0
+        TxAuxScriptsNone
+        TxMetadataNone
+        []
+        []
+        Nothing
+        Nothing
+        mempty
+  let output value = L.mkBasicTxOut (toShelleyAddr address) (L.MaryValue value mempty)
+      utxo = Map.fromList [(toShelleyTxIn input, output amount) | (input, amount) <- inputsAndAmounts]
+      balance =
+        Exp.makeTransactionBodyAutoBalance
+          (SystemStart $ posixSecondsToUTCTime 0)
+          (LedgerEpochInfo $ Slotting.fixedEpochInfo (Slotting.EpochSize 100) (Slotting.mkSlotLength 1_000))
+          params
+          mempty
+          mempty
+          (L.UTxO utxo)
+          content
+          address
+          Nothing
+  pure $ fst <$> balance
