@@ -96,8 +96,8 @@ hprop_check_node_configuration_failure = do
             [ "Error reading the genesis file"
             , "genesis.alonzo.spec.json"
             , "AlonzoGenesisFile"
-            , Text.unpack alonzoGenesisHash
-            , Text.unpack wrongHash
+            , Text.unpack $
+                "the file's hash is " <> alonzoGenesisHash <> ", but the configuration gives " <> wrongHash
             ]
       )
       $ \expected -> H.assertWith stderr (expected `isInfixOf`)
@@ -152,7 +152,9 @@ hprop_check_node_configuration_dijkstra =
         writeChangedNodeConfig tempDir (inputDir </> "node-config.json") $
           enableDijkstra . withDijkstraGenesis wrongHash
       stderr <- checkNodeConfigurationFails finalInputConfig
-      forM_ ["genesis.dijkstra.spec.json", dijkstraGenesisHash, wrongHash] $ \expected ->
+      let mismatch =
+            "the file's hash is " <> dijkstraGenesisHash <> ", but the configuration gives " <> wrongHash
+      forM_ ["genesis.dijkstra.spec.json", mismatch] $ \expected ->
         H.assertWith stderr (Text.unpack expected `isInfixOf`)
 
     -- No Dijkstra genesis

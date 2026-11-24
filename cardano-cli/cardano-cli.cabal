@@ -257,7 +257,7 @@ library
     canonical-json,
     cardano-api ^>=11.12,
     cardano-binary,
-    cardano-config ^>=2.2.2,
+    cardano-config ^>=2.2.4,
     cardano-crypto,
     cardano-crypto-class ^>=2.6,
     cardano-crypto-wrapper ^>=1.8,
