@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
@@ -42,6 +43,7 @@ import Cardano.Api.Ledger qualified as Alonzo
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Ledger qualified as Ledger
 
+import Cardano.CLI.Compatible.Exception (CIO, fromEitherIOCli)
 import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
@@ -81,12 +83,14 @@ import Lens.Micro ((^.))
 import Vary (Vary)
 import Vary qualified
 
+-- | Write a value in a user-friendly format. Throws if the output cannot be
+-- written.
 friendly
-  :: (MonadIO m, Aeson.ToJSON a)
+  :: Aeson.ToJSON a
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> a
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendly format mOutFile value = do
   output <-
     pure
@@ -98,34 +102,31 @@ friendly format mOutFile value = do
           )
       $ value
 
-  writeLazyByteStringOutput mOutFile output
+  fromEitherIOCli @(FileError ()) $ writeLazyByteStringOutput mOutFile output
 
 friendlyTx
-  :: MonadIO m
-  => Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> Exp.Era era
   -> Exp.SignedTx era
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendlyTx format mOutFile era tx = do
   pairs <- runWarningIO $ friendlyTxImpl era tx
   friendly format mOutFile $ object pairs
 
 friendlyTxBody
-  :: MonadIO m
-  => Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> Exp.Era era
   -> Exp.UnsignedTx (Exp.LedgerEra era)
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendlyTxBody format mOutFile era unsignedTx = do
   pairs <- runWarningIO $ friendlyTxBodyImpl era unsignedTx
   friendly format mOutFile $ object pairs
 
 -- | Write a sub-transaction in a user-friendly format.
 friendlySubTx
-  :: MonadIO m
-  => Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -- ^ The output format, JSON or YAML
   -> Maybe (File () Out)
   -- ^ The output file, or 'Nothing' for stdout
@@ -133,17 +134,16 @@ friendlySubTx
   -- ^ Whether to show the witnesses: If 'Signed', we show the witnesses or null if it does not have any; if 'Unsigned', we ignore the witnesses
   -> L.Tx C.SubTx (Exp.LedgerEra Exp.DijkstraEra)
   -- ^ The sub-transaction to show
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendlySubTx format mOutFile signedness =
   friendly format mOutFile . renderSubTransaction signedness
 
 friendlyProposal
-  :: MonadIO m
-  => Exp.IsEra era
+  :: Exp.IsEra era
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> Proposal era
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendlyProposal format mOutFile =
   friendly format mOutFile . object . friendlyProposalImpl
 
@@ -695,12 +695,11 @@ friendlyStakeReference = \case
   StakeAddressByValue cred -> object [friendlyStakeCredential $ toShelleyStakeCredential cred]
 
 friendlyCertificate
-  :: MonadIO m
-  => Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> Exp.Era era
   -> Exp.Certificate (Exp.LedgerEra era)
-  -> m (Either (FileError e) ())
+  -> CIO e ()
 friendlyCertificate format mOutFile era cert = do
   let certValue = friendlyCertificateImpl era cert
   friendly format mOutFile certValue

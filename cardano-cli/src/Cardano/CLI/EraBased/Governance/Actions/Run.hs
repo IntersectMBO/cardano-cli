@@ -74,7 +74,7 @@ runGovernanceActionViewCmd
     proposal :: (Proposal era, Exp.AnyWitness (Exp.LedgerEra era)) <-
       readProposal (actionFile, Nothing)
 
-    void $ friendlyProposal outputFormat mOutFile $ fst proposal
+    friendlyProposal outputFormat mOutFile $ fst proposal
 
 runGovernanceActionInfoCmd
   :: forall era e

@@ -1,7 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraIndependent.Debug.TransactionView.Run
   ( runTransactionViewCmd
@@ -42,7 +41,7 @@ runTransactionViewCmd
         txBodyOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txbodyFile
         case txBodyOrSubTx of
           SubTx subTx ->
-            fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Unsigned subTx
+            friendlySubTx outputFormat mOutFile Unsigned subTx
           TopTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) (ShelleyTx _ ledgerTx)) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             -- Why are we differentiating between a transaction body and a transaction?
@@ -52,18 +51,16 @@ runTransactionViewCmd
             -- is arguably not part of the transaction body.
             let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
                 unsignedTx = Exp.obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
-            fromEitherIOCli @(FileError ()) $
-              friendlyTxBody outputFormat mOutFile era unsignedTx
+            friendlyTxBody outputFormat mOutFile era unsignedTx
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
         txOrSubTx <- fromEitherIOCli $ readFileTxOrSubTx txFile
         case txOrSubTx of
           SubTx subTx ->
-            fromEitherIOCli @(FileError ()) $ friendlySubTx outputFormat mOutFile Signed subTx
+            friendlySubTx outputFormat mOutFile Signed subTx
           TopTx (InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) tx) -> do
             era <- fromEitherCli (Exp.sbeToEra sbe)
             let ShelleyTx _ ledgerTx = tx
                 signedTx :: Exp.SignedTx era
                 signedTx = Exp.obtainCommonConstraints era $ Exp.SignedTx ledgerTx
-            fromEitherIOCli @(FileError ()) $
-              friendlyTx outputFormat mOutFile era signedTx
+            friendlyTx outputFormat mOutFile era signedTx
