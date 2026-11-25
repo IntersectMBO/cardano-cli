@@ -39,7 +39,16 @@
     "sub-transactions": [
         {
             "account balance intervals": null,
-            "auxiliary scripts": "(StrictSeq {fromStrict = fromList [MkDijkstraNativeScript DijkstraRequireSignature (KeyHash {unKeyHash = \"dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239\"}) (blake2b_256: SafeHash \"4244695e25832fe6e9cb69031ddd37444e6880f3cd6a90531ad2d5c08cf6abfa\"),MkDijkstraNativeScript DijkstraRequireAllOf (StrictSeq {fromStrict = fromList [MkDijkstraNativeScript DijkstraRequireSignature (KeyHash {unKeyHash = \"24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d\"}) (blake2b_256: SafeHash \"0000000000000000000000000000000000000000000000000000000000000000\"),MkDijkstraNativeScript DijkstraTimeStart (SlotNo 1000) (blake2b_256: SafeHash \"0000000000000000000000000000000000000000000000000000000000000000\")]}) (blake2b_256: SafeHash \"61a16a77ce7bfa062df490d6b3778d09d3d7b3b949747143c71d605858d5d5b1\")]},fromList [])",
+            "auxiliary scripts": [
+                {
+                    "script": "(Signature KeyHash {unKeyHash = \"dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239\"})",
+                    "type": "native"
+                },
+                {
+                    "script": "(AllOf (Start >= 1000) (Signature KeyHash {unKeyHash = \"24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d\"}) )",
+                    "type": "native"
+                }
+            ],
             "certificates": null,
             "currentTreasuryValue": null,
             "datums": [],

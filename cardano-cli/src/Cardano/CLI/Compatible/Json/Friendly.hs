@@ -581,27 +581,29 @@ renderDats tx =
 friendlyScript
   :: L.AlonzoEraScript (Exp.LedgerEra era)
   => Ledger.Script (Exp.LedgerEra era) -> Aeson.Value
-friendlyScript script = Aeson.Object $
-  KeyMap.fromList $
-    case Ledger.getNativeScript script of
-      Just nativeScript ->
-        [ ("type", "native")
-        , ("script", Aeson.String $ T.pack $ Ledger.showTimelock nativeScript)
-        ]
-      Nothing ->
-        ( case Ledger.toPlutusScript script of
-            Just plutusScript ->
-              Ledger.withPlutusScript plutusScript
-                $ friendlyPlutusScript
-                $ Ledger.plutusScriptLanguage plutusScript
-            Nothing -> [("error", Aeson.String "Unsupported script type")]
-        )
- where
-  friendlyPlutusScript :: Ledger.Language -> Ledger.Plutus l -> [(KeyMap.Key, Aeson.Value)]
-  friendlyPlutusScript language plutusScript =
-    [ ("type", "plutus")
-    , ("plutus version", Aeson.String $ Ledger.languageToText language)
-    , ("script", Aeson.String $ Ledger.serializeAsHexText $ Ledger.plutusBinary plutusScript)
+friendlyScript script =
+  case Ledger.getNativeScript script of
+    Just nativeScript -> friendlyNativeScript nativeScript
+    Nothing ->
+      case Ledger.toPlutusScript script of
+        Just plutusScript ->
+          Ledger.withPlutusScript plutusScript $
+            friendlyPlutusScript (Ledger.plutusScriptLanguage plutusScript) . Ledger.plutusBinary
+        Nothing -> Aeson.Object $ KeyMap.fromList [("error", Aeson.String "Unsupported script type")]
+
+friendlyNativeScript :: L.AllegraEraScript era => L.NativeScript era -> Aeson.Value
+friendlyNativeScript nativeScript =
+  object
+    [ "type" .= Aeson.String "native"
+    , "script" .= Ledger.showTimelock nativeScript
+    ]
+
+friendlyPlutusScript :: Ledger.Language -> L.PlutusBinary -> Aeson.Value
+friendlyPlutusScript language binary =
+  object
+    [ "type" .= Aeson.String "plutus"
+    , "plutus version" .= Ledger.languageToText language
+    , "script" .= Ledger.serializeAsHexText binary
     ]
 
 -- | Create a friendly JSON out of a datum
@@ -1023,8 +1025,9 @@ friendlyMetadatum = \case
       [array [friendlyMetadatum k, friendlyMetadatum v] | (k, v) <- m]
   L.S text -> toJSON text
 
--- | Render aux-data scripts. Conway+ aux data exposes native (timelock) and
--- Plutus scripts. Matches the old API's @textShow scripts@ shape.
+-- | Render aux-data scripts: one entry for each script, like the script data
+-- of a witness script. Native scripts come first, then Plutus scripts by
+-- language.
 friendlyAuxScripts
   :: Exp.Era era
   -> Maybe (L.TxAuxData (Exp.LedgerEra era))
@@ -1035,16 +1038,16 @@ friendlyAuxScripts era (Just aux) = case era of
   Exp.DijkstraEra -> renderAux aux
  where
   renderAux
-    :: ( L.AlonzoEraTxAuxData ledgerEra
-       , Show (C.NativeScript ledgerEra)
-       )
+    :: (L.AlonzoEraTxAuxData ledgerEra, L.AllegraEraScript ledgerEra)
     => L.TxAuxData ledgerEra -> Aeson.Value
   renderAux ad =
-    let nat = ad ^. L.nativeScriptsTxAuxDataL
-        plut = ad ^. L.plutusScriptsTxAuxDataL
-     in if null nat && Map.null plut
-          then Null
-          else String (textShow (nat, plut))
+    case map friendlyNativeScript (toList (ad ^. L.nativeScriptsTxAuxDataL))
+      <> [ friendlyPlutusScript language binary
+         | (language, binaries) <- Map.toList (ad ^. L.plutusScriptsTxAuxDataL)
+         , binary <- toList binaries
+         ] of
+      [] -> Null
+      scripts -> array scripts
 
 friendlyDRep :: L.DRep -> Aeson.Value
 friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
