@@ -1,7 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraIndependent.Debug.CertificateView.Run
   ( runCertificateViewCmd
@@ -37,8 +36,7 @@ runCertificateViewCmd
       liftIO $ fileOrPipe $ unCertificateFile inputCertificateFile
     AnyCertificate era certificate <-
       fromEitherIOCli $ readCertificate certificateFile
-    fromEitherIOCli @(FileError ()) $
-      friendlyCertificate outputFormat mOutFile era certificate
+    friendlyCertificate outputFormat mOutFile era certificate
 
 data AnyCertificate where
   AnyCertificate

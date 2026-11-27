@@ -1,0 +1,6 @@
+description: '`governance action view` fails when it cannot write its output, instead of ignoring the error. The `friendly*` functions in `Cardano.CLI.Compatible.Json.Friendly` throw on a write error instead of returning `Either`.'
+kind:
+- breaking
+- bugfix
+pr: 1509
+project: cardano-cli

@@ -1,0 +1,5 @@
+description: '`transaction view` prints `auxiliary scripts` as a list with one entry for each script, in the format of the `script data` of a witness set script, instead of one string of Haskell `show` text. Update scripts that read it.'
+kind:
+- breaking
+pr: 1509
+project: cardano-cli

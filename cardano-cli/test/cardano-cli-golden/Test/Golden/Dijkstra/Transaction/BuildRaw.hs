@@ -108,6 +108,12 @@ hprop_golden_dijkstra_build_raw_plutus_v4_script_witnesses =
         , "1"
         , "--proposal-execution-units"
         , "(100,110)"
+        , "--guard-script-file"
+        , v4Script
+        , "--guard-redeemer-value"
+        , "1"
+        , "--guard-execution-units"
+        , "(100,110)"
         , "--tx-out"
         , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+15000000"
         , "--fee"

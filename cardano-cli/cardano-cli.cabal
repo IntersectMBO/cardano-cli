@@ -309,7 +309,6 @@ library
     utf8-string,
     validation ^>=1.2,
     vary ^>=0.1.1.2,
-    vector,
     yaml,
 
 executable cardano-cli
@@ -378,6 +377,7 @@ test-suite cardano-cli-test
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-diffusion:ping,
+    cardano-ledger-api,
     cardano-ledger-core,
     cardano-ledger-dijkstra,
     cardano-slotting,
@@ -424,6 +424,7 @@ test-suite cardano-cli-test
     Test.Cli.Hash
     Test.Cli.ITN
     Test.Cli.Json
+    Test.Cli.Json.Friendly
     Test.Cli.MonadWarning
     Test.Cli.Parser
     Test.Cli.Ping

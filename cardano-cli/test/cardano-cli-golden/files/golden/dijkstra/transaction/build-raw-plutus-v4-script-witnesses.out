@@ -24,7 +24,8 @@ governance actions:
     credential:
       keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
     network: Testnet
-guards: null
+guards:
+- scriptHash: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#200
 metadata: null
@@ -99,6 +100,13 @@ redeemers:
         credential:
           keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
         network: Testnet
+  redeemer:
+    data: I 1
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    guarding script: 31a78786b5989dc6fd2d4ab15b297069e94106ecacceb8eb29e1b681
   redeemer:
     data: I 1
     execution units:

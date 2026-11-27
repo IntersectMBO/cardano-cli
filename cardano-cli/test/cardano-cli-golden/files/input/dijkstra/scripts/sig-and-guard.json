@@ -1,0 +1,15 @@
+{
+  "type": "all",
+  "scripts": [
+    {
+      "type": "sig",
+      "keyHash": "8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605"
+    },
+    {
+      "type": "guard",
+      "credential": {
+        "scriptHash": "186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4"
+      }
+    }
+  ]
+}

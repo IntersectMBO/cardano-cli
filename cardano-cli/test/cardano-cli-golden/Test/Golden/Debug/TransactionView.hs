@@ -216,6 +216,39 @@ goldenDijkstraGuards format =
         ["debug", "transaction", "view", "--tx-body-file", bodyFile, "--output-" ++ format]
     H.diffVsGoldenFile result $ goldenDir </> "dijkstra/transaction-view-guards." ++ format
 
+hprop_golden_debug_transaction_view_dijkstra_guard_native_scripts_json :: Property
+hprop_golden_debug_transaction_view_dijkstra_guard_native_scripts_json =
+  goldenDijkstraGuardNativeScripts "json"
+
+hprop_golden_debug_transaction_view_dijkstra_guard_native_scripts_yaml :: Property
+hprop_golden_debug_transaction_view_dijkstra_guard_native_scripts_yaml =
+  goldenDijkstraGuardNativeScripts "yaml"
+
+-- | A native script with a signature and a guard, as a minting policy (so it is
+-- in the witness set) and as an auxiliary script.
+goldenDijkstraGuardNativeScripts :: String -> Property
+goldenDijkstraGuardNativeScripts format =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    bodyFile <- H.noteTempFile tempDir "tx.body"
+    let script = inputDir </> "dijkstra/scripts/sig-and-guard.json"
+        policyId = "fe219e6f040bc1939649e830c681683c919ec8cf3712497e14b474c8"
+        input = "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
+        output = "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+5000000"
+    void
+      $ execCardanoCLI
+      $ concat
+        [ ["dijkstra", "transaction", "build-raw"]
+        , ["--tx-in", input, "--tx-out", output, "--fee", "200000"]
+        , ["--mint", "1 " ++ policyId, "--mint-script-file", script]
+        , ["--auxiliary-script-file", script]
+        , ["--out-file", bodyFile]
+        ]
+    result <-
+      execCardanoCLI
+        ["debug", "transaction", "view", "--tx-body-file", bodyFile, "--output-" ++ format]
+    H.diffVsGoldenFile result $
+      goldenDir </> "dijkstra/transaction-view-guard-native-scripts." ++ format
+
 -- | A sub-transaction with two key witnesses and a mint under a native script policy.
 hprop_golden_debug_transaction_view_dijkstra_sub_tx_witnesses_mint_json :: Property
 hprop_golden_debug_transaction_view_dijkstra_sub_tx_witnesses_mint_json =
