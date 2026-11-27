@@ -1,0 +1,5 @@
+description: '`transaction view` reads transactions through the cardano-api transaction view instead of ledger lenses. The output is the same, except the error shown for a redeemer that points at no item, which now says what is missing, like `Could not find the input at index 7`.'
+kind:
+- refactoring
+pr: 1509
+project: cardano-cli

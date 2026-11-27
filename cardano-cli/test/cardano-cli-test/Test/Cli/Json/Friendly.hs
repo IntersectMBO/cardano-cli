@@ -1,8 +1,10 @@
 module Test.Cli.Json.Friendly
   ( hprop_friendly_auxiliary_plutus_scripts
+  , hprop_friendly_dangling_redeemer
   )
 where
 
+import Cardano.Api (ScriptData (ScriptDataNumber), toAlonzoData, unsafeHashableScriptData)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -15,7 +17,9 @@ import Cardano.Ledger.Plutus.Language qualified as Plutus
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson ((.=))
 import Data.Aeson qualified as Aeson
+import Data.Aeson.KeyMap qualified as KeyMap
 import Data.ByteString.Short qualified as SBS
+import Data.Foldable (toList)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Map.Strict qualified as Map
 import Lens.Micro ((&), (.~))
@@ -45,3 +49,18 @@ hprop_friendly_auxiliary_plutus_scripts = H.propertyOnce $ do
               ]
           ]
       )
+
+-- | A redeemer that points past the last input: the view says what is missing.
+hprop_friendly_dangling_redeemer :: Property
+hprop_friendly_dangling_redeemer = H.propertyOnce $ do
+  let pointer :: L.PlutusPurpose L.AsIx (Exp.LedgerEra Exp.ConwayEra)
+      pointer = L.ConwaySpending (L.AsIx 7)
+      redeemer = (toAlonzoData (unsafeHashableScriptData (ScriptDataNumber 42)), L.ExUnits 0 0)
+      tx =
+        Ledger.mkBasicTx Ledger.mkBasicTxBody
+          & Ledger.witsTxL . L.rdmrsTxWitsL .~ L.Redeemers (Map.singleton pointer redeemer)
+  pairs <- liftIO . runWarningIO $ friendlyTxBodyImpl Exp.ConwayEra (Exp.UnsignedTx tx)
+  let purposes = case lookup "redeemers" pairs of
+        Just (Aeson.Array redeemers) -> [KeyMap.lookup "purpose" fields | Aeson.Object fields <- toList redeemers]
+        _ -> []
+  purposes === [Just (Aeson.object ["error" .= Aeson.String "Could not find the input at index 7"])]

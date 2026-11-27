@@ -309,7 +309,6 @@ library
     utf8-string,
     validation ^>=1.2,
     vary ^>=0.1.1.2,
-    vector,
     yaml,
 
 executable cardano-cli
