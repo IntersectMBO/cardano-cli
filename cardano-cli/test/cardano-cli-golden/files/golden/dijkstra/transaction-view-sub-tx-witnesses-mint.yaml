@@ -65,7 +65,9 @@ sub-transactions:
   required top-level guards: null
   scripts:
   - script data:
-      script: (Signature KeyHash {unKeyHash = "d95bce222ed0f4bc9e436c85f651cf205ac7817b74f922e717a9e2e8"})
+      script:
+        keyHash: d95bce222ed0f4bc9e436c85f651cf205ac7817b74f922e717a9e2e8
+        type: sig
       type: native
     script hash: f47b811c2b6eb6a3ef9a65ef46204b1034c7640d440ea2d859f4aed0
   treasuryDonation: 0

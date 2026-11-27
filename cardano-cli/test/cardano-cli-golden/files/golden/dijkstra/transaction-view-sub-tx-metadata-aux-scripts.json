@@ -41,11 +41,26 @@
             "account balance intervals": null,
             "auxiliary scripts": [
                 {
-                    "script": "(Signature KeyHash {unKeyHash = \"dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239\"})",
+                    "script": {
+                        "keyHash": "dbdb6806416eb1771e853858591359fd70bade8a2a9cc7ff152b7239",
+                        "type": "sig"
+                    },
                     "type": "native"
                 },
                 {
-                    "script": "(AllOf (Start >= 1000) (Signature KeyHash {unKeyHash = \"24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d\"}) )",
+                    "script": {
+                        "scripts": [
+                            {
+                                "keyHash": "24581a2d28e973e409acd4c2db18eeee0f3ee3bb98b087e2ef3f861d",
+                                "type": "sig"
+                            },
+                            {
+                                "slot": 1000,
+                                "type": "after"
+                            }
+                        ],
+                        "type": "all"
+                    },
                     "type": "native"
                 }
             ],

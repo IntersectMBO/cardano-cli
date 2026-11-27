@@ -1,0 +1,6 @@
+description: '`transaction view` prints native scripts, in `scripts` and `auxiliary scripts`, as JSON in the format of script files instead of text. This fixes a crash on Dijkstra native scripts that have a guard, and sub-scripts are printed in their order instead of reversed. Update scripts that read them.'
+kind:
+- breaking
+- bugfix
+pr: 1509
+project: cardano-cli

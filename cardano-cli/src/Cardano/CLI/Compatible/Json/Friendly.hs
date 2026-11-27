@@ -359,7 +359,7 @@ alonzoScriptWitnessPairs era wits =
     era
     [ "redeemers" .= map (renderRedeemer era) (Exp.twvRedeemers wits)
     , "scripts"
-        .= [ object ["script hash" .= scriptHash, "script data" .= friendlyScript script]
+        .= [ object ["script hash" .= scriptHash, "script data" .= friendlyScript era script]
            | (scriptHash, script) <- Map.toList (Exp.twvScripts wits)
            ]
     , "datums"
@@ -467,21 +467,28 @@ renderPurpose era redeemer = case Exp.trvItem redeemer of
 
 -- | Create a friendly JSON out of a script
 friendlyScript
-  :: L.AllegraEraScript (Exp.LedgerEra era)
-  => Exp.TxScriptView (Exp.LedgerEra era) -> Aeson.Value
-friendlyScript = \case
+  :: Exp.Era era
+  -> Exp.TxScriptView (Exp.LedgerEra era)
+  -> Aeson.Value
+friendlyScript era = \case
   Exp.UndecodedScript undecoded -> friendlyUndecodedPlutusScript undecoded
-  Exp.DecodedScript (Exp.AnySimpleScript (Exp.SimpleScript nativeScript)) -> friendlyNativeScript nativeScript
+  Exp.DecodedScript (Exp.AnySimpleScript (Exp.SimpleScript nativeScript)) -> friendlyNativeScript era nativeScript
   Exp.DecodedScript (Exp.AnyPlutusScript (Exp.PlutusScriptInEra runnable)) ->
     let plutus = Plutus.plutusFromRunnable runnable
      in friendlyPlutusScript (Plutus.plutusLanguage plutus) (L.plutusBinary plutus)
 
-friendlyNativeScript :: L.AllegraEraScript era => L.NativeScript era -> Aeson.Value
-friendlyNativeScript nativeScript =
+-- | A native script, in the JSON format of script files.
+friendlyNativeScript :: Exp.Era era -> L.NativeScript (Exp.LedgerEra era) -> Aeson.Value
+friendlyNativeScript era nativeScript =
   object
     [ "type" .= Aeson.String "native"
-    , "script" .= Ledger.showTimelock nativeScript
+    , "script" .= simpleScript
     ]
+ where
+  simpleScript :: SimpleScript
+  simpleScript = case era of
+    Exp.ConwayEra -> fromAllegraTimelock nativeScript
+    Exp.DijkstraEra -> fromDijkstraNativeScript nativeScript
 
 friendlyPlutusScript :: Ledger.Language -> L.PlutusBinary -> Aeson.Value
 friendlyPlutusScript language binary =
@@ -915,7 +922,7 @@ friendlyMetadatum = \case
 friendlyAuxScripts :: Exp.Era era -> Exp.BodyView l (Exp.LedgerEra era) -> Aeson.Value
 friendlyAuxScripts era body =
   Exp.obtainCommonConstraints era $
-    case [friendlyNativeScript nativeScript | Exp.SimpleScript nativeScript <- Exp.bvAuxScripts body]
+    case [friendlyNativeScript era nativeScript | Exp.SimpleScript nativeScript <- Exp.bvAuxScripts body]
       <> map friendlyUndecodedPlutusScript (Exp.bvAuxPlutusScripts body) of
       [] -> Null
       scripts -> array scripts
