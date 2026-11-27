@@ -56,7 +56,7 @@ import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
 import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 import Cardano.Ledger.Dijkstra.TxBody qualified as L
-import Cardano.Ledger.Keys (coerceKeyRole)
+import Cardano.Ledger.Keys qualified as L (coerceKeyRole)
 
 import Control.Applicative ((<|>))
 import Data.Aeson (Value (..), object, (.=))
@@ -68,10 +68,10 @@ import Data.ByteString.Char8 qualified as BSC
 import Data.Char (isAscii)
 import Data.Foldable (asum)
 import Data.Function ((&))
+import Data.List (sort)
 import Data.Map.Strict qualified as Map
 import Data.Maybe
 import Data.Ratio (denominator, numerator)
-import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Typeable (Typeable)
@@ -213,32 +213,35 @@ friendlyTxBodyImpl
   => Exp.Era era
   -> Exp.UnsignedTx (Exp.LedgerEra era)
   -> m [Aeson.Pair]
-friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
+friendlyTxBodyImpl era unsignedTx@(Exp.UnsignedTx ledgerTx) =
   pure
     $ Exp.obtainCommonConstraints era
-    $ let body = ledgerTx ^. L.bodyTxL
-       in [ "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
-          , "collateral inputs" .= renderCollateralInputs body
-          , "total collateral" .= toJSON (strictMaybeToMaybe (body ^. L.totalCollateralTxBodyL))
-          , "return collateral" .= friendlyReturnCollateral era (body ^. L.collateralReturnTxBodyL)
+    $ let view = Exp.viewUnsignedTx era unsignedTx
+          top = Exp.bvTopTxOnlyFields (Exp.tvBody view)
+       in [ "fee" .= friendlyLovelace (Exp.ttvFee top)
+          , "collateral inputs" .= Exp.ttvInsCollateral top
+          , "total collateral" .= fmap Exp.unTxTotalCollateral (Exp.ttvTotalCollateral top)
+          , "return collateral" .= maybe Null (friendlyTxOut era) (Exp.ttvReturnCollateral top)
           ]
-            <> sharedTxPairs era ledgerTx
-            <> dijkstraTopLevelPairs era body
+            <> sharedTxPairs era ledgerTx view
+            <> dijkstraTopLevelPairs era ledgerTx top
 
 -- | Pairs for both top-level transactions and sub-transactions.
 sharedTxPairs
   :: Exp.Era era
   -> L.Tx l (Exp.LedgerEra era)
+  -> Exp.TxView l (Exp.LedgerEra era)
   -> [Aeson.Pair]
-sharedTxPairs era ledgerTx =
+sharedTxPairs era ledgerTx view =
   Exp.obtainCommonConstraints era $
-    let body = ledgerTx ^. L.bodyTxL
-        mAuxData = strictMaybeToMaybe (ledgerTx ^. L.auxDataTxL)
-     in basePairs era body mAuxData
-          <> [ "validity range" .= renderValidityInterval (body ^. L.vldtTxBodyL)
-             , "mint" .= renderMaryMint (body ^. L.mintTxBodyL)
-             , renderReqSigners body
-             , "reference inputs" .= renderReferenceInputs body
+    let body = Exp.tvBody view
+     in basePairs era body
+          <> [ "validity range"
+                 .= renderValidityInterval (Exp.bvValidityLowerBound body) (Exp.bvValidityUpperBound body)
+             , "mint" .= renderMint (Exp.bvMintValue body)
+             , "required signers (payment key hashes needed for scripts)"
+                 .= friendlyExtraKeyWits (requiredSigners era body)
+             , "reference inputs" .= Exp.bvInsReference body
              ]
           <> alonzoScriptWitnessPairs era ledgerTx
           <> conwayBodyPairs body
@@ -246,19 +249,19 @@ sharedTxPairs era ledgerTx =
 
 dijkstraBodyPairs
   :: Exp.Era era
-  -> L.TxBody l (Exp.LedgerEra era)
+  -> Exp.BodyView l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 dijkstraBodyPairs era body = case era of
   Exp.ConwayEra -> []
   Exp.DijkstraEra ->
-    [ "direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ body ^. L.directDepositsTxBodyL)
+    [ "direct deposits" .= friendlyAccountAmounts (L.unDirectDeposits $ Exp.bvDirectDeposits body)
     , "account balance intervals"
-        .= friendlyAccountBalanceIntervals (body ^. L.accountBalanceIntervalsTxBodyL)
-    , "guards" .= case toList (body ^. L.guardsTxBodyL) of
+        .= friendlyAccountBalanceIntervals (Exp.bvAccountBalanceIntervals body)
+    , "guards" .= case Exp.bvGuards body of
         [] -> Null
         guards -> toJSON guards
     , "required top-level guards"
-        .= friendlyRequiredTopLevelGuards (body ^. L.requiredTopLevelGuardsL)
+        .= friendlyRequiredTopLevelGuards (Exp.bvRequiredTopLevelGuards body)
     ]
 
 friendlyRequiredTopLevelGuards
@@ -274,14 +277,15 @@ friendlyRequiredTopLevelGuards guards
 -- | Only a top-level transaction has starting account balance intervals and sub-transactions.
 dijkstraTopLevelPairs
   :: Exp.Era era
-  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> L.Tx C.TopTx (Exp.LedgerEra era)
+  -> Exp.TopTxOnlyFieldsView C.TopTx (Exp.LedgerEra era)
   -> [Aeson.Pair]
-dijkstraTopLevelPairs era body = case era of
+dijkstraTopLevelPairs era ledgerTx top = case era of
   Exp.ConwayEra -> []
   Exp.DijkstraEra ->
     [ "starting account balance intervals"
-        .= friendlyAccountBalanceIntervals (body ^. L.startingAccountBalanceIntervalsTxBodyL)
-    , "sub-transactions" .= case toList (body ^. L.subTransactionsTxBodyL) of
+        .= friendlyAccountBalanceIntervals (Exp.ttvStartingAccountBalanceIntervals top)
+    , "sub-transactions" .= case toList (ledgerTx ^. L.bodyTxL . L.subTransactionsTxBodyL) of
         [] -> Null
         subTransactions -> array $ map (renderSubTransaction Signed) subTransactions
     ]
@@ -295,7 +299,7 @@ renderSubTransaction signedness subTx =
     [ "id" .= serialiseToRawBytesHexText (Exp.getSignedSubTxId (Exp.SignedSubTx subTx))
     ]
       <> keyWitnessPairs Exp.DijkstraEra signedness subTx
-      <> sharedTxPairs Exp.DijkstraEra subTx
+      <> sharedTxPairs Exp.DijkstraEra subTx (Exp.viewSignedSubTx (Exp.SignedSubTx subTx))
 
 friendlyAccountBalanceIntervals :: L.AccountBalanceIntervals era -> Aeson.Value
 friendlyAccountBalanceIntervals (L.AccountBalanceIntervals intervals)
@@ -335,64 +339,37 @@ friendlyAccountBalanceInterval = \case
       , "coin" .= friendlyLovelace coin
       ]
 
-renderCollateralInputs
-  :: L.AlonzoEraTxBody (Exp.LedgerEra era)
-  => L.TxBody C.TopTx (Exp.LedgerEra era)
-  -> Aeson.Value
-renderCollateralInputs body =
-  toJSON (map fromShelleyTxIn (toList (body ^. L.collateralInputsTxBodyL)))
-
-renderReqSigners
-  :: L.AlonzoEraTxBody (Exp.LedgerEra era)
-  => L.TxBody l (Exp.LedgerEra era)
-  -> Aeson.Pair
-renderReqSigners body =
-  "required signers (payment key hashes needed for scripts)"
-    .= friendlyExtraKeyWits (body ^. L.reqSignerHashesTxBodyG)
-
-renderReferenceInputs
-  :: L.BabbageEraTxBody (Exp.LedgerEra era)
-  => L.TxBody l (Exp.LedgerEra era)
-  -> Aeson.Value
-renderReferenceInputs body =
-  toJSON (map fromShelleyTxIn (toList (body ^. L.referenceInputsTxBodyL)))
-
 -- | Pairs that are present in every Conway-onwards era.
 basePairs
   :: forall era l
    . Exp.Era era
-  -> L.TxBody l (Exp.LedgerEra era)
-  -> Maybe (L.TxAuxData (Exp.LedgerEra era))
+  -> Exp.BodyView l (Exp.LedgerEra era)
   -> [Aeson.Pair]
-basePairs era body mAuxData =
-  Exp.obtainCommonConstraints era $
-    let certs = toList (body ^. L.certsTxBodyL)
-     in [ "auxiliary scripts" .= friendlyAuxScripts era mAuxData
-        , "certificates"
-            .= if null certs
-              then Null
-              else array [friendlyCertificateImpl era (Exp.Certificate cert) | cert <- certs]
-        , "era" .= (convert era :: CardanoEra era)
-        , "inputs" .= toJSON (map fromShelleyTxIn (toList (body ^. L.inputsTxBodyL)))
-        , "metadata" .= friendlyMetadata mAuxData
-        , "outputs"
-            .= map
-              (friendlyTxOut era . Exp.TxOut)
-              (toList (body ^. L.outputsTxBodyL))
-        , "withdrawals" .= friendlyWithdrawals (body ^. L.withdrawalsTxBodyL)
-        ]
+basePairs era body =
+  [ "auxiliary scripts" .= friendlyAuxScripts era body
+  , "certificates" .= case Exp.bvCertificates body of
+      [] -> Null
+      certs -> array [friendlyCertificateImpl era cert | cert <- certs]
+  , "era" .= (convert era :: CardanoEra era)
+  , "inputs" .= Exp.bvIns body
+  , "metadata" .= friendlyMetadata (Exp.bvMetadata body)
+  , "outputs" .= map (friendlyTxOut era) (Exp.bvOuts body)
+  , "withdrawals" .= friendlyWithdrawals (Exp.bvWithdrawals body)
+  ]
 
-renderValidityInterval :: L.ValidityInterval -> Aeson.Value
-renderValidityInterval (L.ValidityInterval invalidBefore invalidHereafter) =
+renderValidityInterval :: Maybe L.SlotNo -> Maybe L.SlotNo -> Aeson.Value
+renderValidityInterval lowerBound upperBound =
   object
-    [ "lower bound" .= toJSON (strictMaybeToMaybe invalidBefore)
-    , "upper bound" .= toJSON (strictMaybeToMaybe invalidHereafter)
+    [ "lower bound" .= lowerBound
+    , "upper bound" .= upperBound
     ]
 
-renderMaryMint :: L.MultiAsset -> Aeson.Value
-renderMaryMint ma
-  | ma == mempty = Null
-  | otherwise = friendlyValue (fromMultiAsset ma)
+renderMint :: Map.Map PolicyId PolicyAssets -> Aeson.Value
+renderMint mint
+  | Map.null mint = Null
+  | otherwise =
+      friendlyValue
+        (mconcat [policyAssetsToValue policyId assets | (policyId, assets) <- Map.toList mint])
 
 alonzoScriptWitnessPairs
   :: L.AlonzoEraTx (Exp.LedgerEra era)
@@ -407,22 +384,18 @@ alonzoScriptWitnessPairs era tx =
 
 conwayBodyPairs
   :: forall era l
-   . ( L.ConwayEraTxBody (Exp.LedgerEra era)
-     , Typeable era
+   . ( Typeable era
      , Exp.IsEra era
      , L.EraTx (Exp.LedgerEra era)
      )
-  => L.TxBody l (Exp.LedgerEra era)
+  => Exp.BodyView l (Exp.LedgerEra era)
   -> [Aeson.Pair]
 conwayBodyPairs body =
   [ "governance actions"
-      .= friendlyLedgerProposals
-        (Exp.useEra @era)
-        (toList (body ^. L.proposalProceduresTxBodyL))
-  , "voters" .= toJSON (body ^. L.votingProceduresTxBodyL)
-  , "currentTreasuryValue"
-      .= toJSON (strictMaybeToMaybe (body ^. L.currentTreasuryValueTxBodyL))
-  , "treasuryDonation" .= toJSON (body ^. L.treasuryDonationTxBodyL)
+      .= friendlyLedgerProposals (Exp.useEra @era) (Exp.bvProposalProcedures body)
+  , "voters" .= toJSON (Exp.bvVotingProcedures body)
+  , "currentTreasuryValue" .= toJSON (Exp.bvCurrentTreasuryValue body)
+  , "treasuryDonation" .= toJSON (Exp.bvTreasuryDonation body)
   ]
 
 friendlyLedgerProposals
@@ -610,37 +583,43 @@ friendlyPlutusScript language binary =
 friendlyDatum :: L.Era era => Alonzo.Data era -> Aeson.Value
 friendlyDatum (Alonzo.Data datum) = Aeson.String (T.pack $ show datum)
 
-friendlyReturnCollateral
-  :: forall era
-   . Exp.Era era
-  -> L.StrictMaybe (L.TxOut (Exp.LedgerEra era))
-  -> Aeson.Value
-friendlyReturnCollateral era = \case
-  L.SNothing -> Aeson.Null
-  L.SJust collOut ->
-    Exp.obtainCommonConstraints era $
-      friendlyTxOut era (Exp.TxOut collOut)
+-- | Keys that must sign the transaction: the required signers in Conway, the
+-- key guards from Dijkstra on, sorted like the ledger's set of required signer
+-- hashes.
+requiredSigners :: Exp.Era era -> Exp.BodyView l (Exp.LedgerEra era) -> [Hash PaymentKey]
+requiredSigners era body = case era of
+  Exp.ConwayEra -> case Exp.bvTopTxOnlyFields body of
+    Exp.TopTxView{Exp.ttvExtraKeyWits = Exp.TxExtraKeyWitnesses keys} -> keys
+    Exp.NoTopTxFields -> []
+  Exp.DijkstraEra ->
+    [ PaymentKeyHash (L.coerceKeyRole keyHash)
+    | keyHash <- sort [kh | L.KeyHashObj kh <- Exp.bvGuards body]
+    ]
 
-friendlyExtraKeyWits :: Set.Set (L.KeyHash L.Guard) -> Aeson.Value
-friendlyExtraKeyWits keyhashes
-  | Set.null keyhashes = Null
-  | otherwise = toJSON [PaymentKeyHash (coerceKeyRole kh) | kh <- Set.toList keyhashes]
+friendlyExtraKeyWits :: [Hash PaymentKey] -> Aeson.Value
+friendlyExtraKeyWits [] = Null
+friendlyExtraKeyWits keyHashes = toJSON keyHashes
 
-friendlyWithdrawals :: L.Withdrawals -> Aeson.Value
-friendlyWithdrawals (L.Withdrawals ws) = friendlyAccountAmounts ws
+friendlyWithdrawals :: [(StakeAddress, Lovelace)] -> Aeson.Value
+friendlyWithdrawals [] = Null
+friendlyWithdrawals withdrawals =
+  array [friendlyAccountAmount addr amount | (addr, amount) <- withdrawals]
 
 friendlyAccountAmounts :: Map.Map L.AccountAddress Lovelace -> Aeson.Value
 friendlyAccountAmounts ws
   | Map.null ws = Null
   | otherwise =
       array
-        [ object $
-            "address" .= serialiseAddress addr
-              : "amount" .= friendlyLovelace amount
-              : friendlyStakeAddress addr
+        [ friendlyAccountAmount (fromShelleyStakeAddr rewardAccount) amount
         | (rewardAccount, amount) <- Map.toList ws
-        , let addr = fromShelleyStakeAddr rewardAccount
         ]
+
+friendlyAccountAmount :: StakeAddress -> Lovelace -> Aeson.Value
+friendlyAccountAmount addr amount =
+  object $
+    "address" .= serialiseAddress addr
+      : "amount" .= friendlyLovelace amount
+      : friendlyStakeAddress addr
 
 friendlyStakeAddress :: StakeAddress -> [Aeson.Pair]
 friendlyStakeAddress (StakeAddress net cred) =
@@ -1003,16 +982,10 @@ friendlyValue v =
       nameIsAscii = BSC.all (\c -> isAscii c && isAlphaNum c) nameBS
       nameAscii = Text.pack $ BSC.unpack nameBS
 
-friendlyMetadata
-  :: forall era
-   . L.EraTxAuxData era
-  => Maybe (L.TxAuxData era) -> Aeson.Value
-friendlyMetadata Nothing = Null
-friendlyMetadata (Just auxData) =
-  let m = auxData ^. L.metadataTxAuxDataL
-   in if Map.null m
-        then Null
-        else toJSON $ friendlyMetadatum <$> m
+friendlyMetadata :: TxMetadata -> Aeson.Value
+friendlyMetadata (TxMetadata metadata)
+  | Map.null metadata = Null
+  | otherwise = toJSON $ friendlyMetadatum <$> toShelleyMetadata metadata
 
 friendlyMetadatum :: L.Metadatum -> Aeson.Value
 friendlyMetadatum = \case
@@ -1027,26 +1000,17 @@ friendlyMetadatum = \case
 -- | Render aux-data scripts: one entry for each script, like the script data
 -- of a witness script. Native scripts come first, then Plutus scripts by
 -- language.
-friendlyAuxScripts
-  :: Exp.Era era
-  -> Maybe (L.TxAuxData (Exp.LedgerEra era))
-  -> Aeson.Value
-friendlyAuxScripts _ Nothing = Null
-friendlyAuxScripts era (Just aux) = case era of
-  Exp.ConwayEra -> renderAux aux
-  Exp.DijkstraEra -> renderAux aux
- where
-  renderAux
-    :: (L.AlonzoEraTxAuxData ledgerEra, L.AllegraEraScript ledgerEra)
-    => L.TxAuxData ledgerEra -> Aeson.Value
-  renderAux ad =
-    case map friendlyNativeScript (toList (ad ^. L.nativeScriptsTxAuxDataL))
-      <> [ friendlyPlutusScript language binary
-         | (language, binaries) <- Map.toList (ad ^. L.plutusScriptsTxAuxDataL)
-         , binary <- toList binaries
-         ] of
+friendlyAuxScripts :: Exp.Era era -> Exp.BodyView l (Exp.LedgerEra era) -> Aeson.Value
+friendlyAuxScripts era body =
+  Exp.obtainCommonConstraints era $
+    case [friendlyNativeScript nativeScript | Exp.SimpleScript nativeScript <- Exp.bvAuxScripts body]
+      <> map friendlyUndecodedPlutusScript (Exp.bvAuxPlutusScripts body) of
       [] -> Null
       scripts -> array scripts
+
+friendlyUndecodedPlutusScript :: Exp.UndecodedPlutusScript -> Aeson.Value
+friendlyUndecodedPlutusScript (Exp.UndecodedPlutusScript version (PlutusScriptSerialised bytes)) =
+  friendlyPlutusScript (toAlonzoLanguage (AnyPlutusScriptVersion version)) (L.PlutusBinary bytes)
 
 friendlyDRep :: L.DRep -> Aeson.Value
 friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
