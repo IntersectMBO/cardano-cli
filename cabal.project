@@ -78,6 +78,15 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+-- Temporary: the transaction view from the cardano-api branch tx-view-tools,
+-- until a cardano-api release has it.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 3201c4618671121efc4574f7f6dcc415e7f7ef2b
+  --sha256: sha256-ZSBftetCG1UTUMZTRlESVKOiozZoKOjp5wMFIrhBUHE=
+  subdir: cardano-api
+
 -- Allow network-mux 0.11 from SRP (cardano-ping 0.10 on CHaP expects ^>=0.10)
 -- Allow grapesy deps with updated bounds (matching cardano-node)
 allow-newer:
