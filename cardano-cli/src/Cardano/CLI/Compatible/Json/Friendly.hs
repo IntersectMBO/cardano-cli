@@ -417,8 +417,12 @@ renderRedeemerData redeemerData ExecutionUnits{executionSteps, executionMemory} 
 -- | Render what a redeemer is for: the item it witnesses, or an error when the
 -- body has no item at the redeemer's index.
 renderPurpose :: Exp.Era era -> Exp.TxRedeemerView (Exp.LedgerEra era) -> Aeson.Value
-renderPurpose era redeemer = case Exp.trvItem redeemer of
-  Nothing ->
+renderPurpose era redeemer =
+  maybe missingItem renderItem $ Exp.trvItem redeemer
+ where
+  renderItem (Exp.AnyWitnessable item) = Exp.obtainCommonConstraints era $ renderWitnessable item
+
+  missingItem =
     Aeson.object
       [ "error"
           .= Aeson.String
@@ -428,10 +432,7 @@ renderPurpose era redeemer = case Exp.trvItem redeemer of
                 <> textShow (Exp.trvIndex redeemer)
             )
       ]
-  Just (Exp.AnyWitnessable item) -> case era of
-    Exp.ConwayEra -> renderWitnessable item
-    Exp.DijkstraEra -> renderWitnessable item
- where
+
   renderWitnessable
     :: (ToJSON (C.TxCert ledgerEra), ToJSON (L.ProposalProcedure ledgerEra))
     => Exp.Witnessable thing ledgerEra -> Aeson.Value
@@ -490,12 +491,12 @@ friendlyNativeScript era nativeScript =
     Exp.ConwayEra -> fromAllegraTimelock nativeScript
     Exp.DijkstraEra -> fromDijkstraNativeScript nativeScript
 
-friendlyPlutusScript :: Ledger.Language -> L.PlutusBinary -> Aeson.Value
+friendlyPlutusScript :: L.Language -> L.PlutusBinary -> Aeson.Value
 friendlyPlutusScript language binary =
   object
     [ "type" .= Aeson.String "plutus"
-    , "plutus version" .= Ledger.languageToText language
-    , "script" .= Ledger.serializeAsHexText binary
+    , "plutus version" .= L.languageToText language
+    , "script" .= L.serializeAsHexText binary
     ]
 
 -- | Create a friendly JSON out of a datum
