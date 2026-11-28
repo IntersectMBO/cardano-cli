@@ -1,0 +1,5 @@
+description: Print a genesis hash mismatch in `debug check-node-configuration` as both hashes in words, instead of the Haskell error value.
+kind:
+- bugfix
+pr: 1508
+project: cardano-cli
